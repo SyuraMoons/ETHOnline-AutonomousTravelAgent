@@ -1,0 +1,50 @@
+[
+  {
+    "offerId": "flt_001",
+    "origin": "SIN",
+    "destination": "NRT",
+    "departUtc": "2026-10-12T01:20:00.000Z",
+    "arriveUtc": "2026-10-12T09:05:00.000Z",
+    "airline": "ANA",
+    "flightNumber": "NH845",
+    "priceMinor": 42500,
+    "currency": "USD",
+    "seatsAvailable": 9
+  },
+  {
+    "offerId": "flt_002",
+    "origin": "SIN",
+    "destination": "NRT",
+    "departUtc": "2026-10-12T14:10:00.000Z",
+    "arriveUtc": "2026-10-12T22:00:00.000Z",
+    "airline": "Singapore Airlines",
+    "flightNumber": "SQ638",
+    "priceMinor": 58000,
+    "currency": "USD",
+    "seatsAvailable": 3
+  },
+  {
+    "offerId": "flt_003",
+    "origin": "NRT",
+    "destination": "SIN",
+    "departUtc": "2026-10-19T10:35:00.000Z",
+    "arriveUtc": "2026-10-19T16:50:00.000Z",
+    "airline": "ANA",
+    "flightNumber": "NH846",
+    "priceMinor": 44000,
+    "currency": "USD",
+    "seatsAvailable": 12
+  },
+  {
+    "offerId": "flt_004",
+    "origin": "NRT",
+    "destination": "SIN",
+    "departUtc": "2026-10-19T23:15:00.000Z",
+    "arriveUtc": "2026-10-20T05:30:00.000Z",
+    "airline": "Scoot",
+    "flightNumber": "TR872",
+    "priceMinor": 21750,
+    "currency": "USD",
+    "seatsAvailable": 27
+  }
+]

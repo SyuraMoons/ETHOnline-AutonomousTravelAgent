@@ -46,3 +46,7 @@ coverage
 
 # working docs not meant for the public repo
 Rayban-Build-Spec.pdf
+
+# supplier flight cache — scraper output lands here; seed file stays tracked
+/data/cache/**
+!/data/cache/flights.json

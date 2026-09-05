@@ -5,7 +5,9 @@
   "workspaces": {
     "packages": [
       "packages/hardhat",
-      "packages/nextjs"
+      "packages/nextjs",
+      "packages/contracts",
+      "packages/supplier"
     ]
   },
   "scripts": {
@@ -14,6 +16,11 @@
     "infra:down": "sh -c 'if docker compose version >/dev/null 2>&1; then docker compose down; else docker-compose down; fi'",
     "infra:logs": "sh -c 'if docker compose version >/dev/null 2>&1; then docker compose logs -f; else docker-compose logs -f; fi'",
     "facilitator:check-types": "cd facilitator && npm run check-types",
+    "contracts:check-types": "npm run check-types -w @sh/contracts --",
+    "supplier:dev": "npm run dev -w @sh/supplier --",
+    "supplier:build": "npm run build -w @sh/supplier --",
+    "supplier:start": "npm run start -w @sh/supplier --",
+    "supplier:check-types": "npm run check-types -w @sh/supplier --",
     "hardhat:account": "npm run account -w @sh/hardhat --",
     "hardhat:account:generate": "npm run account:generate -w @sh/hardhat --",
     "hardhat:account:import": "npm run account:import -w @sh/hardhat --",
