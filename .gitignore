@@ -1,0 +1,9 @@
+node_modules
+.next
+dist
+.env
+.env.local
+*.tsbuildinfo
+/data/cache/**
+!/data/cache/flights.json
+.DS_Store
