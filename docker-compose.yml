@@ -1,0 +1,18 @@
+# Local infrastructure:
+#   - facilitator  : self-hosted x402 Hedera facilitator (verify/settle)
+#
+# Start with `npm run infra:up`, stop with `npm run infra:down`.
+# Values are read from the repo-root `.env` (see `.env.example`).
+
+services:
+  facilitator:
+    build: ./facilitator
+    ports:
+      - "${FACILITATOR_PORT:-4020}:4020"
+    environment:
+      PORT: 4020
+      X402_NETWORK: ${X402_NETWORK:-hedera:testnet}
+      FACILITATOR_ACCOUNT_ID: ${FACILITATOR_ACCOUNT_ID}
+      FACILITATOR_PRIVATE_KEY: ${FACILITATOR_PRIVATE_KEY}
+      HEDERA_NODE_URL: ${HEDERA_NODE_URL:-}
+    restart: unless-stopped

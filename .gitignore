@@ -1,0 +1,48 @@
+# dependencies
+node_modules
+
+# npm
+.npm/*
+!.npm/patches
+!.npm/plugins
+!.npm/releases
+!.npm/sdks
+!.npm/versions
+
+# eslint
+.eslintcache
+
+# misc
+.DS_Store
+
+# local env
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode
+.idea
+
+# cli
+dist
+
+# hardhat build artifacts
+packages/hardhat/artifacts
+packages/hardhat/cache
+packages/hardhat/typechain-types
+
+# next.js build output
+packages/nextjs/.next
+next-env.d.ts
+
+# typescript incremental build info
+*.tsbuildinfo
+
+# logs / coverage
+*.log
+coverage
+.vercel
+
+# working docs not meant for the public repo
+Rayban-Build-Spec.pdf

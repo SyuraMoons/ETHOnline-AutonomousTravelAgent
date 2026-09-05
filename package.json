@@ -1,0 +1,53 @@
+{
+  "name": "sh",
+  "version": "0.0.1",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "packages/hardhat",
+      "packages/nextjs"
+    ]
+  },
+  "scripts": {
+    "format": "npm run next:format -- && npm run hardhat:format --",
+    "infra:up": "sh -c 'if docker compose version >/dev/null 2>&1; then docker compose up -d --build; else docker-compose up -d --build; fi'",
+    "infra:down": "sh -c 'if docker compose version >/dev/null 2>&1; then docker compose down; else docker-compose down; fi'",
+    "infra:logs": "sh -c 'if docker compose version >/dev/null 2>&1; then docker compose logs -f; else docker-compose logs -f; fi'",
+    "facilitator:check-types": "cd facilitator && npm run check-types",
+    "hardhat:account": "npm run account -w @sh/hardhat --",
+    "hardhat:account:generate": "npm run account:generate -w @sh/hardhat --",
+    "hardhat:account:import": "npm run account:import -w @sh/hardhat --",
+    "hardhat:account:reveal-pk": "npm run account:reveal-pk -w @sh/hardhat --",
+    "hardhat:chain": "npm run chain -w @sh/hardhat --",
+    "hardhat:check-types": "npm run check-types -w @sh/hardhat --",
+    "hardhat:clean": "npm run clean -w @sh/hardhat --",
+    "hardhat:compile": "npm run compile -w @sh/hardhat --",
+    "hardhat:deploy": "npm run deploy -w @sh/hardhat --",
+    "hardhat:flatten": "npm run flatten -w @sh/hardhat --",
+    "hardhat:fork": "npm run fork -w @sh/hardhat --",
+    "hardhat:format": "npm run format -w @sh/hardhat --",
+    "hardhat:lint": "npm run lint -w @sh/hardhat --",
+    "hardhat:lint-staged": "npm run lint-staged -w @sh/hardhat --",
+    "hardhat:test": "npm run test -w @sh/hardhat --",
+    "hardhat:verify": "npm run verify -w @sh/hardhat --",
+    "hardhat:verify:testnet": "npm run verify:testnet -w @sh/hardhat --",
+    "hardhat:verify:mainnet": "npm run verify:mainnet -w @sh/hardhat --",
+    "lint": "npm run next:lint -- && npm run hardhat:lint --",
+    "next:build": "npm run build -w @sh/nextjs --",
+    "next:check-types": "npm run check-types -w @sh/nextjs --",
+    "next:dev": "npm run dev -w @sh/nextjs --",
+    "next:format": "npm run format -w @sh/nextjs --",
+    "next:lint": "npm run lint -w @sh/nextjs --",
+    "next:serve": "npm run serve -w @sh/nextjs --",
+    "next:start": "npm run start -w @sh/nextjs --",
+    "x402:buy": "npm run x402:buy -w @sh/nextjs --"
+  },
+  "packageManager": "npm@10.0.0",
+  "devDependencies": {
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10"
+  },
+  "engines": {
+    "node": ">=20.18.3"
+  }
+}
