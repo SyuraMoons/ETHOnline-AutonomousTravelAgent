@@ -1,0 +1,89 @@
+"use client";
+
+// Sign-in card
+import { type ReactNode, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { MailIcon, WalletIcon } from "../ui/icons";
+import { GithubGlyph, GoogleGlyph } from "../ui/brandGlyphs";
+
+function OAuthButton({ icon, label, onClick }: { icon: ReactNode; label: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex items-center justify-center gap-2 rounded-lg border border-av-paper/15 bg-av-paper/5 py-3 text-[14px] font-medium text-av-paper transition-colors hover:bg-av-paper/10"
+    >
+      {icon}
+      {label}
+    </button>
+  );
+}
+
+export function SignInCard() {
+  const [email, setEmail] = useState("");
+  const router = useRouter();
+  const enterApp = () => router.push("/plan");
+
+  return (
+    <div className="w-full max-w-[420px] rounded-2xl bg-av-ink p-8 text-av-paper">
+      <h1 className="text-[22px] font-semibold">Sign in to your account</h1>
+      <p className="mt-1.5 font-mono text-[11px] uppercase tracking-[0.06em] text-av-paper/50">
+        Don&apos;t have an account yet?{" "}
+        <Link href="/login" className="text-av-paper underline underline-offset-2">
+          Register
+        </Link>
+      </p>
+
+      <form
+        className="mt-6"
+        onSubmit={e => {
+          e.preventDefault();
+          enterApp();
+        }}
+      >
+        <label htmlFor="email" className="text-[13px] text-av-paper/70">
+          Email
+        </label>
+        <div className="mt-1.5 flex items-center gap-2 rounded-lg border border-av-paper/15 bg-av-paper/5 px-3">
+          <MailIcon size={16} className="text-av-paper/50" />
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            placeholder="you@email.com"
+            className="w-full bg-transparent py-3 text-[14px] text-av-paper outline-none placeholder:text-av-paper/40"
+          />
+        </div>
+        <button
+          type="submit"
+          className="mt-4 w-full rounded-full bg-av-paper py-3 text-[14px] font-semibold text-av-ink transition-opacity hover:opacity-90"
+        >
+          Continue
+        </button>
+      </form>
+
+      <div className="my-5 flex items-center gap-3">
+        <span className="h-px flex-1 bg-av-paper/15" />
+        <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-av-paper/40">or sign in with</span>
+        <span className="h-px flex-1 bg-av-paper/15" />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <OAuthButton icon={<GoogleGlyph size={16} />} label="Google" onClick={enterApp} />
+        <OAuthButton icon={<GithubGlyph size={15} className="text-av-paper" />} label="Github" onClick={enterApp} />
+      </div>
+
+      <button
+        type="button"
+        onClick={enterApp}
+        className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-av-paper/15 bg-av-paper/5 py-3 text-[14px] font-medium text-av-paper transition-colors hover:bg-av-paper/10"
+      >
+        <WalletIcon size={16} className="text-av-paper/80" />
+        Connect wallet
+      </button>
+      <p className="mt-2 text-center text-[11px] text-av-paper/40">MetaMask, WalletConnect and more</p>
+    </div>
+  );
+}
