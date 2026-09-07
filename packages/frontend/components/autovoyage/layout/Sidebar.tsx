@@ -1,13 +1,15 @@
 "use client";
 
 // Sidebar
-import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { hederaNamespace } from "@hashgraph/hedera-wallet-connect";
+import { useAppKit } from "@reown/appkit/react";
 import type { TripContext } from "~~/types/autovoyage/plan";
 import { formatUsd } from "~~/services/autovoyage/currency";
+import { useHederaWalletConnect } from "~~/services/web3/hederaWalletConnect";
+import { getParsedError, notification } from "~~/utils/scaffold-hbar";
 import { Wordmark } from "../brand/Wordmark";
-import { WalletModal } from "../wallet/WalletModal";
 import { CompassIcon, PulseIcon, ShieldIcon, WalletIcon } from "../ui/icons";
 
 const NAV = [
@@ -21,10 +23,12 @@ export function Sidebar({ context }: { context: TripContext }) {
   const { budget, trip } = context;
   const remainingMinor = budget.totalMinor - budget.spentMinor;
   const pct = budget.totalMinor > 0 ? Math.round((budget.spentMinor / budget.totalMinor) * 100) : 0;
-  const [walletOpen, setWalletOpen] = useState(false);
+  const { open } = useAppKit();
+  const { accountId, isConnected, isBusy, disconnectWallet } = useHederaWalletConnect();
+  const shortAccount = accountId ? `${accountId.slice(0, 6)}...${accountId.slice(-4)}` : null;
 
   return (
-    <aside className="flex w-[236px] flex-shrink-0 flex-col gap-6 border-r border-av-border bg-av-card px-4 py-5">
+    <aside className="sticky top-0 flex h-svh w-[236px] flex-shrink-0 flex-col gap-6 self-start overflow-y-auto border-r border-av-border bg-av-card px-4 py-5">
       <div className="px-1">
         <Wordmark href="/plan" />
       </div>
@@ -75,18 +79,44 @@ export function Sidebar({ context }: { context: TripContext }) {
       </div>
 
       <div>
-        <button
-          type="button"
-          onClick={() => setWalletOpen(true)}
-          className="flex w-full items-center justify-center gap-2 rounded bg-av-blue py-2.5 text-[14px] font-medium text-av-paper transition-colors hover:bg-av-blue-hover"
-        >
-          <WalletIcon size={16} />
-          Connect wallet
-        </button>
-        <p className="m-0 mt-2 text-center text-[11px] text-av-muted">MetaMask, WalletConnect and more</p>
+        {isConnected ? (
+          <div className="rounded border border-av-border p-3">
+            <div className="flex items-center justify-between gap-2">
+              <span className="flex min-w-0 items-center gap-2 text-[13px] font-medium text-av-text">
+                <WalletIcon size={16} />
+                <span className="truncate" title={accountId ?? undefined}>
+                  {shortAccount}
+                </span>
+              </span>
+              <button
+                type="button"
+                onClick={() => void disconnectWallet()}
+                disabled={isBusy}
+                className="flex-shrink-0 text-[12px] font-medium text-av-muted underline-offset-2 hover:text-av-text hover:underline disabled:opacity-50"
+              >
+                {isBusy ? "…" : "Disconnect"}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <button
+              type="button"
+              onClick={() => {
+                void open({ view: "Connect", namespace: hederaNamespace }).catch(e => {
+                  notification.error(getParsedError(e));
+                });
+              }}
+              disabled={isBusy}
+              className="flex w-full items-center justify-center gap-2 rounded bg-av-blue py-2.5 text-[14px] font-medium text-av-paper transition-colors hover:bg-av-blue-hover disabled:opacity-60"
+            >
+              <WalletIcon size={16} />
+              {isBusy ? "Connecting…" : "Connect wallet"}
+            </button>
+            <p className="m-0 mt-2 text-center text-[11px] text-av-muted">HashPack via WalletConnect</p>
+          </>
+        )}
       </div>
-
-      <WalletModal open={walletOpen} onClose={() => setWalletOpen(false)} />
     </aside>
   );
 }
