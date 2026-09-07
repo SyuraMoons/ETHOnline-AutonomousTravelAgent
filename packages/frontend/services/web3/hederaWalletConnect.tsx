@@ -40,9 +40,15 @@ export const HederaWalletConnectProvider = ({ children }: { children: React.Reac
   const [isBusy, setIsBusy] = useState(false);
   /** Bumps when the WC provider session or AppKit account state changes. */
   const [sessionTick, setSessionTick] = useState(0);
+  /** Local override so disconnect reflects immediately even if the SDK never fires its session events. */
+  const [forceDisconnected, setForceDisconnected] = useState(false);
   const { address: appKitHederaAddress, isConnected: appKitHederaConnected } = useAppKitAccount({
     namespace: hederaNamespace,
   });
+
+  useEffect(() => {
+    if (appKitHederaConnected) setForceDisconnected(false);
+  }, [appKitHederaConnected]);
 
   useEffect(() => {
     let mounted = true;
@@ -95,6 +101,7 @@ export const HederaWalletConnectProvider = ({ children }: { children: React.Reac
     } catch (error) {
       console.error("HashPack disconnect failed", error);
     } finally {
+      setForceDisconnected(true);
       setSessionTick(t => t + 1);
       setIsBusy(false);
     }
@@ -104,6 +111,10 @@ export const HederaWalletConnectProvider = ({ children }: { children: React.Reac
 
   const { hederaAccountId, hederaSessionReady, isConnected } = useMemo(() => {
     void sessionTick;
+
+    if (forceDisconnected) {
+      return { hederaAccountId: null, hederaSessionReady: false, isConnected: false };
+    }
 
     const fromProvider = getHederaAccountIdFromSession(provider);
     const fromAppKit = appKitHederaConnected && appKitHederaAddress ? parseHederaAccountId(appKitHederaAddress) : null;
@@ -116,7 +127,7 @@ export const HederaWalletConnectProvider = ({ children }: { children: React.Reac
       hederaSessionReady: sessionReady,
       isConnected: connected,
     };
-  }, [sessionTick, provider, appKitHederaConnected, appKitHederaAddress]);
+  }, [sessionTick, provider, appKitHederaConnected, appKitHederaAddress, forceDisconnected]);
 
   const value = useMemo<HederaWalletConnectContextValue>(
     () => ({
