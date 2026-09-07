@@ -1,7 +1,11 @@
 // Approval focus (face check)
+"use client";
+
+import { useRef } from "react";
 import Link from "next/link";
 import type { ApprovalBooking } from "~~/types/autovoyage/plan";
 import { formatUsd } from "~~/services/autovoyage/currency";
+import { useBeat } from "~~/hooks/autovoyage/useBeat";
 import { StatusPill } from "../ui/StatusPill";
 
 export function ApprovalFocus({
@@ -13,13 +17,21 @@ export function ApprovalFocus({
   cancelHref?: string;
   confirmHref?: string;
 }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useBeat(ref, (gsap, el) => {
+    const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
+    tl.from(el.querySelector("[data-emph]"), { scale: 0.96, opacity: 0, duration: 0.5, transformOrigin: "center" }, 0);
+    tl.from(el.querySelector("[data-camera]"), { scale: 0.95, opacity: 0, duration: 0.5 }, 0.1);
+    return tl;
+  });
+
   return (
-    <div className="rounded border border-av-border bg-av-card">
+    <div ref={ref} className="beat rounded border border-av-border bg-av-card">
       <div className="mx-auto flex max-w-[560px] flex-col items-center px-6 py-14 text-center">
         <StatusPill tone="needs">Needs approval</StatusPill>
         <h1 className="mt-4 text-[24px] font-semibold text-av-text">Confirm this booking</h1>
 
-        <div className="mt-6 w-full rounded bg-av-bg px-6 py-5">
+        <div data-emph className="mt-6 w-full rounded bg-av-bg px-6 py-5">
           <p className="m-0 text-[14px] text-av-muted">
             {booking.name} · {booking.nights} nights
           </p>
@@ -27,7 +39,10 @@ export function ApprovalFocus({
           <p className="m-0 mt-1 text-[13px] font-medium text-av-amber">{booking.note}</p>
         </div>
 
-        <div className="mt-6 flex aspect-square w-[240px] flex-col items-center justify-end gap-2 overflow-hidden rounded border-2 border-dashed border-av-blue/50 bg-av-blue-tint/40 pb-0">
+        <div
+          data-camera
+          className="mt-6 flex aspect-square w-[240px] flex-col items-center justify-end gap-2 overflow-hidden rounded border-2 border-dashed border-av-blue/50 bg-av-blue-tint/40 pb-0"
+        >
           <span className="h-16 w-16 rounded-full bg-av-border/70" />
           <span className="h-20 w-32 rounded-t-full bg-av-border/70" />
         </div>

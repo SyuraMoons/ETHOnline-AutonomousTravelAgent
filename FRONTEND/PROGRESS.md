@@ -69,6 +69,17 @@ Landing polish:
 - [x] Performance: warm routes serve in ~0.26–0.36s; only dev first-compile is slower (prod build
       is instant). App is lightweight — no heavy lists/loops; images via next/image.
 
+## Motion pass (GSAP — done, on branch `feat/gsap-motion`)
+- [x] CSS-first + GSAP lazy on 4 signature beats: hero entrance, planning stepper, approval gate,
+      booking-confirmed reveal (`hooks/autovoyage/useBeat.ts`, `gsap` 3.13.0 pinned).
+- [x] Light: GSAP is a code-split chunk loaded at runtime only when a beat mounts (`/`, `/plan`,
+      `/approve`, `/chat`); zero GSAP on `/login`, `/activity`, `/audit`, `/itinerary`.
+- [x] No-flash: `.beat` hidden only when JS active (root-layout `js` class) + revealed on mount;
+      falls back to visible with no JS / reduced motion. CSS scroll reveals on landing sections
+      (`useReveal` + `Reveal`, IntersectionObserver, no GSAP). Reduced-motion off-switch in CSS.
+- [x] Verified: all routes 200; hero staggers in + settles correctly; booking modal beat correct.
+- Spec: `docs/superpowers/specs/2026-09-07-gsap-ui-motion-design.md`.
+
 ## Run locally
 - Frontend workspace folder renamed `packages/nextjs` → **`packages/frontend`** (workspace name
   stays `@sh/nextjs`; scripts unchanged). Root workspaces path updated. `packages/` is back at the

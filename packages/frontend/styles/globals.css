@@ -173,3 +173,38 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* AutoVoyage motion — CSS scroll reveal (docs/superpowers/specs/2026-09-07-gsap-ui-motion-design.md).
+   Gated behind .js so content is visible when JS is off; revealed by IntersectionObserver otherwise. */
+.js .reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease;
+  will-change: opacity, transform;
+}
+.js .reveal.is-revealed {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+/* GSAP beat: hide the container only when JS is active, so it can animate in without a flash.
+   No JS (no .js class) -> visible. useBeat reveals it inline on mount (or on GSAP load failure). */
+.js .beat {
+  opacity: 0;
+}
+
+/* Motion off-switch: no reveal, no hidden beats under reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .js .reveal,
+  .js .reveal.is-revealed {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .js .beat {
+    opacity: 1;
+  }
+}

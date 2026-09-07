@@ -1,15 +1,23 @@
 // Hero
+"use client";
+
+import { useRef } from "react";
 import { MarketingNav } from "./MarketingNav";
 import { GlassPromptCard } from "./GlassPromptCard";
 import { TrustStrip } from "./TrustStrip";
+import { useBeat } from "~~/hooks/autovoyage/useBeat";
 
 const HERO_VIDEO_SRC =
   "https://pollen-batch-41236914.figma.site/_components/v2/f0ee2dae7671c170c34f12e31c4cb41418976c98/769c564298c132f7919405cd9f17c1b1231f341d.769c5642.mp4";
 
 export function Hero() {
+  const contentRef = useRef<HTMLDivElement>(null);
+  useBeat(contentRef, (gsap, el) =>
+    gsap.from(el.children, { y: 16, opacity: 0, duration: 0.6, stagger: 0.08, ease: "power3.out" }),
+  );
+
   return (
     <section className="relative min-h-svh w-full overflow-hidden bg-av-paper">
-
       <video
         className="absolute inset-0 z-0 h-full w-full object-cover"
         src={HERO_VIDEO_SRC}
@@ -27,7 +35,7 @@ export function Hero() {
 
       <div className="relative z-[2] mx-auto max-w-[1360px]">
         <MarketingNav />
-        <div className="flex flex-col items-center px-6 pb-24 pt-12 text-center">
+        <div ref={contentRef} className="beat flex flex-col items-center px-6 pb-24 pt-12 text-center">
           <span className="mb-4 font-mono text-[11px] uppercase tracking-[0.14em] text-av-blue">
             Autonomous travel, under your control
           </span>
