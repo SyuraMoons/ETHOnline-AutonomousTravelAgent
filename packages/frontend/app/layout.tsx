@@ -1,6 +1,7 @@
 // Root layout
 import "@scaffold-hbar-ui/components/styles.css";
 import { ThemeProvider } from "~~/components/ThemeProvider";
+import { AppProviders } from "~~/components/autovoyage/layout/AppProviders";
 import "~~/styles/globals.css";
 import { getMetadata } from "~~/utils/scaffold-hbar/getMetadata";
 
@@ -14,7 +15,9 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
     <html suppressHydrationWarning>
       <body>
         <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
-        <ThemeProvider enableSystem>{children}</ThemeProvider>
+        <ThemeProvider enableSystem>
+          <AppProviders>{children}</AppProviders>
+        </ThemeProvider>
       </body>
     </html>
   );

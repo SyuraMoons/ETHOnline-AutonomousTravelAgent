@@ -1,11 +1,15 @@
 "use client";
 
 // Sign-in card
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { MailIcon, WalletIcon } from "../ui/icons";
 import { GithubGlyph, GoogleGlyph } from "../ui/brandGlyphs";
+import { MailIcon, WalletIcon } from "../ui/icons";
+import { hederaNamespace } from "@hashgraph/hedera-wallet-connect";
+import { useAppKit } from "@reown/appkit/react";
+import { useHederaWalletConnect } from "~~/services/web3/hederaWalletConnect";
+import { getParsedError, notification } from "~~/utils/scaffold-hbar";
 
 function OAuthButton({ icon, label, onClick }: { icon: ReactNode; label: string; onClick: () => void }) {
   return (
@@ -24,6 +28,18 @@ export function SignInCard() {
   const [email, setEmail] = useState("");
   const router = useRouter();
   const enterApp = () => router.push("/plan");
+
+  const { open } = useAppKit();
+  const { accountId, isConnected, isBusy, disconnectWallet } = useHederaWalletConnect();
+  const shortAccount = accountId ? `${accountId.slice(0, 6)}...${accountId.slice(-4)}` : null;
+
+  useEffect(() => {
+    if (isConnected) router.push("/plan");
+  }, [isConnected, router]);
+
+  const connectWallet = () => {
+    void open({ view: "Connect", namespace: hederaNamespace }).catch(e => notification.error(getParsedError(e)));
+  };
 
   return (
     <div className="w-full max-w-[420px] rounded-2xl bg-av-ink p-8 text-av-paper">
@@ -75,15 +91,32 @@ export function SignInCard() {
         <OAuthButton icon={<GithubGlyph size={15} className="text-av-paper" />} label="Github" onClick={enterApp} />
       </div>
 
-      <button
-        type="button"
-        onClick={enterApp}
-        className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-av-paper/15 bg-av-paper/5 py-3 text-[14px] font-medium text-av-paper transition-colors hover:bg-av-paper/10"
-      >
-        <WalletIcon size={16} className="text-av-paper/80" />
-        Connect wallet
-      </button>
-      <p className="mt-2 text-center text-[11px] text-av-paper/40">MetaMask, WalletConnect and more</p>
+      {isConnected ? (
+        <div className="mt-3 flex w-full items-center justify-between gap-2 rounded-lg border border-av-paper/15 bg-av-paper/5 px-3 py-3 text-[14px] font-medium text-av-paper">
+          <span className="flex items-center gap-2">
+            <WalletIcon size={16} className="text-av-paper/80" />
+            {shortAccount}
+          </span>
+          <button
+            type="button"
+            onClick={() => void disconnectWallet()}
+            className="text-[12px] text-av-paper/50 underline underline-offset-2 hover:text-av-paper/80"
+          >
+            Disconnect
+          </button>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={connectWallet}
+          disabled={isBusy}
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-av-paper/15 bg-av-paper/5 py-3 text-[14px] font-medium text-av-paper transition-colors hover:bg-av-paper/10 disabled:opacity-60"
+        >
+          <WalletIcon size={16} className="text-av-paper/80" />
+          {isBusy ? "Connecting…" : "Connect wallet"}
+        </button>
+      )}
+      <p className="mt-2 text-center text-[11px] text-av-paper/40">HashPack via WalletConnect</p>
     </div>
   );
 }
