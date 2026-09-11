@@ -50,7 +50,10 @@
     "x402:buy": "npm run x402:buy -w @sh/nextjs --",
     "contracts:test": "npm run test -w @sh/contracts --",
     "flights:generate": "npm run flights:generate -w @sh/supplier --",
-    "supplier:test": "npm run test -w @sh/supplier --"
+    "supplier:test": "npm run test -w @sh/supplier --",
+    "stays:generate": "npm run stays:generate -w @sh/supplier --",
+    "activities:generate": "npm run activities:generate -w @sh/supplier --",
+    "data:generate": "npm run data:generate -w @sh/supplier --"
   },
   "packageManager": "npm@10.0.0",
   "devDependencies": {

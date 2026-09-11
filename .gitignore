@@ -50,5 +50,9 @@ Rayban-Build-Spec.pdf
 # supplier flight cache — scraper output lands here; seed file stays tracked
 /data/cache/**
 !/data/cache/flights.json
-# Provenance for the committed cache: which source produced it, when, what seed.
+!/data/cache/hotels.json
+!/data/cache/activities.json
+# Provenance for each committed cache: which source produced it, when, what seed.
 !/data/cache/flights.meta.json
+!/data/cache/hotels.meta.json
+!/data/cache/activities.meta.json
