@@ -3,14 +3,14 @@
 // Sidebar
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { hederaNamespace } from "@hashgraph/hedera-wallet-connect";
-import { useAppKit } from "@reown/appkit/react";
-import type { TripContext } from "~~/types/autovoyage/plan";
-import { formatUsd } from "~~/services/autovoyage/currency";
-import { useHederaWalletConnect } from "~~/services/web3/hederaWalletConnect";
-import { getParsedError, notification } from "~~/utils/scaffold-hbar";
 import { Wordmark } from "../brand/Wordmark";
 import { CompassIcon, PulseIcon, ShieldIcon, WalletIcon } from "../ui/icons";
+import { hederaNamespace } from "@hashgraph/hedera-wallet-connect";
+import { useAppKit } from "@reown/appkit/react";
+import { useHbarBalance } from "~~/hooks/autovoyage/useHbarBalance";
+import { useHederaWalletConnect } from "~~/services/web3/hederaWalletConnect";
+import type { TripContext } from "~~/types/autovoyage/plan";
+import { getParsedError, notification } from "~~/utils/scaffold-hbar";
 
 const NAV = [
   { href: "/plan", label: "Plan trip", icon: CompassIcon },
@@ -20,12 +20,11 @@ const NAV = [
 
 export function Sidebar({ context }: { context: TripContext }) {
   const pathname = usePathname();
-  const { budget, trip } = context;
-  const remainingMinor = budget.totalMinor - budget.spentMinor;
-  const pct = budget.totalMinor > 0 ? Math.round((budget.spentMinor / budget.totalMinor) * 100) : 0;
+  const { trip } = context;
   const { open } = useAppKit();
   const { accountId, isConnected, isBusy, disconnectWallet } = useHederaWalletConnect();
   const shortAccount = accountId ? `${accountId.slice(0, 6)}...${accountId.slice(-4)}` : null;
+  const { balanceHbar } = useHbarBalance(isConnected ? accountId : null);
 
   return (
     <aside className="sticky top-0 flex h-svh w-[236px] flex-shrink-0 flex-col gap-6 self-start overflow-y-auto border-r border-av-border bg-av-card px-4 py-5">
@@ -50,23 +49,6 @@ export function Sidebar({ context }: { context: TripContext }) {
           );
         })}
       </nav>
-
-      <div className="rounded border border-av-border p-3">
-        <div className="flex items-center justify-between">
-          <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-av-muted">Trip budget</span>
-          <span className="text-[13px] font-semibold text-av-blue">{formatUsd(remainingMinor)} left</span>
-        </div>
-        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-av-blue-tint">
-          <div className="h-full rounded-full bg-av-blue" style={{ width: `${pct}%` }} />
-        </div>
-        <p className="m-0 mt-2 text-[11px] text-av-muted">
-          {formatUsd(budget.spentMinor)} of {formatUsd(budget.totalMinor)} spent
-        </p>
-        <div className="mt-2 flex items-center justify-between border-t border-av-border pt-2">
-          <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-av-muted">Auto-approve</span>
-          <span className="text-[12px] font-semibold text-av-text">≤ {formatUsd(budget.autoApproveMinor)}</span>
-        </div>
-      </div>
 
       <div className="flex-1" />
 
@@ -97,6 +79,7 @@ export function Sidebar({ context }: { context: TripContext }) {
                 {isBusy ? "…" : "Disconnect"}
               </button>
             </div>
+            <p className="m-0 mt-1 text-[12px] text-av-muted">{balanceHbar ? `${balanceHbar} HBAR` : "…"}</p>
           </div>
         ) : (
           <>

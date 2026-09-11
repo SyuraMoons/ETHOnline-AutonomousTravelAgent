@@ -6,9 +6,9 @@ const RAILS = [
     body: "The agent pays for each search and service with one signed x402 payment on Hedera. Low-fee, machine-speed settlement, capped by the allowance you set.",
   },
   {
-    tag: "World ID",
-    title: "Proof of a real human, on demand",
-    body: "Before any over-limit purchase, a World ID selfie and liveness check confirms a real person approved it, cryptographically bound to that exact itinerary.",
+    tag: "HIP-336 Allowance",
+    title: "One signature, an on-chain ceiling",
+    body: "The user approves a single HBAR allowance in their own wallet. The network enforces that ceiling directly — no further signing, and it's revocable at any time.",
   },
   {
     tag: "On-chain",
@@ -25,8 +25,8 @@ export function SponsorBand() {
           Real autonomous agent commerce, not a demo wrapper.
         </h2>
         <p className="mt-4 max-w-[560px] text-[15px] leading-relaxed text-av-paper/60">
-          Two sponsor rails do the real work: Hedera x402 moves the money per request, and World ID proves a human is
-          behind every high-risk approval. Every step lands on-chain.
+          Hedera x402 moves the money per request, capped by a single on-chain allowance the user approves once.
+          Every step lands on-chain.
         </p>
         <div className="mt-12 flex flex-col">
           {RAILS.map(r => (

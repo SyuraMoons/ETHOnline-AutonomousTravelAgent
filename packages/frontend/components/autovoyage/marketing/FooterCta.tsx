@@ -31,7 +31,7 @@ export function FooterCta() {
         <div className="mx-auto flex max-w-[1080px] flex-col items-center justify-between gap-3 px-6 py-6 sm:flex-row">
           <Wordmark size={24} />
           <p className="m-0 font-mono text-[11px] uppercase tracking-[0.1em] text-av-muted">
-            AutoVoyage · Hedera x402 · World ID · on-chain
+            AutoVoyage · Hedera x402 · HIP-336 allowance · on-chain
           </p>
         </div>
       </div>

@@ -12,7 +12,7 @@ export function ScreenshotSection() {
         <div className="mt-10 overflow-hidden rounded border border-av-border bg-av-card">
           <Image
             src="/brand/trip-plan.png"
-            alt="AutoVoyage trip plan dashboard: flights auto-approved, an over-limit hotel awaiting a face check, and the agent panel."
+            alt="AutoVoyage trip plan dashboard: flights auto-approved, an over-limit hotel awaiting your confirm, and the agent panel."
             width={1440}
             height={900}
             className="h-auto w-full"

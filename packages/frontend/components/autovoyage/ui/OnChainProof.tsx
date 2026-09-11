@@ -18,10 +18,6 @@ export function OnChainProof({ proof }: { proof: Proof }) {
           View on HashScan
         </a>
       </div>
-      <span className="flex items-center gap-2 text-av-muted">
-        <span className="h-2 w-2 flex-shrink-0 rounded-full bg-av-blue" />
-        Human-approved · World ID <span className="font-mono text-[12px] text-av-text">{proof.worldIdNullifier}</span>
-      </span>
     </div>
   );
 }

@@ -11,7 +11,7 @@ const AgentPage = () => {
       <section className="flex flex-col gap-4 rounded-lg border border-base-300 bg-base-100 p-4">
         <h2 className="text-sm font-semibold opacity-60">Brief &amp; Plan</h2>
         {/* TODO Phase 1: trip brief input, SSE-streamed plan from POST /api/plan,
-            itinerary legs, refusals, and the World ID consent gate before /api/execute. */}
+            itinerary legs, refusals, and the booking confirm gate before /api/execute. */}
         <p className="text-sm opacity-60">Plan will appear here.</p>
       </section>
 

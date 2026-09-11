@@ -6,6 +6,7 @@ export function FlightRow({
   meta,
   last = false,
   readOnly = false,
+  onChange,
 }: {
   tag: string;
   airline: string;
@@ -13,6 +14,8 @@ export function FlightRow({
   meta: string;
   last?: boolean;
   readOnly?: boolean;
+  /** Omitted on server-rendered rows; supplied once there are results to go back to. */
+  onChange?: () => void;
 }) {
   return (
     <div className={`flex items-center justify-between gap-4 px-4 py-3 ${last ? "" : "border-b border-av-border"}`}>
@@ -28,7 +31,11 @@ export function FlightRow({
         </div>
       </div>
       {readOnly ? null : (
-        <button type="button" className="flex-shrink-0 text-[13px] font-medium text-av-blue transition-opacity hover:opacity-70">
+        <button
+          type="button"
+          onClick={onChange}
+          className="flex-shrink-0 text-[13px] font-medium text-av-blue transition-opacity hover:opacity-70"
+        >
           Change
         </button>
       )}

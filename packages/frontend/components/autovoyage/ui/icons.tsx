@@ -119,10 +119,30 @@ export function CollapseIcon({ size = 16, className }: IconProps) {
   );
 }
 
+export function PopoutIcon({ size = 16, className }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <path d="M14 4h6v6" />
+      <path d="M20 4l-8 8" />
+      <path d="M18 14v6H4V6h6" />
+    </svg>
+  );
+}
+
 export function PlusIcon({ size = 16, className }: IconProps) {
   return (
     <svg {...base(size, className)}>
       <path d="M12 5v14M5 12h14" />
+    </svg>
+  );
+}
+
+export function HistoryIcon({ size = 16, className }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <path d="M3 12a9 9 0 1 0 2.6-6.36" />
+      <path d="M3 4.5V9h4.5" />
+      <path d="M12 8v4l3 2" />
     </svg>
   );
 }
@@ -140,6 +160,75 @@ export function MapPinIcon({ size = 16, className }: IconProps) {
     <svg {...base(size, className)}>
       <path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z" />
       <circle cx="12" cy="10" r="2.5" />
+    </svg>
+  );
+}
+
+export function ChatIcon({ size = 18, className }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <path d="M4 5h16v11H8l-4 4z" />
+    </svg>
+  );
+}
+
+export function SearchIcon({ size = 18, className }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <circle cx="11" cy="11" r="6.5" />
+      <path d="M16 16l4 4" />
+    </svg>
+  );
+}
+
+export function SwapIcon({ size = 16, className }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <path d="M4 8h13l-3-3" />
+      <path d="M20 16H7l3 3" />
+    </svg>
+  );
+}
+
+export function CalendarIcon({ size = 16, className }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <rect x="3.5" y="5" width="17" height="15" rx="2" />
+      <path d="M3.5 10h17M8 3v4M16 3v4" />
+    </svg>
+  );
+}
+
+export function UsersIcon({ size = 16, className }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <circle cx="9" cy="8" r="3.5" />
+      <path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6" />
+      <path d="M16 5.2a3.5 3.5 0 0 1 0 6.6M18 14.6c1.8.9 3 2.7 3 5.4" />
+    </svg>
+  );
+}
+
+export function ChevronDownIcon({ size = 16, className }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <path d="M6 9.5l6 6 6-6" />
+    </svg>
+  );
+}
+
+export function FilterIcon({ size = 16, className }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <path d="M4 7h16M7 12h10M10 17h4" />
+    </svg>
+  );
+}
+
+export function PlaneIcon({ size = 16, className }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <path d="M10.5 12.5L3 10V7.5l2 .5 2 1.5 3-.6-3.5-5.4L8.5 3l5.5 5 4.2-.9a2 2 0 0 1 .8 3.9l-4 1.1-2.3 6.3-2 .6.6-5.2-3.1.8-1.2 2.3-1.5.3z" />
     </svg>
   );
 }

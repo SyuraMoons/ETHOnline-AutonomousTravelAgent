@@ -3,7 +3,10 @@
 // Glass prompt card
 import { type ChangeEvent, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { startBrief } from "../prompts";
 import { UploadIcon } from "../ui/icons";
+import { useHederaWalletConnect } from "~~/services/web3/hederaWalletConnect";
+import { notification } from "~~/utils/scaffold-hbar";
 
 const EXAMPLE_PROMPT =
   "I'm planning a 7-day trip to Tokyo in October. I love food, hidden cafes, scenic hikes, and want to avoid crowds....";
@@ -12,9 +15,12 @@ export function GlassPromptCard() {
   const [brief, setBrief] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const { isConnected } = useHederaWalletConnect();
 
   const handleSubmit = () => {
-    router.push("/plan");
+    if (!brief.trim()) return;
+    if (!isConnected) notification.error("Please log in / connect your wallet first.");
+    startBrief(router, brief, isConnected);
   };
 
   const handleFiles = (e: ChangeEvent<HTMLInputElement>) => {
@@ -48,7 +54,8 @@ export function GlassPromptCard() {
           <button
             type="button"
             onClick={handleSubmit}
-            className="flex h-14 w-[156px] items-center justify-center rounded-full bg-av-blue text-base font-medium uppercase tracking-[0.02em] text-av-paper transition-all hover:bg-av-blue-hover active:scale-95"
+            disabled={!brief.trim()}
+            className="flex h-14 w-[156px] items-center justify-center rounded-full bg-av-blue text-base font-medium uppercase tracking-[0.02em] text-av-paper transition-all hover:bg-av-blue-hover active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Plan My Trip
           </button>

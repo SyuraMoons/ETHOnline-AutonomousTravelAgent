@@ -32,7 +32,7 @@ export default function LoginPage() {
               Plan and book your whole trip, hands-free.
             </h2>
             <p className="mt-3 max-w-[380px] text-[15px] leading-relaxed text-av-paper/70">
-              AutoVoyage acts within the limits you set, and asks for a face check before anything that costs.
+              AutoVoyage acts within the limits you set, and asks for a confirm before anything that costs.
             </p>
           </div>
         </div>

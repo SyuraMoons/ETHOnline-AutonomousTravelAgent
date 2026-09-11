@@ -2,8 +2,9 @@
 "use client";
 
 import { useRef } from "react";
-import { MarketingNav } from "./MarketingNav";
 import { GlassPromptCard } from "./GlassPromptCard";
+import { MarketingNav } from "./MarketingNav";
+import { PromptTemplates } from "./PromptTemplates";
 import { TrustStrip } from "./TrustStrip";
 import { useBeat } from "~~/hooks/autovoyage/useBeat";
 
@@ -47,6 +48,7 @@ export function Hero() {
             check before anything big.
           </p>
           <GlassPromptCard />
+          <PromptTemplates />
           <TrustStrip />
         </div>
       </div>

@@ -1,5 +1,5 @@
 // Approval card
-import { FaceScanIcon } from "../../ui/icons";
+import { ShieldIcon } from "../../ui/icons";
 
 export function ApprovalCard() {
   return (
@@ -14,8 +14,8 @@ export function ApprovalCard() {
         <p className="m-0 mt-1 text-[12px] text-av-amber">Above your $200 auto-approve limit</p>
       </div>
       <div className="mt-4 flex flex-col items-center rounded border border-dashed border-av-border py-5">
-        <FaceScanIcon size={30} className="text-av-muted" />
-        <p className="m-0 mt-2 text-[12px] text-av-muted">Look at your camera to verify</p>
+        <ShieldIcon size={30} className="text-av-muted" />
+        <p className="m-0 mt-2 text-[12px] text-av-muted">Paying from your approved allowance</p>
       </div>
       <div className="mt-4 flex gap-2">
         <button
@@ -28,7 +28,7 @@ export function ApprovalCard() {
           type="button"
           className="flex-1 rounded bg-av-blue py-2.5 text-[14px] font-medium text-av-paper transition-colors hover:bg-av-blue-hover"
         >
-          Verify to confirm
+          Confirm booking
         </button>
       </div>
     </div>

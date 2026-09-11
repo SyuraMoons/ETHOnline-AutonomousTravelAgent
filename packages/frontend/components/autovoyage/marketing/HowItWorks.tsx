@@ -12,8 +12,8 @@ const STEPS = [
   },
   {
     n: "03",
-    title: "Approve the big moments with your face",
-    body: "For any purchase above your ceiling, a quick liveness check confirms it is you. Everything lands in an on-chain audit trail.",
+    title: "Approve the big moments yourself",
+    body: "For any purchase above your ceiling, AutoVoyage pauses for a plain confirm. Everything lands in an on-chain audit trail.",
   },
 ];
 

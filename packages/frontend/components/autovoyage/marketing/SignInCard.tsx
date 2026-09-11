@@ -3,11 +3,12 @@
 // Sign-in card
 import { type ReactNode, useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { GithubGlyph, GoogleGlyph } from "../ui/brandGlyphs";
 import { MailIcon, WalletIcon } from "../ui/icons";
 import { hederaNamespace } from "@hashgraph/hedera-wallet-connect";
 import { useAppKit } from "@reown/appkit/react";
+import { useHbarBalance } from "~~/hooks/autovoyage/useHbarBalance";
 import { useHederaWalletConnect } from "~~/services/web3/hederaWalletConnect";
 import { getParsedError, notification } from "~~/utils/scaffold-hbar";
 
@@ -27,15 +28,19 @@ function OAuthButton({ icon, label, onClick }: { icon: ReactNode; label: string;
 export function SignInCard() {
   const [email, setEmail] = useState("");
   const router = useRouter();
-  const enterApp = () => router.push("/plan");
+  const searchParams = useSearchParams();
+  const rawNext = searchParams.get("next");
+  const next = rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/plan";
+  const enterApp = () => router.push(next);
 
   const { open } = useAppKit();
   const { accountId, isConnected, isBusy, disconnectWallet } = useHederaWalletConnect();
   const shortAccount = accountId ? `${accountId.slice(0, 6)}...${accountId.slice(-4)}` : null;
+  const { balanceHbar } = useHbarBalance(isConnected ? accountId : null);
 
   useEffect(() => {
-    if (isConnected) router.push("/plan");
-  }, [isConnected, router]);
+    if (isConnected) router.push(next);
+  }, [isConnected, router, next]);
 
   const connectWallet = () => {
     void open({ view: "Connect", namespace: hederaNamespace }).catch(e => notification.error(getParsedError(e)));
@@ -92,18 +97,21 @@ export function SignInCard() {
       </div>
 
       {isConnected ? (
-        <div className="mt-3 flex w-full items-center justify-between gap-2 rounded-lg border border-av-paper/15 bg-av-paper/5 px-3 py-3 text-[14px] font-medium text-av-paper">
-          <span className="flex items-center gap-2">
-            <WalletIcon size={16} className="text-av-paper/80" />
-            {shortAccount}
-          </span>
-          <button
-            type="button"
-            onClick={() => void disconnectWallet()}
-            className="text-[12px] text-av-paper/50 underline underline-offset-2 hover:text-av-paper/80"
-          >
-            Disconnect
-          </button>
+        <div className="mt-3 w-full rounded-lg border border-av-paper/15 bg-av-paper/5 px-3 py-3 text-[14px] font-medium text-av-paper">
+          <div className="flex items-center justify-between gap-2">
+            <span className="flex items-center gap-2">
+              <WalletIcon size={16} className="text-av-paper/80" />
+              {shortAccount}
+            </span>
+            <button
+              type="button"
+              onClick={() => void disconnectWallet()}
+              className="text-[12px] text-av-paper/50 underline underline-offset-2 hover:text-av-paper/80"
+            >
+              Disconnect
+            </button>
+          </div>
+          <p className="m-0 mt-1 text-[12px] text-av-paper/50">{balanceHbar ? `${balanceHbar} HBAR` : "…"}</p>
         </div>
       ) : (
         <button

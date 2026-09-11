@@ -1,14 +1,12 @@
-// Trip Plan page
-import { getBooking, getTripPlan } from "~~/services/autovoyage/tripData";
-import { formatUsd } from "~~/services/autovoyage/currency";
-import { AgentSteps } from "~~/components/autovoyage/plan/AgentSteps";
-import { PlanSection } from "~~/components/autovoyage/plan/PlanSection";
-import { FlightRow } from "~~/components/autovoyage/plan/FlightRow";
-import { StayCard } from "~~/components/autovoyage/plan/StayCard";
-import { ActivityPicker } from "~~/components/autovoyage/plan/ActivityPicker";
-import { AgentPanel } from "~~/components/autovoyage/plan/AgentPanel";
-import { StatusPill } from "~~/components/autovoyage/ui/StatusPill";
+// Trip Plan page — a three-stage workspace (search → results → plan).
+// Stays a server component so it can seed the Stay/Activities fixture and the
+// post-booking modal; everything stateful lives under <PlanProvider> (mounted in the
+// (app) layout, shared with /chat).
+import { Suspense } from "react";
 import { BookingConfirmedModal } from "~~/components/autovoyage/approval/BookingConfirmedModal";
+import { AgentPanel } from "~~/components/autovoyage/plan/AgentPanel";
+import { PlanWorkspace } from "~~/components/autovoyage/plan/PlanWorkspace";
+import { getBooking, getTripPlan } from "~~/services/autovoyage/tripData";
 
 export default async function PlanPage({ searchParams }: { searchParams: Promise<{ booked?: string }> }) {
   const { booked } = await searchParams;
@@ -27,39 +25,14 @@ export default async function PlanPage({ searchParams }: { searchParams: Promise
           <div className="h-8 w-8 flex-shrink-0 rounded-full border border-av-border bg-av-bg" />
         </header>
 
-        <div className="mx-auto flex w-full max-w-[760px] flex-col gap-4 px-6 py-6">
-          <AgentSteps progress={plan.progress} />
-
-          <PlanSection
-            label="Flights"
-            pill={<StatusPill tone={plan.flights.status === "auto_approved" ? "approved" : "needs"}>
-              {plan.flights.status === "auto_approved" ? "Auto-approved" : "Needs approval"}
-            </StatusPill>}
-            price={formatUsd(plan.flights.priceMinor)}
-          >
-            {plan.flights.legs.map((leg, i) => (
-              <FlightRow key={leg.tag} {...leg} last={i === plan.flights.legs.length - 1} />
-            ))}
-          </PlanSection>
-
-          <PlanSection
-            label="Stay"
-            highlight={plan.stay.status === "needs_approval"}
-            pill={<StatusPill tone={plan.stay.status === "auto_approved" ? "approved" : "needs"}>
-              {plan.stay.status === "auto_approved" ? "Auto-approved" : "Needs approval"}
-            </StatusPill>}
-            price={formatUsd(plan.stay.priceMinor)}
-          >
-            <StayCard stay={plan.stay} />
-          </PlanSection>
-
-          <PlanSection label="Activities">
-            <ActivityPicker activities={plan.activities} />
-          </PlanSection>
-        </div>
+        <PlanWorkspace fixture={plan} />
       </div>
 
-      <AgentPanel messages={plan.agent} />
+      {/* useAutoBrief (inside AgentPanel) reads useSearchParams, which requires a Suspense
+          boundary in the app router. */}
+      <Suspense fallback={null}>
+        <AgentPanel />
+      </Suspense>
 
       {booking ? <BookingConfirmedModal booking={booking} /> : null}
     </div>

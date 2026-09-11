@@ -42,9 +42,9 @@ export default function LandingPage() {
       <Reveal>
         <FeatureRow
           eyebrow="Human control"
-          heading="A face check before anything that costs."
-          body="When a purchase crosses your limit, AutoVoyage pauses for an on-device liveness check. It proceeds only with proof that a real human, you, approved."
-          bullets={["On-device and privacy-preserving", "Proves the request came from you", "Every approval recorded on-chain"]}
+          heading="A confirm step before anything that books."
+          body="When a purchase crosses your limit, AutoVoyage pauses for a plain confirm. It proceeds only inside the allowance you already approved in your own wallet."
+          bullets={["One on-chain allowance, revocable any time", "No further signing per purchase", "Every approval recorded on-chain"]}
           visual={<ApprovalCard />}
           band
         />

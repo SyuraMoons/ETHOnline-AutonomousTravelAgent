@@ -7,7 +7,7 @@ import { getMetadata } from "~~/utils/scaffold-hbar/getMetadata";
 
 export const metadata = getMetadata({
   title: "AutoVoyage",
-  description: "Risk-aware autonomous travel agent: plans, pays via x402, and stops at a face check.",
+  description: "Risk-aware autonomous travel agent: plans, pays via x402, and stops for your confirm.",
 });
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {

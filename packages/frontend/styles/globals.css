@@ -129,7 +129,7 @@
   }
 
   body {
-    min-height: 100vh;
+    min-height: 100dvh;
     font-family: "Styrene A Web", "Montserrat", ui-sans-serif, system-ui, sans-serif;
   }
 
