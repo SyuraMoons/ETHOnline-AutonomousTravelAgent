@@ -25,15 +25,19 @@ export async function GET(req: Request) {
       const res = await fetch(url, { next: { revalidate: 60 } });
       if (!res.ok) {
         if (res.status === 404) {
-          return NextResponse.json({ evmAddress: null });
+          return NextResponse.json({ evmAddress: null, balanceTinybar: null });
         }
         return NextResponse.json({ error: "Mirror node request failed", status: res.status }, { status: 502 });
       }
 
-      const data = (await res.json()) as { evm_address?: string | null };
+      const data = (await res.json()) as {
+        evm_address?: string | null;
+        balance?: { balance?: number | null } | null;
+      };
       const evmAddress =
         typeof data.evm_address === "string" && EVM_ADDRESS_RE.test(data.evm_address) ? data.evm_address : null;
-      return NextResponse.json({ evmAddress });
+      const balanceTinybar = typeof data.balance?.balance === "number" ? data.balance.balance.toString() : null;
+      return NextResponse.json({ evmAddress, balanceTinybar });
     } catch (error) {
       console.error("[api/hedera/account]", error);
       return NextResponse.json({ error: "Resolution failed" }, { status: 502 });

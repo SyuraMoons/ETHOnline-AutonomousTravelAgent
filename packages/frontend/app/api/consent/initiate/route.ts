@@ -1,7 +1,20 @@
 import { NextResponse } from "next/server";
+import { ConsentInitiateRequest, type ConsentInitiateResponse } from "@sh/contracts";
+import { randomUUID } from "crypto";
+import { createConsentSession } from "~~/services/autovoyage/consentSessions";
 
-// TODO Phase 1: start a World ID Selfie Check session (WORLD_APP_ID /
-// WORLD_ACTION_ID) whose *signal* is the plan's itineraryHash.
-export async function POST() {
-  return NextResponse.json({ status: "not_implemented" }, { status: 501 });
+// Opens a booking-confirm session whose signal is the plan's itineraryHash — binding the
+// confirm click to this exact itinerary, so verify can reject a mismatch.
+export async function POST(request: Request) {
+  const parsed = ConsentInitiateRequest.safeParse(await request.json());
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+  }
+
+  const { itineraryHash } = parsed.data;
+  const sessionId = randomUUID();
+  await createConsentSession(sessionId, itineraryHash);
+
+  const response: ConsentInitiateResponse = { sessionId, itineraryHash };
+  return NextResponse.json(response);
 }
