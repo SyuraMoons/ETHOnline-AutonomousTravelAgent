@@ -1,0 +1,102 @@
+{
+  "site": "booking",
+  "origin": "https://flights.booking.com",
+  "xhr": {
+    "method": "GET",
+    "url": "https://flights.booking.com/api/flights/?type=ONEWAY&adults={{pax}}&cabinClass={{cabinUpper}}&from={{origin}}.AIRPORT&to={{destination}}.CITY&fromCountry={{originCountry}}&toCountry={{destinationCountry}}&fromLocationName={{originName}}&toLocationName={{destinationCityName}}&depart={{date}}&sort=BEST&enableVI=1",
+    "headers": {
+      "accept": "application/json"
+    },
+    "resultsPath": "flightOffers"
+  },
+  "browser": {
+    "urlTemplate": "https://flights.booking.com/flights/{{origin}}.AIRPORT-{{destination}}.CITY/?type=ONEWAY&adults={{pax}}&cabinClass={{cabinUpper}}&from={{origin}}.AIRPORT&to={{destination}}.CITY&fromCountry={{originCountry}}&toCountry={{destinationCountry}}&fromLocationName={{originName}}&toLocationName={{destinationCityName}}&depart={{date}}&sort=BEST",
+    "capture": {
+      "urlPattern": "/api/flights/",
+      "resultsPath": "flightOffers",
+      "timeoutMs": 45000
+    },
+    "selectors": {
+      "resultContainer": "[data-testid='searchresults_list']",
+      "resultRow": "[data-testid='searchresults_card']",
+      "fields": {
+        "carrierName": "[data-testid='flight_card_carriers']",
+        "departLocal": "[data-testid='flight_card_segment_departure_time_0']",
+        "arriveLocal": "[data-testid='flight_card_segment_destination_time_0']",
+        "priceMinor": "[data-testid='upt_price']",
+        "stops": "[data-testid='flight_card_segment_stops_0']"
+      }
+    },
+    "warmup": {
+      "url": "https://flights.booking.com/",
+      "steps": [
+        {
+          "click": "[data-ui-name='search_type_oneway']"
+        },
+        {
+          "waitMs": 1000
+        },
+        {
+          "click": "[data-ui-name='input_location_from_segment_0']"
+        },
+        {
+          "waitMs": 1500
+        },
+        {
+          "click": "button[aria-label*='Remove airport or city']",
+          "optional": true
+        },
+        {
+          "waitMs": 800
+        },
+        {
+          "fill": "[data-ui-name='input_text_autocomplete']",
+          "value": "{{origin}}"
+        },
+        {
+          "waitMs": 3000
+        },
+        {
+          "clickText": "[data-ui-name='locations_list_item']",
+          "containing": "{{origin}}"
+        },
+        {
+          "waitMs": 1500
+        },
+        {
+          "click": "[data-ui-name='input_location_to_segment_0']"
+        },
+        {
+          "waitMs": 1500
+        },
+        {
+          "click": "button[aria-label*='Remove airport or city']",
+          "optional": true
+        },
+        {
+          "waitMs": 800
+        },
+        {
+          "fill": "[data-ui-name='input_text_autocomplete']",
+          "value": "{{destination}}"
+        },
+        {
+          "waitMs": 3000
+        },
+        {
+          "clickText": "[data-ui-name='locations_list_item']",
+          "containing": "{{destination}}"
+        },
+        {
+          "waitMs": 1500
+        },
+        {
+          "click": "[data-ui-name='button_search_submit']"
+        },
+        {
+          "waitMs": 8000
+        }
+      ]
+    }
+  }
+}

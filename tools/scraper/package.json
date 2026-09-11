@@ -1,0 +1,24 @@
+{
+  "name": "@sh/scraper",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Standalone flight scraper CLI. Not a workspace of the root repo — installs its own deps so Playwright is never hoisted to the repo root.",
+  "scripts": {
+    "scrape": "tsx src/cli.ts",
+    "recipe:test": "tsx src/cli.ts --recipe-test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.16.11",
+    "playwright": "^1.48.0",
+    "tsx": "^4.19.1",
+    "typescript": "^5.8.2"
+  },
+  "engines": {
+    "node": ">=20.18.3"
+  }
+}

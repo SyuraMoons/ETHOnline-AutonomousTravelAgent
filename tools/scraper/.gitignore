@@ -1,0 +1,5 @@
+node_modules/
+# Scrape output is never committed: it can contain raw upstream payloads, and
+# copying results somewhere permanent is a deliberate manual step.
+output/
+.env.local
