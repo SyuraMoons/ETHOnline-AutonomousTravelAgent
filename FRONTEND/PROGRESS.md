@@ -1,7 +1,7 @@
 # AutoVoyage Frontend — Progress Tracker
 
 > Track what's built vs. pending. UI-first: we build the screens now; backend integration
-> (wallet, World ID, x402, plan/audit APIs) is wired later — see [`INTEGRATION.md`](./INTEGRATION.md).
+> (wallet, x402, plan/audit APIs) is wired later — see [`INTEGRATION.md`](./INTEGRATION.md).
 > Location: `packages/nextjs` (currently under `FRONTEND/packages/nextjs`). Design source: Figma
 > `bOAHzbAn1loghbwWw38hpf`.
 
@@ -36,26 +36,26 @@ Landing polish:
 ## Other screens (design-first, all in Figma)
 - [x] Login (`/login`, node 77:142) — left brand panel (collage calmed: desaturated + ink scrim, with LIVE wordmark + headline) + dark sign-in card (email, Google/Github, Connect wallet). All auth is placeholder.
 - [x] Trip Plan (`/plan`, node 188:315) — sidebar shell + agent-progress card, Flights (auto-approved), Stay (needs-approval gate), Activities pace picker, agent chat panel. **Data-driven**: all values come from `services/autovoyage/tripData.ts` (mock now → swap for the scraped dataset/`/api/plan`; types in `types/autovoyage/plan.ts`, formatting in `services/autovoyage/currency.ts`). Components are pure, nothing hardcoded.
-- [x] Approval (`/approve`, node 31:146) — over-limit face-check gate + agent panel ("Waiting for you to verify"). Data-driven (getApproval). [INTEGRATION] Verify → World ID + execute.
-- [x] Booking Confirmed (node 211:2) — success modal over the dimmed plan at `/plan?booked=1` (green chip, summary, Total paid, booking ref, on-chain + World ID proof rows). Data-driven (getBooking).
+- [x] Approval (`/approve`, node 31:146) — over-limit confirm gate + agent panel ("Waiting for you to confirm"). Data-driven (getApproval). [INTEGRATION] Confirm → execute.
+- [x] Booking Confirmed (node 211:2) — success modal over the dimmed plan at `/plan?booked=1` (green chip, summary, Total paid, booking ref, on-chain proof row). Data-driven (getBooking).
 - [x] Itinerary (`/itinerary`, node 295:605) — read-only booked trip, payment breakdown, on-chain proof, Back to plan / Download itinerary. Data-driven (getBooking).
 - [x] Flow wired end-to-end: Plan → Approve → Confirmed → Itinerary (client-side links).
-- [x] Shared: `OnChainProof` (HCS + World ID proof rows), `ApprovalFocus`, `BookingConfirmedModal`; `FlightRow` gained `readOnly`, `AgentPanel` gained `statusNote`.
+- [x] Shared: `OnChainProof` (HCS proof row), `ApprovalFocus`, `BookingConfirmedModal`; `FlightRow` gained `readOnly`, `AgentPanel` gained `statusNote`.
 - [x] x402 Activity Feed (`/activity`, node 48:207) — stat tiles + streamed x402/on-chain event feed (StatTile, X402ActivityRow). Data-driven (getActivityFeed).
 - [x] Audit Trail (`/audit`, node 49:222) — All/Payments/Approvals filter over the HCS event log (AuditList). Data-driven (getAuditTrail).
 - [x] Chat (`/chat`, node 27:90) — full-screen agent conversation (user/agent bubbles, inline flight-result cards, pinned composer) + centered approval overlay on `?approve=1` (reuses ApprovalFocus). Data-driven (getChat).
 - [x] Wallet Connect (node 301:652) — wallet-picker overlay (MetaMask/WalletConnect/Coinbase), opened from the sidebar "Connect wallet". Placeholder rows; **must connect to the real wallet (Reown AppKit / HashPack) in the integration pass** — x402 needs the wallet to sign.
 
-**All Figma screens are built.** Remaining work is the integration pass (auth + wallet + World ID + x402), not new screens.
+**All Figma screens are built.** Remaining work is the integration pass (auth + wallet + x402), not new screens.
 
 ## Integration (later — tracked in INTEGRATION.md)
 - [~] Login auth (Google / GitHub / email via Auth.js + HashPack via Reown) — **setup guide written**
       (`AUTH-SETUP.md`); waiting on credentials, then implement. Auth.js not yet installed.
 - [ ] Wallet connect (HashPack / Reown) on Login + nav
-- [ ] World ID selfie check on the Approval gate
+- [ ] Plain confirm on the Approval gate
 - [ ] Plan stream (`/api/plan` SSE) behind the hero "Plan My Trip"
 - [ ] Audit / registry reads
-- [ ] `.env` keys populated (World ID, WalletConnect, facilitator, LLM)
+- [ ] `.env` keys populated (WalletConnect, facilitator, LLM)
 
 ## Quality pass (done)
 - [x] Comments cleaned — every AutoVoyage `.ts`/`.tsx` (50 files) now has a single top label

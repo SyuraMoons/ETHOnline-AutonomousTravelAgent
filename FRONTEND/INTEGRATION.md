@@ -17,18 +17,15 @@ files (root, `packages/nextjs`, `facilitator`). Copy them to `.env` / `.env.loca
 | What | Env var | File | Exposed to browser? |
 | --- | --- | --- | --- |
 | WalletConnect / HashPack (Reown) project id | `NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID` | `packages/nextjs/.env` | Yes (`NEXT_PUBLIC_`) |
-| World ID app id | `WORLD_APP_ID` / `NEXT_PUBLIC_WORLD_APP_ID` | `packages/nextjs/.env` | app id yes, api key no |
-| World ID action id | `WORLD_ACTION_ID` | `packages/nextjs/.env` | server-side |
-| World ID API key (proof verify) | `WORLD_API_KEY` | `packages/nextjs/.env` | **No — server only** |
 | Execution token secret | `EXECUTION_TOKEN_SECRET` | `packages/nextjs/.env` | **No — server only** |
 | LLM key (brief parsing) | `ANTHROPIC_API_KEY` | `packages/nextjs/.env` | **No — server only** |
 | x402 facilitator URL | `FACILITATOR_URL` | `packages/nextjs/.env` | server-side |
 | HCS topic ids | `HCS_REGISTRY_TOPIC_ID`, `HCS_AUDIT_TOPIC_ID` | `packages/nextjs/.env` | server-side |
 | Facilitator fee-payer (ECDSA) | `FACILITATOR_ACCOUNT_ID`, `FACILITATOR_PRIVATE_KEY` | root `.env` / `facilitator/.env` | **Never in the app or browser** |
 
-Rule of thumb: only `NEXT_PUBLIC_*` vars reach the browser. Anything secret (World ID API key,
-execution-token secret, LLM key, the facilitator private key) is used **only in `app/api/*`
-route handlers**, never imported into a client component.
+Rule of thumb: only `NEXT_PUBLIC_*` vars reach the browser. Anything secret (execution-token
+secret, LLM key, the facilitator private key) is used **only in `app/api/*` route handlers**,
+never imported into a client component.
 
 ## Data layer — the swap point for the scraped dataset
 
@@ -54,7 +51,7 @@ So plugging in the real data touches one file (`tripData.ts`), not the component
 | Hero upload button (`GlassPromptCard.tsx`) | `console.info` in `handleFiles` | attachment/inspiration parsing (future) |
 | Nav "Log in" / "Get started" (`marketing/MarketingNav.tsx`) | links to `/login` | auth + wallet connect on the Login screen |
 | Wallet connect (Login screen — not built) | — | Reown AppKit / HashPack (`services/web3/*`, `hedera` namespace) |
-| World ID check (Approval gate — not built) | — | `POST /api/consent/initiate` + `/verify`, signal = itinerary hash |
+| Booking confirm (Approval gate — not built) | — | `POST /api/consent/initiate` + `/verify`, signal = itinerary hash |
 | Budget meter / plan cards (`/plan` — not built) | — | plan data from `/api/plan`; types from `@sh/contracts` |
 | Audit rows (`/audit` — not built) | — | `GET /api/audit/:planId` via Mirror Node |
 
