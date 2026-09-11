@@ -3,25 +3,25 @@
  *
  * This is the machine-to-machine counterpart to the in-app wallet flow:
  * it signs the HBAR transfer with a real Hedera key, so it works for any funded
- * account and is the canonical "agent pays per use" demonstration.
- *
- * This reference script expects the resource to respond with `{ url }` on success
- * (as a file-download endpoint would) — adapt the response handling below to match
- * whatever resource you point it at.
+ * account and is the canonical "agent pays per use" demonstration. Prints the
+ * parsed JSON response body — pipe to `jq` or redirect to a file as needed.
  *
  * Usage:
- *   RESOURCE_URL="http://localhost:3000/api/<your-402-gated-route>" \
+ *   RESOURCE_URL="http://localhost:4100/v1/flights/search?origin=SIN&destination=NRT&departDate=2026-10-12" \
  *   BUYER_ACCOUNT_ID=0.0.xxxx \
  *   BUYER_PRIVATE_KEY=0x... \
- *   [X402_NETWORK=hedera:testnet] [OUTPUT=./downloaded.bin] \
+ *   [X402_NETWORK=hedera:testnet] \
  *   npm run x402:buy
+ *
+ * For a POST route (e.g. booking):
+ *   METHOD=POST BODY='{"offerId":"flt_001","passengerName":"...","passengerEmail":"..."}' \
+ *   RESOURCE_URL="http://localhost:4100/v1/booking" ... npm run x402:buy
  */
 import { PrivateKey } from "@hiero-ledger/sdk";
 import { x402Client, x402HTTPClient } from "@x402/core/client";
-import type { Network } from "@x402/core/types";
+import type { Network, SettleResponse } from "@x402/core/types";
 import { createClientHederaSigner } from "@x402/hedera";
 import { ExactHederaScheme } from "@x402/hedera/exact/client";
-import { writeFile } from "node:fs/promises";
 
 function requireEnv(name: string): string {
   const value = process.env[name];
@@ -37,23 +37,33 @@ async function main() {
   const accountId = requireEnv("BUYER_ACCOUNT_ID");
   const privateKeyStr = requireEnv("BUYER_PRIVATE_KEY");
   const network = (process.env.X402_NETWORK ?? "hedera:testnet") as Network;
-  const output = process.env.OUTPUT ?? "./downloaded.bin";
+  const method = (process.env.METHOD ?? "GET").toUpperCase();
+  const body = process.env.BODY;
 
   const privateKey = PrivateKey.fromStringECDSA(privateKeyStr);
   const signer = createClientHederaSigner(accountId, privateKey, { network });
-  const client = new x402Client().register(network, new ExactHederaScheme(signer));
+  // Native HBAR ("0.0.0") isn't in @x402/core's built-in recognized-default-asset
+  // list, so the client's spend-control guard rejects every Hedera payment
+  // unless controls are disabled — this is a CLI/agent buyer with an explicit
+  // env-provided key, not an unattended browser wallet, so there is no
+  // meaningful cap to enforce here.
+  const client = new x402Client().register(network, new ExactHederaScheme(signer)).setSpendControls(false);
   const httpClient = new x402HTTPClient(client);
 
-  console.log(`[x402-buy] GET ${resourceUrl}`);
-  const first = await fetch(resourceUrl);
+  const baseInit: RequestInit = {
+    method,
+    headers: body ? { "content-type": "application/json" } : undefined,
+    body,
+  };
 
-  let downloadUrl: string;
+  console.log(`[x402-buy] ${method} ${resourceUrl}`);
+  const first = await fetch(resourceUrl, baseInit);
+
+  let responseBody: unknown;
 
   if (first.ok) {
-    const body = (await first.json()) as { url?: string };
-    if (!body.url) throw new Error("Server returned no download URL");
-    console.log("[x402-buy] File is public — no payment required.");
-    downloadUrl = body.url;
+    responseBody = await first.json();
+    console.log("[x402-buy] Resource is public — no payment required.");
   } else if (first.status === 402) {
     console.log("[x402-buy] 402 Payment Required — building and signing payment…");
     const challengeBody = await first
@@ -62,30 +72,28 @@ async function main() {
       .catch(() => undefined);
     const paymentRequired = httpClient.getPaymentRequiredResponse(name => first.headers.get(name), challengeBody);
     const payload = await httpClient.createPaymentPayload(paymentRequired);
-    const headers = httpClient.encodePaymentSignatureHeader(payload);
+    const paymentHeaders = httpClient.encodePaymentSignatureHeader(payload);
 
     console.log("[x402-buy] Retrying with PAYMENT-SIGNATURE…");
-    const paid = await fetch(resourceUrl, { headers });
+    const paid = await fetch(resourceUrl, { ...baseInit, headers: { ...baseInit.headers, ...paymentHeaders } });
     const result = await httpClient.processResponse(paid);
 
-    if (result.kind !== "success") {
-      throw new Error(`Payment failed: ${result.kind}`);
+    if (result.paymentStatus !== "settled") {
+      const reason =
+        result.paymentStatus === "settle_failed" || result.paymentStatus === "payment_required"
+          ? ((result.header as { error?: string } | undefined)?.error ?? result.paymentStatus)
+          : result.paymentStatus;
+      throw new Error(`Payment failed: ${reason}`);
     }
-    const body = result.body as { url?: string };
-    if (!body.url) throw new Error("Payment succeeded but no download URL was returned");
-    console.log(`[x402-buy] Settled · tx ${result.settleResponse.transaction}`);
-    downloadUrl = body.url;
+    const settlement = result.header as SettleResponse;
+    console.log(`[x402-buy] Settled · tx ${settlement.transaction} · payer ${settlement.payer}`);
+    responseBody = result.body;
   } else {
-    const body = await first.text();
-    throw new Error(`Unexpected status ${first.status}: ${body}`);
+    const text = await first.text();
+    throw new Error(`Unexpected status ${first.status}: ${text}`);
   }
 
-  console.log("[x402-buy] Downloading file…");
-  const fileRes = await fetch(downloadUrl);
-  if (!fileRes.ok) throw new Error(`Download failed with status ${fileRes.status}`);
-  const bytes = Buffer.from(await fileRes.arrayBuffer());
-  await writeFile(output, bytes);
-  console.log(`[x402-buy] Saved ${bytes.length} bytes to ${output}`);
+  console.log(JSON.stringify(responseBody, null, 2));
 }
 
 main().catch(error => {

@@ -75,25 +75,30 @@ export async function payAndFetch<T = unknown>(params: {
   const paid = await fetch(params.resourceUrl, { headers: paymentHeaders });
   const result = await httpClient.processResponse(paid);
 
-  switch (result.kind) {
-    case "success": {
+  switch (result.paymentStatus) {
+    case "settled": {
+      const settlement = result.header as { transaction?: string; payer?: string } | undefined;
       return {
         body: result.body as T,
-        transaction: result.settleResponse.transaction,
-        payer: result.settleResponse.payer,
+        transaction: settlement?.transaction,
+        payer: settlement?.payer,
       };
     }
-    case "settle_failed":
-      throw new Error(`Payment settlement failed: ${result.settleResponse.errorReason ?? "unknown"}`);
-    case "payment_required": {
-      const reason = (result.paymentRequired as { error?: string })?.error ?? "Payment was rejected by the server";
-      throw new Error(reason);
+    case "settle_failed": {
+      const settlement = result.header as { errorReason?: string } | undefined;
+      throw new Error(`Payment settlement failed: ${settlement?.errorReason ?? "unknown"}`);
     }
-    case "error": {
+    case "payment_required": {
+      const challenge = result.header as { error?: string } | undefined;
+      throw new Error(challenge?.error ?? "Payment was rejected by the server");
+    }
+    case "none":
+    default: {
+      if (result.status >= 200 && result.status < 300) {
+        return { body: result.body as T };
+      }
       const body = result.body as { error?: string };
       throw new Error(body?.error ?? `Request failed with status ${result.status}`);
     }
-    default:
-      throw new Error("Unexpected response from server");
   }
 }
