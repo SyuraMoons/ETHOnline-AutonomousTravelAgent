@@ -4,7 +4,20 @@ import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  providers: [Google, GitHub],
+  // Providers must be called as functions
+  providers: [
+    Google({
+      clientId: process.env.AUTH_GOOGLE_ID,
+      clientSecret: process.env.AUTH_GOOGLE_SECRET,
+    }),
+    GitHub({
+      clientId: process.env.AUTH_GITHUB_ID,
+      clientSecret: process.env.AUTH_GITHUB_SECRET,
+    }),
+  ],
+
+  // Explicitly pass secret as a fallback to ensure assertConfig passes
+  secret: process.env.AUTH_SECRET,
 
   // JWT sessions — no database required. Sessions are signed cookies.
   session: { strategy: "jwt" },
