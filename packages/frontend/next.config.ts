@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: path.join(__dirname, "../.."),
   reactStrictMode: true,
   devIndicators: false,
-  transpilePackages: ["@hashgraph/hedera-wallet-connect", "@scaffold-hbar-ui/components"],
+  transpilePackages: ["@hashgraph/hedera-wallet-connect", "@scaffold-hbar-ui/components", "@sh/contracts"],
   typescript: {
     ignoreBuildErrors: process.env.NEXT_PUBLIC_IGNORE_BUILD_ERROR === "true",
   },
@@ -19,6 +19,15 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: process.env.NEXT_PUBLIC_IGNORE_BUILD_ERROR === "true",
   },
   webpack: (config, { dev, isServer }) => {
+    // @sh/contracts is a NodeNext-style TS package: its relative imports use
+    // ".js" extensions that point at sibling ".ts" files (Node's own NodeNext
+    // resolver — used by packages/supplier via tsx — handles this natively;
+    // webpack does not, without this alias).
+    config.resolve.extensionAlias = {
+      ...(config.resolve.extensionAlias ?? {}),
+      ".js": [".ts", ".tsx", ".js"],
+    };
+
     config.resolve.alias = {
       ...(config.resolve.alias ?? {}),
       porto: false,
