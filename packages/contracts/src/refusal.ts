@@ -1,7 +1,8 @@
 import { z } from "zod";
 
-// Closed set — see AGENTS.md "Refusal reason codes". Every ActionRefused audit
-// event and every refusal surfaced to the planner UI must use one of these.
+// Closed set — see AGENTS.md "Refusal reason codes". Every refusal surfaced to the planner
+// UI must use one of these. ActionRefused audit events use the wider AuditRefusalReason
+// (see audit.ts), which also covers the two operational failures below.
 export const RefusalReason = z.enum([
   "per_tx_ceiling_exceeded",
   "total_ceiling_exceeded",
