@@ -1,7 +1,7 @@
 // Approval page
-import { getApproval } from "~~/services/autovoyage/tripData";
 import { ApprovalFocus } from "~~/components/autovoyage/approval/ApprovalFocus";
 import { AgentPanel } from "~~/components/autovoyage/plan/AgentPanel";
+import { getApproval } from "~~/services/autovoyage/tripData";
 
 export default async function ApprovePage() {
   const approval = await getApproval();

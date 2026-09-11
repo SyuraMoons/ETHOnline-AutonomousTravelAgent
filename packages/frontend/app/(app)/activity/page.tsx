@@ -1,7 +1,7 @@
 // Activity page
-import { getActivityFeed } from "~~/services/autovoyage/tripData";
 import { StatTile } from "~~/components/autovoyage/activity/StatTile";
 import { X402ActivityRow } from "~~/components/autovoyage/activity/X402ActivityRow";
+import { getActivityFeed } from "~~/services/autovoyage/tripData";
 
 export default async function ActivityPage() {
   const feed = await getActivityFeed();

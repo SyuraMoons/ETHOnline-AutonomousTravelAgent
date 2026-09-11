@@ -32,7 +32,12 @@ export async function getTripPlan(): Promise<TripPlan> {
       status: "auto_approved",
       priceMinor: 61200,
       legs: [
-        { tag: "OUT · 12", airline: "Garuda Indonesia", route: "07:20 CGK → 15:05 NRT", meta: "1 stop · 8h 45m · Economy" },
+        {
+          tag: "OUT · 12",
+          airline: "Garuda Indonesia",
+          route: "07:20 CGK → 15:05 NRT",
+          meta: "1 stop · 8h 45m · Economy",
+        },
         { tag: "RET · 15", airline: "ANA", route: "18:40 NRT → 23:10 CGK", meta: "nonstop · 7h 30m · Economy" },
       ],
     },
@@ -47,15 +52,39 @@ export async function getTripPlan(): Promise<TripPlan> {
       paces: ["Calm", "Balanced", "Adventurous"],
       defaultPace: "Calm",
       items: [
-        { id: "forest-bathing", name: "Forest bathing", sub: "Okutama valley walk", meta: "Calm · Half day · Easy", priceMinor: 4500 },
-        { id: "teamlab", name: "teamLab Planets", sub: "Immersive digital art", meta: "Calm · 2h · Indoor", priceMinor: 2800 },
-        { id: "tea-ceremony", name: "Tea ceremony", sub: "Asakusa, private host", meta: "Calm · 1.5h · Indoor", priceMinor: 3500 },
+        {
+          id: "forest-bathing",
+          name: "Forest bathing",
+          sub: "Okutama valley walk",
+          meta: "Calm · Half day · Easy",
+          priceMinor: 4500,
+        },
+        {
+          id: "teamlab",
+          name: "teamLab Planets",
+          sub: "Immersive digital art",
+          meta: "Calm · 2h · Indoor",
+          priceMinor: 2800,
+        },
+        {
+          id: "tea-ceremony",
+          name: "Tea ceremony",
+          sub: "Asakusa, private host",
+          meta: "Calm · 1.5h · Indoor",
+          priceMinor: 3500,
+        },
       ],
     },
     agent: [
-      { from: "agent", text: "I put together your Tokyo plan. Flights and activities are within your limit and booked." },
+      {
+        from: "agent",
+        text: "I put together your Tokyo plan. Flights and activities are within your limit and booked.",
+      },
       { from: "user", text: "Great. What about the hotel?" },
-      { from: "agent", text: "The Park Hotel Tokyo is $980, above your $200 limit. Approve it with a face check and I will book it." },
+      {
+        from: "agent",
+        text: "The Park Hotel Tokyo is $980, above your $200 limit. Approve it with a face check and I will book it.",
+      },
     ],
   };
 }
@@ -86,11 +115,21 @@ export async function getBooking(): Promise<Booking> {
     flights: {
       priceMinor: 61200,
       legs: [
-        { tag: "OUT · 12", airline: "Garuda Indonesia", route: "07:20 CGK → 15:05 NRT", meta: "1 stop · 8h 45m · Economy" },
+        {
+          tag: "OUT · 12",
+          airline: "Garuda Indonesia",
+          route: "07:20 CGK → 15:05 NRT",
+          meta: "1 stop · 8h 45m · Economy",
+        },
         { tag: "RET · 15", airline: "ANA", route: "18:40 NRT → 23:10 CGK", meta: "nonstop · 7h 30m · Economy" },
       ],
     },
-    stay: { date: "NOV 12", name: "The Park Hotel Tokyo", detail: "Deluxe King · 3 nights · human-approved", priceMinor: 98000 },
+    stay: {
+      date: "NOV 12",
+      name: "The Park Hotel Tokyo",
+      detail: "Deluxe King · 3 nights · human-approved",
+      priceMinor: 98000,
+    },
     activities: {
       priceMinor: 14000,
       items: [
@@ -117,12 +156,43 @@ export async function getActivityFeed(): Promise<ActivityFeed> {
     ],
     group: "Today",
     rows: [
-      { title: "Hired FlightSearch agent", ref: "0x7f3c…a921 · x402 agent → agent", amount: "0.05 USDC", time: "2:31:04 PM" },
-      { title: "Paid FlightSearch agent · 3 results", ref: "0x9a12…4e0b · x402 agent → agent", amount: "0.02 USDC", time: "2:31:22 PM" },
-      { title: "Booked Garuda flight · CGK → NRT", ref: "0x3d88…c7f1 · settled on-chain", amount: "$612.00", time: "2:33:10 PM" },
-      { title: "Hired ReviewCheck agent", ref: "0x51bb…9d20 · x402 agent → agent", amount: "0.03 USDC", time: "2:33:41 PM" },
-      { title: "Paid HotelSearch agent · 12 results", ref: "0x77ac…1f6a · x402 agent → agent", amount: "0.04 USDC", time: "2:34:02 PM" },
-      { title: "Hotel booking paused for approval", ref: "The Park Hotel Tokyo · $980 over limit", amount: "Pending", pending: true, time: "2:34:20 PM" },
+      {
+        title: "Hired FlightSearch agent",
+        ref: "0x7f3c…a921 · x402 agent → agent",
+        amount: "0.05 USDC",
+        time: "2:31:04 PM",
+      },
+      {
+        title: "Paid FlightSearch agent · 3 results",
+        ref: "0x9a12…4e0b · x402 agent → agent",
+        amount: "0.02 USDC",
+        time: "2:31:22 PM",
+      },
+      {
+        title: "Booked Garuda flight · CGK → NRT",
+        ref: "0x3d88…c7f1 · settled on-chain",
+        amount: "$612.00",
+        time: "2:33:10 PM",
+      },
+      {
+        title: "Hired ReviewCheck agent",
+        ref: "0x51bb…9d20 · x402 agent → agent",
+        amount: "0.03 USDC",
+        time: "2:33:41 PM",
+      },
+      {
+        title: "Paid HotelSearch agent · 12 results",
+        ref: "0x77ac…1f6a · x402 agent → agent",
+        amount: "0.04 USDC",
+        time: "2:34:02 PM",
+      },
+      {
+        title: "Hotel booking paused for approval",
+        ref: "The Park Hotel Tokyo · $980 over limit",
+        amount: "Pending",
+        pending: true,
+        time: "2:34:20 PM",
+      },
     ],
   };
 }
@@ -131,12 +201,46 @@ export async function getAuditTrail(): Promise<AuditTrail> {
   return {
     group: "Today · Nov 6",
     rows: [
-      { title: "Booked Garuda flight · CGK → NRT", ref: "0x3d88…c7f1 · auto-approved, within limit", amount: "−$612.00", time: "2:33 PM", category: "payment" },
-      { title: "Agent micro-payments · 5 × x402", ref: "0x9a12…4e0b · agent → agent", amount: "−0.38 USDC", time: "2:34 PM", category: "payment" },
-      { title: "Approval requested · hotel $980", ref: "0x5f21…b8c4 · exceeds $200 auto-limit", time: "2:34 PM", category: "approval" },
-      { title: "Face check verified · you approved", ref: "0x77de…1a09 · liveness human-approved", time: "2:35 PM", category: "approval" },
-      { title: "Booked Park Hotel Tokyo · 3 nights", ref: "0x9f04…c2e7 · human-approved", amount: "−$980.00", time: "2:35 PM", category: "payment" },
-      { title: "Booked activities · teamLab + city tour", ref: "0x2b71…d5a3 · auto-approved", amount: "−$140.00", time: "2:36 PM", category: "payment" },
+      {
+        title: "Booked Garuda flight · CGK → NRT",
+        ref: "0x3d88…c7f1 · auto-approved, within limit",
+        amount: "−$612.00",
+        time: "2:33 PM",
+        category: "payment",
+      },
+      {
+        title: "Agent micro-payments · 5 × x402",
+        ref: "0x9a12…4e0b · agent → agent",
+        amount: "−0.38 USDC",
+        time: "2:34 PM",
+        category: "payment",
+      },
+      {
+        title: "Approval requested · hotel $980",
+        ref: "0x5f21…b8c4 · exceeds $200 auto-limit",
+        time: "2:34 PM",
+        category: "approval",
+      },
+      {
+        title: "Face check verified · you approved",
+        ref: "0x77de…1a09 · liveness human-approved",
+        time: "2:35 PM",
+        category: "approval",
+      },
+      {
+        title: "Booked Park Hotel Tokyo · 3 nights",
+        ref: "0x9f04…c2e7 · human-approved",
+        amount: "−$980.00",
+        time: "2:35 PM",
+        category: "payment",
+      },
+      {
+        title: "Booked activities · teamLab + city tour",
+        ref: "0x2b71…d5a3 · auto-approved",
+        amount: "−$140.00",
+        time: "2:36 PM",
+        category: "payment",
+      },
     ],
   };
 }
@@ -161,6 +265,11 @@ export async function getChat(): Promise<ChatThread> {
         text: "Booked Garuda for $612. The Park Hotel Tokyo is $980, above your $200 limit, so I need your approval to book it.",
       },
     ],
-    approval: { name: "The Park Hotel Tokyo", nights: 3, priceMinor: 98000, note: "Above your $200 auto approve limit" },
+    approval: {
+      name: "The Park Hotel Tokyo",
+      nights: 3,
+      priceMinor: 98000,
+      note: "Above your $200 auto approve limit",
+    },
   };
 }

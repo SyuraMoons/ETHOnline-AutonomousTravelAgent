@@ -3,14 +3,14 @@
 // Sidebar
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { hederaNamespace } from "@hashgraph/hedera-wallet-connect";
-import { useAppKit } from "@reown/appkit/react";
-import type { TripContext } from "~~/types/autovoyage/plan";
-import { formatUsd } from "~~/services/autovoyage/currency";
-import { useHederaWalletConnect } from "~~/services/web3/hederaWalletConnect";
-import { getParsedError, notification } from "~~/utils/scaffold-hbar";
 import { Wordmark } from "../brand/Wordmark";
 import { CompassIcon, PulseIcon, ShieldIcon, WalletIcon } from "../ui/icons";
+import { hederaNamespace } from "@hashgraph/hedera-wallet-connect";
+import { useAppKit } from "@reown/appkit/react";
+import { formatUsd } from "~~/services/autovoyage/currency";
+import { useHederaWalletConnect } from "~~/services/web3/hederaWalletConnect";
+import type { TripContext } from "~~/types/autovoyage/plan";
+import { getParsedError, notification } from "~~/utils/scaffold-hbar";
 
 const NAV = [
   { href: "/plan", label: "Plan trip", icon: CompassIcon },

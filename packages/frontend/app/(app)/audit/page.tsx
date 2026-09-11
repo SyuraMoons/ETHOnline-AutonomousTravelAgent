@@ -1,6 +1,6 @@
 // Audit page
-import { getAuditTrail } from "~~/services/autovoyage/tripData";
 import { AuditList } from "~~/components/autovoyage/audit/AuditList";
+import { getAuditTrail } from "~~/services/autovoyage/tripData";
 
 export default async function AuditPage() {
   const trail = await getAuditTrail();

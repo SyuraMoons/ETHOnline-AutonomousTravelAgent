@@ -3,10 +3,12 @@
 
 import { useRef } from "react";
 import Link from "next/link";
-import type { ApprovalBooking } from "~~/types/autovoyage/plan";
-import { formatUsd } from "~~/services/autovoyage/currency";
-import { useBeat } from "~~/hooks/autovoyage/useBeat";
 import { StatusPill } from "../ui/StatusPill";
+import { useBeat } from "~~/hooks/autovoyage/useBeat";
+import { formatUsd } from "~~/services/autovoyage/currency";
+import type { ApprovalBooking } from "~~/types/autovoyage/plan";
+
+// Approval focus (face check)
 
 export function ApprovalFocus({
   booking,
@@ -35,7 +37,9 @@ export function ApprovalFocus({
           <p className="m-0 text-[14px] text-av-muted">
             {booking.name} · {booking.nights} nights
           </p>
-          <p className="m-0 mt-1 text-[36px] font-bold tracking-[-0.02em] text-av-text">{formatUsd(booking.priceMinor)}</p>
+          <p className="m-0 mt-1 text-[36px] font-bold tracking-[-0.02em] text-av-text">
+            {formatUsd(booking.priceMinor)}
+          </p>
           <p className="m-0 mt-1 text-[13px] font-medium text-av-amber">{booking.note}</p>
         </div>
 

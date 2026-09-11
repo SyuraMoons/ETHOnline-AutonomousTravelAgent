@@ -28,7 +28,10 @@ export function FlightRow({
         </div>
       </div>
       {readOnly ? null : (
-        <button type="button" className="flex-shrink-0 text-[13px] font-medium text-av-blue transition-opacity hover:opacity-70">
+        <button
+          type="button"
+          className="flex-shrink-0 text-[13px] font-medium text-av-blue transition-opacity hover:opacity-70"
+        >
           Change
         </button>
       )}

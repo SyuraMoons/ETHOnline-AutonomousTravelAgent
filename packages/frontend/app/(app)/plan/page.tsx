@@ -1,14 +1,14 @@
 // Trip Plan page
-import { getBooking, getTripPlan } from "~~/services/autovoyage/tripData";
-import { formatUsd } from "~~/services/autovoyage/currency";
-import { AgentSteps } from "~~/components/autovoyage/plan/AgentSteps";
-import { PlanSection } from "~~/components/autovoyage/plan/PlanSection";
-import { FlightRow } from "~~/components/autovoyage/plan/FlightRow";
-import { StayCard } from "~~/components/autovoyage/plan/StayCard";
+import { BookingConfirmedModal } from "~~/components/autovoyage/approval/BookingConfirmedModal";
 import { ActivityPicker } from "~~/components/autovoyage/plan/ActivityPicker";
 import { AgentPanel } from "~~/components/autovoyage/plan/AgentPanel";
+import { AgentSteps } from "~~/components/autovoyage/plan/AgentSteps";
+import { FlightRow } from "~~/components/autovoyage/plan/FlightRow";
+import { PlanSection } from "~~/components/autovoyage/plan/PlanSection";
+import { StayCard } from "~~/components/autovoyage/plan/StayCard";
 import { StatusPill } from "~~/components/autovoyage/ui/StatusPill";
-import { BookingConfirmedModal } from "~~/components/autovoyage/approval/BookingConfirmedModal";
+import { formatUsd } from "~~/services/autovoyage/currency";
+import { getBooking, getTripPlan } from "~~/services/autovoyage/tripData";
 
 export default async function PlanPage({ searchParams }: { searchParams: Promise<{ booked?: string }> }) {
   const { booked } = await searchParams;
@@ -32,9 +32,11 @@ export default async function PlanPage({ searchParams }: { searchParams: Promise
 
           <PlanSection
             label="Flights"
-            pill={<StatusPill tone={plan.flights.status === "auto_approved" ? "approved" : "needs"}>
-              {plan.flights.status === "auto_approved" ? "Auto-approved" : "Needs approval"}
-            </StatusPill>}
+            pill={
+              <StatusPill tone={plan.flights.status === "auto_approved" ? "approved" : "needs"}>
+                {plan.flights.status === "auto_approved" ? "Auto-approved" : "Needs approval"}
+              </StatusPill>
+            }
             price={formatUsd(plan.flights.priceMinor)}
           >
             {plan.flights.legs.map((leg, i) => (
@@ -45,9 +47,11 @@ export default async function PlanPage({ searchParams }: { searchParams: Promise
           <PlanSection
             label="Stay"
             highlight={plan.stay.status === "needs_approval"}
-            pill={<StatusPill tone={plan.stay.status === "auto_approved" ? "approved" : "needs"}>
-              {plan.stay.status === "auto_approved" ? "Auto-approved" : "Needs approval"}
-            </StatusPill>}
+            pill={
+              <StatusPill tone={plan.stay.status === "auto_approved" ? "approved" : "needs"}>
+                {plan.stay.status === "auto_approved" ? "Auto-approved" : "Needs approval"}
+              </StatusPill>
+            }
             price={formatUsd(plan.stay.priceMinor)}
           >
             <StayCard stay={plan.stay} />

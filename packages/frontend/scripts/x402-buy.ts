@@ -19,6 +19,7 @@
 import { PrivateKey } from "@hiero-ledger/sdk";
 import { x402Client, x402HTTPClient } from "@x402/core/client";
 import type { Network } from "@x402/core/types";
+import type { SettleResponse } from "@x402/core/types";
 import { createClientHederaSigner } from "@x402/hedera";
 import { ExactHederaScheme } from "@x402/hedera/exact/client";
 import { writeFile } from "node:fs/promises";
@@ -39,7 +40,9 @@ async function main() {
   const network = (process.env.X402_NETWORK ?? "hedera:testnet") as Network;
   const output = process.env.OUTPUT ?? "./downloaded.bin";
 
-  const privateKey = PrivateKey.fromStringECDSA(privateKeyStr);
+  // Cast as never: @x402/hedera bundles its own copy of @hiero-ledger/sdk, causing
+  // a duplicate-declaration type conflict. The runtime types are compatible.
+  const privateKey = PrivateKey.fromStringECDSA(privateKeyStr) as never;
   const signer = createClientHederaSigner(accountId, privateKey, { network });
   const client = new x402Client().register(network, new ExactHederaScheme(signer));
   const httpClient = new x402HTTPClient(client);
@@ -68,12 +71,14 @@ async function main() {
     const paid = await fetch(resourceUrl, { headers });
     const result = await httpClient.processResponse(paid);
 
-    if (result.kind !== "success") {
-      throw new Error(`Payment failed: ${result.kind}`);
+    // x402 v2: result.paymentStatus replaces result.kind
+    if (result.paymentStatus !== "settled") {
+      throw new Error(`Payment failed: ${result.paymentStatus}`);
     }
     const body = result.body as { url?: string };
     if (!body.url) throw new Error("Payment succeeded but no download URL was returned");
-    console.log(`[x402-buy] Settled · tx ${result.settleResponse.transaction}`);
+    const settle = result.header as SettleResponse | undefined;
+    console.log(`[x402-buy] Settled · tx ${settle?.transaction ?? "unknown"}`);
     downloadUrl = body.url;
   } else {
     const body = await first.text();

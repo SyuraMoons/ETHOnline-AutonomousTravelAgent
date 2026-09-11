@@ -12,7 +12,9 @@ export function X402ActivityRow({ row }: { row: ActivityRow }) {
         <p className="m-0 mt-0.5 truncate font-mono text-[11px] text-av-muted">{row.ref}</p>
       </div>
       <div className="flex-shrink-0 text-right">
-        <p className={`m-0 font-mono text-[13px] font-medium ${row.pending ? "text-av-amber" : "text-av-text"}`}>{row.amount}</p>
+        <p className={`m-0 font-mono text-[13px] font-medium ${row.pending ? "text-av-amber" : "text-av-text"}`}>
+          {row.amount}
+        </p>
         <p className="m-0 mt-0.5 font-mono text-[11px] text-av-muted">{row.time}</p>
       </div>
     </div>

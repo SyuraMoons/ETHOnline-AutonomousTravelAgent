@@ -1,6 +1,6 @@
 // Chat thread
-import type { ChatMessage } from "~~/types/autovoyage/plan";
 import { ChatFlightCard } from "./ChatFlightCard";
+import type { ChatMessage } from "~~/types/autovoyage/plan";
 
 export function ChatThread({ messages }: { messages: ChatMessage[] }) {
   return (

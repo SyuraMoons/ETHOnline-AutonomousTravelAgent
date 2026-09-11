@@ -10,10 +10,7 @@ export function AgentActivityCard() {
     <div className="w-full max-w-[420px] rounded border border-av-border bg-av-card p-2">
       <ul className="flex flex-col">
         {ROWS.map((r, i) => (
-          <li
-            key={r.title}
-            className={`flex items-center gap-3 px-4 py-4 ${i > 0 ? "border-t border-av-border" : ""}`}
-          >
+          <li key={r.title} className={`flex items-center gap-3 px-4 py-4 ${i > 0 ? "border-t border-av-border" : ""}`}>
             <span className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-av-blue-tint">
               <span className="h-2 w-2 rounded-full bg-av-blue" />
             </span>

@@ -15,7 +15,9 @@ export function PlanSection({
   children: ReactNode;
 }) {
   return (
-    <div className={`overflow-hidden rounded border bg-av-card ${highlight ? "border-av-amber/40" : "border-av-border"}`}>
+    <div
+      className={`overflow-hidden rounded border bg-av-card ${highlight ? "border-av-amber/40" : "border-av-border"}`}
+    >
       <div className={`flex items-center justify-between px-4 py-3 ${highlight ? "bg-av-amber/5" : ""}`}>
         <div className="flex items-center gap-3">
           <span className="font-mono text-[11px] uppercase tracking-[0.1em] text-av-muted">{label}</span>

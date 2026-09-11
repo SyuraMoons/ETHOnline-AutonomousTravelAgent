@@ -44,7 +44,9 @@ export function AuditList({ trail }: { trail: AuditTrail }) {
                 <p className="m-0 mt-0.5 truncate font-mono text-[11px] text-av-muted">{row.ref}</p>
               </div>
               <div className="flex flex-shrink-0 items-center gap-4">
-                {row.amount ? <span className="font-mono text-[13px] font-medium text-av-text">{row.amount}</span> : null}
+                {row.amount ? (
+                  <span className="font-mono text-[13px] font-medium text-av-text">{row.amount}</span>
+                ) : null}
                 <span className="w-14 text-right font-mono text-[11px] text-av-muted">{row.time}</span>
               </div>
             </div>

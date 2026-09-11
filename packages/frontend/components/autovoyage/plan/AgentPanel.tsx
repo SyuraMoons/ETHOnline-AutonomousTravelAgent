@@ -1,10 +1,10 @@
 "use client";
 
 // Agent panel
-import Link from "next/link";
 import { useState } from "react";
-import type { AgentMessage } from "~~/types/autovoyage/plan";
+import Link from "next/link";
 import { ExpandIcon, SendIcon } from "../ui/icons";
+import type { AgentMessage } from "~~/types/autovoyage/plan";
 
 function Bubble({ message }: { message: AgentMessage }) {
   if (message.from === "user") {
@@ -62,7 +62,11 @@ export function AgentPanel({ messages, statusNote }: { messages: AgentMessage[];
             placeholder="Ask anything about your trip..."
             className="w-full bg-transparent py-1 text-[13px] text-av-text outline-none placeholder:text-av-muted"
           />
-          <button type="submit" aria-label="Send" className="rounded bg-av-blue p-1.5 text-av-paper transition-colors hover:bg-av-blue-hover">
+          <button
+            type="submit"
+            aria-label="Send"
+            className="rounded bg-av-blue p-1.5 text-av-paper transition-colors hover:bg-av-blue-hover"
+          >
             <SendIcon size={15} />
           </button>
         </div>

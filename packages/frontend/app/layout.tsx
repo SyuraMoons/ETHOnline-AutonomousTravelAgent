@@ -1,5 +1,6 @@
 // Root layout
 import "@scaffold-hbar-ui/components/styles.css";
+import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "~~/components/ThemeProvider";
 import { AppProviders } from "~~/components/autovoyage/layout/AppProviders";
 import "~~/styles/globals.css";
@@ -15,9 +16,11 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
     <html suppressHydrationWarning>
       <body>
         <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
-        <ThemeProvider enableSystem>
-          <AppProviders>{children}</AppProviders>
-        </ThemeProvider>
+        <SessionProvider>
+          <ThemeProvider enableSystem>
+            <AppProviders>{children}</AppProviders>
+          </ThemeProvider>
+        </SessionProvider>
       </body>
     </html>
   );

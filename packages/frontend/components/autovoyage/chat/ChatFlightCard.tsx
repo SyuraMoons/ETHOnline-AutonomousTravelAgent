@@ -1,6 +1,6 @@
 // Chat flight card
-import type { ChatFlightOption } from "~~/types/autovoyage/plan";
 import { formatUsd } from "~~/services/autovoyage/currency";
+import type { ChatFlightOption } from "~~/types/autovoyage/plan";
 
 export function ChatFlightCard({ option }: { option: ChatFlightOption }) {
   return (

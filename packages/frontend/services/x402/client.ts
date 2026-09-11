@@ -1,3 +1,4 @@
+import type { SettleResponse } from "@x402/core/types";
 import type { ClientHederaSigner } from "@x402/hedera";
 
 /**
@@ -75,25 +76,28 @@ export async function payAndFetch<T = unknown>(params: {
   const paid = await fetch(params.resourceUrl, { headers: paymentHeaders });
   const result = await httpClient.processResponse(paid);
 
-  switch (result.kind) {
-    case "success": {
+  // x402 v2: result.paymentStatus replaces result.kind;
+  // result.header (SettleResponse | PaymentRequired) replaces result.settleResponse / result.paymentRequired
+  switch (result.paymentStatus) {
+    case "settled": {
+      const settle = result.header as SettleResponse | undefined;
       return {
         body: result.body as T,
-        transaction: result.settleResponse.transaction,
-        payer: result.settleResponse.payer,
+        transaction: settle?.transaction,
+        payer: settle?.payer,
       };
     }
-    case "settle_failed":
-      throw new Error(`Payment settlement failed: ${result.settleResponse.errorReason ?? "unknown"}`);
+    case "settle_failed": {
+      const settle = result.header as SettleResponse | undefined;
+      throw new Error(`Payment settlement failed: ${settle?.errorReason ?? "unknown"}`);
+    }
     case "payment_required": {
-      const reason = (result.paymentRequired as { error?: string })?.error ?? "Payment was rejected by the server";
+      const reason = (result.header as { error?: string } | undefined)?.error ?? "Payment was rejected by the server";
       throw new Error(reason);
     }
-    case "error": {
+    default: {
       const body = result.body as { error?: string };
       throw new Error(body?.error ?? `Request failed with status ${result.status}`);
     }
-    default:
-      throw new Error("Unexpected response from server");
   }
 }

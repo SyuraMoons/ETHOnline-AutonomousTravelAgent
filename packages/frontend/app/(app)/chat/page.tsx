@@ -1,10 +1,10 @@
 // Chat page
 import Link from "next/link";
-import { getChat } from "~~/services/autovoyage/tripData";
+import { ApprovalFocus } from "~~/components/autovoyage/approval/ApprovalFocus";
 import { ChatThread } from "~~/components/autovoyage/chat/ChatThread";
 import { Composer } from "~~/components/autovoyage/chat/Composer";
-import { ApprovalFocus } from "~~/components/autovoyage/approval/ApprovalFocus";
 import { CollapseIcon } from "~~/components/autovoyage/ui/icons";
+import { getChat } from "~~/services/autovoyage/tripData";
 
 export default async function ChatPage({ searchParams }: { searchParams: Promise<{ approve?: string }> }) {
   const { approve } = await searchParams;
