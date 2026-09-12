@@ -50,7 +50,6 @@ export {
   PRICE_BANDS,
   priceTinybars,
   pricingLabel,
-  bookingFeeTinybars,
   bookingPricingLabel,
   type PriceBand,
   type PriceBandName,

@@ -18,9 +18,18 @@ import { loadCachedFlights } from "./flightsCache.js";
  */
 
 describe("BookingRequest schema", () => {
+  // The fare settles against a card, not in HBAR — searching is what costs HBAR,
+  // and a booking with no way to pay the fare is not a booking.
   const passenger = {
     passengerName: "A Traveller",
     passengerEmail: "a@example.com",
+    payment: {
+      method: "card" as const,
+      token: "tok_test_4242abcd",
+      brand: "visa" as const,
+      last4: "4242",
+      holderName: "A Traveller",
+    },
   };
 
   it("accepts flights alone — booking the flight first is a real request", () => {
