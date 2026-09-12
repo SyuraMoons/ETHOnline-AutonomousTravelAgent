@@ -1,5 +1,8 @@
 import type { SearchResult } from "@sh/contracts";
 import { loadCachedFlights } from "./flightsCache.js";
+import { localDepartureDate } from "./airports.js";
+import { loadCachedStays } from "./staysCache.js";
+import { loadCachedActivities } from "./activitiesCache.js";
 
 export type FlightQuery = {
   origin: string;
@@ -138,11 +141,16 @@ export function findFlights(query: FlightQuery): SearchResult[] {
   const destination = toAirportCode(query.destination);
   const departDay = query.departDate.slice(0, 10);
 
+  // Filter on the departure date LOCAL TO THE ORIGIN, not the UTC date. A 06:45
+  // departure from Singapore is 22:45 UTC the day before, so a UTC-date filter
+  // silently drops every early-morning flight from the day the buyer asked for —
+  // and the generator buckets by local date too, so the two would disagree about
+  // what a date even contains.
   const cached = loadCachedFlights().filter(
     (f) =>
       f.origin === origin &&
       f.destination === destination &&
-      f.departUtc.slice(0, 10) === departDay,
+      localDepartureDate(f.departUtc, f.origin) === departDay,
   );
   if (cached.length > 0) {
     return cached
@@ -156,9 +164,19 @@ export function findFlights(query: FlightQuery): SearchResult[] {
   );
 }
 
-/** Total number of rows the supplier can serve right now (cache only, for /health). */
+/**
+ * Rows the supplier can serve right now, across every domain.
+ *
+ * Counted flights only until now, so /health reported 1608 while the startup
+ * line said 1608 flights + 158 stays + 184 activities — the same service
+ * describing itself two different ways.
+ */
 export function cachedInventoryCount(): number {
-  return loadCachedFlights().length;
+  return (
+    loadCachedFlights().length +
+    loadCachedStays().length +
+    loadCachedActivities().length
+  );
 }
 
 /**
