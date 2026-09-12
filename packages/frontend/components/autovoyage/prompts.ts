@@ -6,26 +6,31 @@ import { CoinIcon, FaceScanIcon, MapPinIcon, PlaneIcon } from "./ui/icons";
 
 type Router = ReturnType<typeof useRouter>;
 
+// These briefs are deliberately pinned to routes/dates present in the supplier's
+// static inventory (data/cache/flights.json, bookable window 2026-09-14–2026-09-28)
+// so a tester's demo run can actually reach booking, not a generated (unbookable)
+// fallback offer. See AGENTS.md "Not yet built" / packages/supplier/src/lib/inventory.ts.
 export const SUGGESTIONS = [
   {
     icon: PlaneIcon,
-    label: "3 nights in Tokyo from Jakarta in November, for 2",
-    brief: "Plan a 3-night trip to Tokyo from Jakarta in November for 2 travellers.",
+    label: "Round trip: Jakarta → Bali, Sep 20–24, 2 pax",
+    brief:
+      "Plan a round trip from Jakarta to Bali (Denpasar), departing September 20 2026 and returning September 24 2026, for 2 travellers.",
   },
   {
     icon: MapPinIcon,
-    label: "A weekend in Singapore from Yogyakarta, 3 of us",
-    brief: "Find me a weekend trip from Yogyakarta to Singapore next month for 3 travellers.",
+    label: "One-way: Jakarta → Tokyo Haneda, Sep 18, 2 pax",
+    brief: "Find me a one-way flight from Jakarta to Tokyo Haneda (HND) on September 18 2026 for 2 travellers.",
   },
   {
     icon: CoinIcon,
-    label: "Somewhere warm under $600 per person",
-    brief: "Suggest somewhere warm I can fly to from Jakarta for under $600 per person.",
+    label: "One-way: Bangkok → Singapore, Sep 15, 4 pax",
+    brief: "Search flights from Bangkok to Singapore on September 15 2026 for 4 travellers.",
   },
   {
     icon: FaceScanIcon,
-    label: "What can you book without asking me?",
-    brief: "What can you book on your own, and what needs my approval?",
+    label: "One-way: Singapore → Sydney, Sep 22, 2 pax",
+    brief: "Search flights from Singapore to Sydney on September 22 2026 for 2 travellers.",
   },
 ];
 
