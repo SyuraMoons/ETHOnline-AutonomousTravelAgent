@@ -219,7 +219,22 @@ const CHECKS: Check[] = [
           ],
         };
       }
-      return { ok: true, detail: FACILITATOR_URL };
+      try {
+        const health = (await (
+          await fetch(`${FACILITATOR_URL}/health`, {
+            signal: AbortSignal.timeout(4000),
+          })
+        ).json()) as {
+          feePayer?: string;
+          mode?: string;
+        };
+        return {
+          ok: true,
+          detail: `${FACILITATOR_URL} · mode ${health.mode} · feePayer ${health.feePayer}`,
+        };
+      } catch {
+        return { ok: true, detail: FACILITATOR_URL };
+      }
     },
   },
   {
@@ -364,6 +379,74 @@ const CHECKS: Check[] = [
         }
       }
       return { ok: true, detail: `${priced.join(" · ")} HBAR` };
+    },
+  },
+  {
+    group: "Payment",
+    name: "Supplier and facilitator agree on the fee payer",
+    run: async () => {
+      // The supplier fetches the facilitator's supported kinds ONCE, at startup,
+      // and repeats the fee payer it learned in every 402. Change
+      // FACILITATOR_ADVERTISED_FEE_PAYER and restart only the facilitator and
+      // the two disagree silently — the buyer signs for one fee payer while the
+      // facilitator expects another, and the payment is rejected far downstream
+      // with a message that says nothing about staleness.
+      let advertised: string | undefined;
+      try {
+        const health = (await (
+          await fetch(`${FACILITATOR_URL}/health`, {
+            signal: AbortSignal.timeout(4000),
+          })
+        ).json()) as {
+          feePayer?: string;
+        };
+        advertised = health.feePayer;
+      } catch {
+        return {
+          ok: false,
+          problem: "could not read the facilitator's health",
+          fix: ["is it up?"],
+        };
+      }
+
+      const probe = `${SUPPLIER_URL}/v1/stays/search?city=NRT&checkIn=2026-11-12&checkOut=2026-11-15`;
+      let served: string | undefined;
+      try {
+        const response = await fetch(probe, {
+          signal: AbortSignal.timeout(6000),
+        });
+        const header = response.headers.get("payment-required");
+        if (!header)
+          return {
+            ok: false,
+            problem: "no PAYMENT-REQUIRED header to inspect",
+            fix: ["check the x402 wiring"],
+          };
+        const challenge = JSON.parse(
+          Buffer.from(header, "base64").toString("utf-8"),
+        ) as {
+          accepts?: { extra?: { feePayer?: string } }[];
+        };
+        served = challenge.accepts?.[0]?.extra?.feePayer;
+      } catch (error) {
+        return {
+          ok: false,
+          problem: String(error),
+          fix: ["is the supplier up?"],
+        };
+      }
+
+      if (advertised && served && advertised !== served) {
+        return {
+          ok: false,
+          problem: `the facilitator pays as ${advertised} but the supplier still advertises ${served}`,
+          fix: [
+            "the supplier cached this at startup — restart it",
+            "npm run supplier:dev",
+          ],
+        };
+      }
+      return { ok: true, detail: `both on ${served}` };
     },
   },
   {
