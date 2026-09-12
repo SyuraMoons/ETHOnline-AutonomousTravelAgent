@@ -21,6 +21,17 @@ export const X402_NETWORK = process.env.X402_NETWORK ?? "hedera:testnet";
 export const HBAR_ASSET = "0.0.0";
 export const MAX_TIMEOUT_SECONDS = 180;
 
+/**
+ * How long to wait for a facilitator verify/settle before giving up.
+ *
+ * The library default of 30s is not enough for settle on testnet: the transfer
+ * reaches consensus but the reply lands later, so a completed payment is read
+ * as a failure and a retry charges the buyer a second time.
+ */
+export const FACILITATOR_TIMEOUT_MS = process.env["FACILITATOR_TIMEOUT_MS"]
+  ? Number(process.env["FACILITATOR_TIMEOUT_MS"])
+  : 120_000;
+
 // Seller's Hedera account id — where buyer payments land. No key needed here;
 // the buyer's wallet/agent key and the facilitator's fee-payer key are the
 // only private keys involved in an x402 payment.
