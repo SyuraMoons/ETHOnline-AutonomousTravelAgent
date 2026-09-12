@@ -1,7 +1,6 @@
 // Trip data layer — swap this file for the real API/dataset
 import type {
   ActivityFeed,
-  ApprovalState,
   AuditTrail,
   Booking,
   ChatThread,
@@ -86,21 +85,6 @@ export async function getTripPlan(): Promise<TripPlan> {
         text: "The Park Hotel Tokyo is $980, above your $200 limit. Approve it with a face check and I will book it.",
       },
     ],
-  };
-}
-
-export async function getApproval(): Promise<ApprovalState> {
-  return {
-    booking: { name: "The Park Hotel Tokyo", nights: 3, priceMinor: 98000, note: "Above your $200 auto-approve limit" },
-    agent: [
-      { from: "agent", text: "I found 3 flights under your $200 auto-approve limit booking the cheapest now." },
-      { from: "user", text: "Great. Book the Garuda one and hold the hotel for my approval." },
-      {
-        from: "agent",
-        text: "Booked Garuda $612. The Park Hotel Tokyo is $980 for 3 nights above your $200 limit, so I need your approval to book it.",
-      },
-    ],
-    statusNote: "Waiting for you to verify",
   };
 }
 
@@ -265,11 +249,5 @@ export async function getChat(): Promise<ChatThread> {
         text: "Booked Garuda for $612. The Park Hotel Tokyo is $980, above your $200 limit, so I need your approval to book it.",
       },
     ],
-    approval: {
-      name: "The Park Hotel Tokyo",
-      nights: 3,
-      priceMinor: 98000,
-      note: "Above your $200 auto approve limit",
-    },
   };
 }

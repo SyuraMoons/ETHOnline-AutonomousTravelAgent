@@ -1,5 +1,5 @@
 // Trip Plan page
-import { BookingConfirmedModal } from "~~/components/autovoyage/approval/BookingConfirmedModal";
+import { BookingConfirmedModal } from "~~/components/autovoyage/plan/BookingConfirmedModal";
 import { ActivityPicker } from "~~/components/autovoyage/plan/ActivityPicker";
 import { AgentPanel } from "~~/components/autovoyage/plan/AgentPanel";
 import { AgentSteps } from "~~/components/autovoyage/plan/AgentSteps";

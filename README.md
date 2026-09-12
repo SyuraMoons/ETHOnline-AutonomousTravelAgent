@@ -38,7 +38,6 @@ Booking Confirmed → View itinerary.**
 | Landing | `/` |
 | Login | `/login` |
 | Trip Plan (main dashboard) | `/plan` |
-| Approval (World ID face-check gate) | `/approve` |
 | Booking Confirmed (modal) | `/plan?booked=1` |
 | Itinerary | `/itinerary` |
 | x402 Activity Feed | `/activity` |
@@ -54,7 +53,7 @@ packages/frontend/
 │  ├─ (marketing)/        Landing + Login (mono ink/clay system)
 │  └─ (app)/              Product screens (light + blue system) + sidebar shell
 ├─ components/autovoyage/ All AutoVoyage UI, grouped by feature
-│  ├─ marketing/ brand/ ui/ layout/ plan/ approval/ activity/ audit/ chat/ wallet/
+│  ├─ marketing/ brand/ ui/ layout/ plan/ activity/ audit/ chat/ wallet/
 ├─ services/autovoyage/
 │  ├─ tripData.ts         ← THE data layer (mock now; swap for the real API/dataset)
 │  └─ currency.ts         USD / USDC formatting

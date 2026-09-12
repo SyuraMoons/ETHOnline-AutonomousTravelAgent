@@ -27,9 +27,6 @@ export type Budget = { totalMinor: number; spentMinor: number; autoApproveMinor:
 export type CurrentTrip = { destination: string; dates: string; travelers: number };
 export type TripContext = { budget: Budget; trip: CurrentTrip };
 
-export type ApprovalBooking = { name: string; nights: number; priceMinor: number; note: string };
-export type ApprovalState = { booking: ApprovalBooking; agent: AgentMessage[]; statusNote?: string };
-
 export type OnChainProof = { txId: string; hashScanUrl: string; worldIdNullifier: string };
 export type PaymentLine = { label: string; amountMinor: number };
 export type BookedActivity = { date: string; name: string; sub: string };
@@ -60,4 +57,4 @@ export type AuditTrail = { group: string; rows: AuditRow[] };
 
 export type ChatFlightOption = { airline: string; route: string; meta: string; priceMinor: number };
 export type ChatMessage = { from: "agent" | "user"; time: string; text?: string; results?: ChatFlightOption[] };
-export type ChatThread = { messages: ChatMessage[]; approval: ApprovalBooking };
+export type ChatThread = { messages: ChatMessage[] };

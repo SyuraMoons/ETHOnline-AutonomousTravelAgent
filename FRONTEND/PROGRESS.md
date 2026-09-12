@@ -36,14 +36,13 @@ Landing polish:
 ## Other screens (design-first, all in Figma)
 - [x] Login (`/login`, node 77:142) — left brand panel (collage calmed: desaturated + ink scrim, with LIVE wordmark + headline) + dark sign-in card (email, Google/Github, Connect wallet). All auth is placeholder.
 - [x] Trip Plan (`/plan`, node 188:315) — sidebar shell + agent-progress card, Flights (auto-approved), Stay (needs-approval gate), Activities pace picker, agent chat panel. **Data-driven**: all values come from `services/autovoyage/tripData.ts` (mock now → swap for the scraped dataset/`/api/plan`; types in `types/autovoyage/plan.ts`, formatting in `services/autovoyage/currency.ts`). Components are pure, nothing hardcoded.
-- [x] Approval (`/approve`, node 31:146) — over-limit face-check gate + agent panel ("Waiting for you to verify"). Data-driven (getApproval). [INTEGRATION] Verify → World ID + execute.
 - [x] Booking Confirmed (node 211:2) — success modal over the dimmed plan at `/plan?booked=1` (green chip, summary, Total paid, booking ref, on-chain + World ID proof rows). Data-driven (getBooking).
 - [x] Itinerary (`/itinerary`, node 295:605) — read-only booked trip, payment breakdown, on-chain proof, Back to plan / Download itinerary. Data-driven (getBooking).
 - [x] Flow wired end-to-end: Plan → Approve → Confirmed → Itinerary (client-side links).
-- [x] Shared: `OnChainProof` (HCS + World ID proof rows), `ApprovalFocus`, `BookingConfirmedModal`; `FlightRow` gained `readOnly`, `AgentPanel` gained `statusNote`.
+- [x] Shared: `OnChainProof` (HCS + World ID proof rows), `BookingConfirmedModal`; `FlightRow` gained `readOnly`, `AgentPanel` gained `statusNote`.
 - [x] x402 Activity Feed (`/activity`, node 48:207) — stat tiles + streamed x402/on-chain event feed (StatTile, X402ActivityRow). Data-driven (getActivityFeed).
 - [x] Audit Trail (`/audit`, node 49:222) — All/Payments/Approvals filter over the HCS event log (AuditList). Data-driven (getAuditTrail).
-- [x] Chat (`/chat`, node 27:90) — full-screen agent conversation (user/agent bubbles, inline flight-result cards, pinned composer) + centered approval overlay on `?approve=1` (reuses ApprovalFocus). Data-driven (getChat).
+- [x] Chat (`/chat`, node 27:90) — full-screen agent conversation (user/agent bubbles, inline flight-result cards, pinned composer). Data-driven (getChat).
 - [x] Wallet Connect (node 301:652) — wallet-picker overlay (MetaMask/WalletConnect/Coinbase), opened from the sidebar "Connect wallet". Placeholder rows; **must connect to the real wallet (Reown AppKit / HashPack) in the integration pass** — x402 needs the wallet to sign.
 
 **All Figma screens are built.** Remaining work is the integration pass (auth + wallet + World ID + x402), not new screens.
@@ -73,7 +72,7 @@ Landing polish:
 - [x] CSS-first + GSAP lazy on 4 signature beats: hero entrance, planning stepper, approval gate,
       booking-confirmed reveal (`hooks/autovoyage/useBeat.ts`, `gsap` 3.13.0 pinned).
 - [x] Light: GSAP is a code-split chunk loaded at runtime only when a beat mounts (`/`, `/plan`,
-      `/approve`, `/chat`); zero GSAP on `/login`, `/activity`, `/audit`, `/itinerary`.
+      `/chat`); zero GSAP on `/login`, `/activity`, `/audit`, `/itinerary`.
 - [x] No-flash: `.beat` hidden only when JS active (root-layout `js` class) + revealed on mount;
       falls back to visible with no JS / reduced motion. CSS scroll reveals on landing sections
       (`useReveal` + `Reveal`, IntersectionObserver, no GSAP). Reduced-motion off-switch in CSS.

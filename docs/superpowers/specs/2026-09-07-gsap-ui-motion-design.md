@@ -46,14 +46,7 @@ plays only after mount, client-side, when motion is allowed. Animate **transform
    - Duration ~1.0–1.2s for the entrance; the pulse is a short, bounded loop (not infinite).
    - Trigger: on mount.
 
-3. **Over-limit approval gate** — `components/autovoyage/approval/ApprovalFocus.tsx` (routes
-   `/approve`, `/chat?approve=1`)
-   - The `$980` amount + amber "over limit" note get a subtle emphasis (scale 0.96 → 1 + fade); the
-     camera-frame dashed border fades/scales in.
-   - Duration ~0.6s, easing `power2.out`.
-   - Trigger: on mount.
-
-4. **Booking Confirmed reveal** — `components/autovoyage/approval/BookingConfirmedModal.tsx`
+3. **Booking Confirmed reveal** — `components/autovoyage/plan/BookingConfirmedModal.tsx`
    (route `/plan?booked=1`)
    - Modal fades + scales in (0.98 → 1); the green "Booking confirmed" chip pops (scale 0.8 → 1);
      summary rows stagger; on-chain proof rows settle in last.
@@ -124,8 +117,7 @@ simply means "no animation" — never a broken or empty UI, never layout shift.
 - **New:** `hooks/autovoyage/useBeat.ts` (the lazy GSAP hook), `hooks/autovoyage/useReveal.ts`
   (IntersectionObserver reveal for the CSS baseline).
 - **Edit:** `components/autovoyage/marketing/Hero.tsx`, `components/autovoyage/plan/AgentSteps.tsx`,
-  `components/autovoyage/approval/ApprovalFocus.tsx`,
-  `components/autovoyage/approval/BookingConfirmedModal.tsx` — attach a `ref` + `useBeat(...)`.
+  `components/autovoyage/plan/BookingConfirmedModal.tsx` — attach a `ref` + `useBeat(...)`.
 - **Edit:** `styles/globals.css` — reveal keyframes/classes + the `prefers-reduced-motion` guard.
 - **Edit:** landing sections (`FeatureRow` / section components) — add the `.reveal` hook where
   wanted.
@@ -134,7 +126,7 @@ simply means "no animation" — never a broken or empty UI, never layout shift.
 ## Footprint
 
 - GSAP core ≈ 23kb gzipped, **async / non-blocking**, loaded only on routes that mount a beat:
-  **`/`, `/plan`, `/approve`, `/chat`**. Zero GSAP on `/login`, `/activity`, `/audit`,
+  **`/`, `/plan`, `/chat`**. Zero GSAP on `/login`, `/activity`, `/audit`,
   `/itinerary`.
 - No effect on LCP / first paint (final state renders first; GSAP loads after).
 

@@ -8,8 +8,6 @@ import { useBeat } from "~~/hooks/autovoyage/useBeat";
 import { formatUsd } from "~~/services/autovoyage/currency";
 import type { Booking } from "~~/types/autovoyage/plan";
 
-// Booking confirmed modal
-
 function SummaryRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between py-1">

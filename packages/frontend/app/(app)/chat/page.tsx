@@ -1,13 +1,11 @@
 // Chat page
 import Link from "next/link";
-import { ApprovalFocus } from "~~/components/autovoyage/approval/ApprovalFocus";
 import { ChatThread } from "~~/components/autovoyage/chat/ChatThread";
 import { Composer } from "~~/components/autovoyage/chat/Composer";
 import { CollapseIcon } from "~~/components/autovoyage/ui/icons";
 import { getChat } from "~~/services/autovoyage/tripData";
 
-export default async function ChatPage({ searchParams }: { searchParams: Promise<{ approve?: string }> }) {
-  const { approve } = await searchParams;
+export default async function ChatPage() {
   const chat = await getChat();
 
   return (
@@ -28,14 +26,6 @@ export default async function ChatPage({ searchParams }: { searchParams: Promise
         <ChatThread messages={chat.messages} />
       </div>
       <Composer />
-
-      {approve ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-av-ink/40 px-4">
-          <div className="w-full max-w-[520px]">
-            <ApprovalFocus booking={chat.approval} cancelHref="/chat" confirmHref="/plan?booked=1" />
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 }
