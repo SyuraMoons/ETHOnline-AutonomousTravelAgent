@@ -10,7 +10,6 @@ import { hederaNamespace } from "@hashgraph/hedera-wallet-connect";
 import { useAppKit } from "@reown/appkit/react";
 import { useHbarBalance } from "~~/hooks/autovoyage/useHbarBalance";
 import { useHederaWalletConnect } from "~~/services/web3/hederaWalletConnect";
-import type { TripContext } from "~~/types/autovoyage/plan";
 import { getParsedError, notification } from "~~/utils/scaffold-hbar";
 
 const NAV = [
@@ -20,9 +19,8 @@ const NAV = [
   { href: "/profile", label: "Profile", icon: UserIcon },
 ];
 
-export function Sidebar({ context }: { context: TripContext }) {
+export function Sidebar() {
   const pathname = usePathname();
-  const { trip } = context;
   const { open } = useAppKit();
   const { accountId, isConnected, isBusy, disconnectWallet } = useHederaWalletConnect();
   const shortAccount = accountId ? `${accountId.slice(0, 6)}...${accountId.slice(-4)}` : null;
@@ -55,14 +53,6 @@ export function Sidebar({ context }: { context: TripContext }) {
       <div className="flex-1" />
 
       <BudgetCard />
-
-      <div className="rounded border border-av-border p-3">
-        <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-av-muted">Current trip</span>
-        <p className="m-0 mt-1 text-[15px] font-semibold text-av-text">{trip.destination}</p>
-        <p className="m-0 text-[12px] text-av-muted">
-          {trip.dates} · {trip.travelers} travelers
-        </p>
-      </div>
 
       <div>
         {isConnected ? (
