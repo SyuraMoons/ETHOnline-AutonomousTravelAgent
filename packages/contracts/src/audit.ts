@@ -21,7 +21,7 @@ export const DataPayment = AuditEventBase.extend({
 export const HumanApproval = AuditEventBase.extend({
   type: z.literal("HumanApproval"),
   itineraryHash: z.string(),
-  nullifierHash: z.string(),
+  payerAccountId: z.string(),
 });
 
 export const BookingExecuted = AuditEventBase.extend({
@@ -31,9 +31,16 @@ export const BookingExecuted = AuditEventBase.extend({
   currency: z.string(),
 });
 
+// The closed RefusalReason set plus the two operational failures AGENTS.md deliberately keeps
+// out of it ("Refusal reason codes") — supplier_unreachable / payment_rejected describe things
+// going wrong, not a mandate/consent decision, but they still belong on the trust trail (a
+// revoked allowance rejecting a payment is exactly what should show up here).
+export const AuditRefusalReason = z.union([RefusalReason, z.enum(["supplier_unreachable", "payment_rejected"])]);
+export type AuditRefusalReason = z.infer<typeof AuditRefusalReason>;
+
 export const ActionRefused = AuditEventBase.extend({
   type: z.literal("ActionRefused"),
-  reason: RefusalReason,
+  reason: AuditRefusalReason,
 });
 
 export const AuditEvent = z.discriminatedUnion("type", [

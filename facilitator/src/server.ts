@@ -6,14 +6,19 @@
  * (`@x402/core/facilitator`). It exposes the three endpoints an x402 resource
  * server expects:
  *
- *   GET  /supported  -> advertised payment kinds + the fee-payer this facilitator sponsors
+ *   GET  /supported  -> advertised payment kinds + the account that must own the transaction id
  *   POST /verify     -> validate a signed payment payload against requirements
- *   POST /settle     -> co-sign as fee-payer, submit to Hedera, await a SUCCESS receipt
+ *   POST /settle     -> co-sign, submit to Hedera, await a SUCCESS receipt
  *
- * The facilitator is the only component that holds keys and submits to the
- * network. It is non-custodial: it can only add its fee-payer signature to a
- * transfer the buyer already authorized.
+ * It is non-custodial: it can only sign and submit a transfer the buyer already authorized,
+ * never originate one.
+ *
+ * Note that the scheme's "feePayer" names the account owning the transaction id. In treasury
+ * mode that is this facilitator, which then genuinely sponsors the fee. In allowance mode it
+ * is the planner's agent account, and this service degrades to a verifying relay — see
+ * ADVERTISED_FEE_PAYER below.
  */
+import "dotenv/config";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { x402Facilitator } from "@x402/core/facilitator";
 import type { Network, PaymentPayload, PaymentRequirements } from "@x402/core/types";
@@ -43,6 +48,30 @@ const FEE_PAYER_KEY = PrivateKey.fromStringECDSA(requireEnv("FACILITATOR_PRIVATE
 const NODE_URL = process.env.HEDERA_NODE_URL || undefined;
 
 /**
+ * The account advertised to buyers as `extra.feePayer` — which in this scheme really means
+ * "the account that owns the transaction id", not "the account that sponsors the fee".
+ * The scheme requires them to be the same (`transactionIdAccountId !== feePayer` is rejected),
+ * and Hedera requires the transaction-id account to be the SPENDER for approved transfers.
+ *
+ * Two mutually exclusive modes, because only one account can be advertised at a time
+ * (the scheme picks at random when several are listed):
+ *
+ *   ALLOWANCE MODE (default) — set this to the planner's AGENT_ACCOUNT_ID. The agent owns the
+ *     transaction id and pays the node fee; the debit is an approved transfer from the USER's
+ *     account under a HIP-336 allowance. The facilitator verifies and submits, and its own
+ *     signature is superfluous (verified on testnet: allowance-probe-d.ts, cases D1 and D2).
+ *
+ *   TREASURY MODE — leave unset. The facilitator sponsors fees and the agent pays from its own
+ *     balance, the original behaviour. Incompatible with allowance mode on one instance: the
+ *     agent would be both fee payer and debited account, which the scheme rejects.
+ *
+ * Testnet evidence for why this knob must exist at all: with the FACILITATOR as the
+ * transaction-id account, an approved transfer fails precheck with
+ * SPENDER_DOES_NOT_HAVE_ALLOWANCE (allowance-probe.ts, case A).
+ */
+const ADVERTISED_FEE_PAYER = process.env.FACILITATOR_ADVERTISED_FEE_PAYER?.trim() || FEE_PAYER_ID;
+
+/**
  * Builds an SDK client for a CAIP-2 network with the fee-payer set as operator,
  * so it can pay fees and submit transactions.
  */
@@ -53,7 +82,9 @@ function buildClient(network: string) {
 }
 
 const signer = toFacilitatorHederaSigner({
-  getAddresses: () => [FEE_PAYER_ID],
+  // Advertised to buyers and re-checked at settle; see ADVERTISED_FEE_PAYER above.
+  // Exactly one entry — the scheme picks at random from this list.
+  getAddresses: () => [ADVERTISED_FEE_PAYER],
   signAndSubmitTransaction: createHederaSignAndSubmitTransaction(buildClient, FEE_PAYER_KEY),
   preflightTransfer: createHederaPreflightTransfer(buildClient),
 });
@@ -82,7 +113,13 @@ const server = createServer(async (req, res) => {
 
   try {
     if (method === "GET" && (path === "/health" || path === "/")) {
-      return sendJson(res, 200, { status: "ok", network: NETWORK, feePayer: FEE_PAYER_ID });
+      return sendJson(res, 200, {
+        status: "ok",
+        network: NETWORK,
+        feePayer: ADVERTISED_FEE_PAYER,
+        submitter: FEE_PAYER_ID,
+        mode: ADVERTISED_FEE_PAYER === FEE_PAYER_ID ? "treasury" : "allowance",
+      });
     }
 
     if (method === "GET" && path === "/supported") {
@@ -110,6 +147,8 @@ const server = createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
+  const mode = ADVERTISED_FEE_PAYER === FEE_PAYER_ID ? "treasury" : "allowance";
   console.log(`[facilitator] x402 Hedera facilitator listening on :${PORT}`);
-  console.log(`[facilitator] network=${NETWORK} feePayer=${FEE_PAYER_ID}`);
+  console.log(`[facilitator] network=${NETWORK} submitter=${FEE_PAYER_ID}`);
+  console.log(`[facilitator] mode=${mode} advertisedFeePayer=${ADVERTISED_FEE_PAYER}`);
 });
