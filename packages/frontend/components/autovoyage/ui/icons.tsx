@@ -33,6 +33,17 @@ export function CoinIcon({ size = 14, className }: IconProps) {
   );
 }
 
+export function BedIcon({ size = 18, className }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <path d="M3 7v11" />
+      <path d="M3 12h15a3 3 0 0 1 3 3v3" />
+      <path d="M21 18H3" />
+      <path d="M6.5 12v-1.5a1.5 1.5 0 0 1 1.5-1.5h3a1.5 1.5 0 0 1 1.5 1.5V12" />
+    </svg>
+  );
+}
+
 export function FaceScanIcon({ size = 14, className }: IconProps) {
   return (
     <svg {...base(size, className)}>

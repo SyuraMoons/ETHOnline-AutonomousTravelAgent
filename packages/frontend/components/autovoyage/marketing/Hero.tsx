@@ -44,8 +44,7 @@ export function Hero() {
             The travel agent that books your trip, and never oversteps.
           </h1>
           <p className="mb-10 max-w-[540px] text-xl font-medium leading-relaxed text-av-muted">
-            Tell AutoVoyage where you are going and what you love. It plans, pays as it goes, and pauses for your face
-            check before anything big.
+            Tell AutoVoyage where you are going and what you love. It plans, pays as it goes.
           </p>
           <GlassPromptCard />
           <PromptTemplates />
