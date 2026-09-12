@@ -1,4 +1,4 @@
-#AutoVoyage
+# AutoVoyage
 
 **AutoVoyage** is an autonomous travel-planning agent that pays for real flight data over
 **x402 on Hedera**, per query, in native HBAR — no API keys, no subscriptions. A human
