@@ -4,7 +4,11 @@
 
 create table if not exists mandates (
   mandate_id          uuid primary key,
-  payer_account_id    text not null,
+  -- Nullable: getOrCreateDefaultMandate() (services/autovoyage/mandate.ts) creates a
+  -- payer-less mandate for the ALLOW_UNAUTHORIZED_MANDATE=true dev/treasury-mode path, where
+  -- the agent spends its own balance rather than a user's allowance. A not-null constraint
+  -- here made every such insert fail.
+  payer_account_id    text,
   total_ceiling_hbar  numeric not null,
   per_tx_ceiling_hbar numeric not null,
   spent_hbar          numeric not null default 0,
@@ -16,6 +20,9 @@ create table if not exists mandates (
 );
 create index if not exists mandates_payer_active_idx
   on mandates (payer_account_id, status, expires_at desc);
+-- Re-run safe: relaxes payer_account_id to nullable if this schema was applied before that
+-- column was made nullable above.
+alter table mandates alter column payer_account_id drop not null;
 
 create table if not exists spend_records (
   id               bigserial primary key,
@@ -67,6 +74,14 @@ create table if not exists chat_threads (
 );
 create index if not exists chat_threads_payer_idx on chat_threads (payer_account_id, updated_at desc);
 
+-- Marks an execution token's jti as spent (see services/autovoyage/executionToken.ts). The
+-- primary key gives the insert-or-conflict in claimExecutionToken() its atomicity: two
+-- concurrent /api/execute calls for the same token can't both win.
+create table if not exists used_execution_tokens (
+  jti      text primary key,
+  used_at  timestamptz not null default now()
+);
+
 -- Atomic settle: delete the reservation, log the spend (idempotent on `transaction`), and
 -- increment spent_hbar in one statement — never a read-modify-write, so two concurrent legs
 -- of a round trip cannot clobber each other's spend total.
@@ -74,7 +89,7 @@ create or replace function commit_spend(
   p_reservation_id uuid,
   p_transaction text,
   p_payer_account_id text
-) returns void as $$
+) returns boolean as $$
 declare
   v_mandate_id uuid;
   v_amount numeric;
@@ -83,7 +98,12 @@ begin
   from reservations where reservation_id = p_reservation_id;
 
   if v_mandate_id is null then
-    return; -- reservation already gone/unknown; nothing to commit
+    -- Reservation already gone — most likely reclaimed by the RESERVATION_TTL_MS sweep in
+    -- reservedFor() (mandate.ts) while this payment was still settling. The HBAR really moved
+    -- (this is only called after a successful settlement) but spent_hbar can no longer be
+    -- credited for it. Returning false lets the caller at least log this rather than let it
+    -- pass silently.
+    return false;
   end if;
 
   delete from reservations where reservation_id = p_reservation_id;
@@ -96,5 +116,7 @@ begin
   set spent_hbar = spent_hbar + v_amount,
       status = case when spent_hbar + v_amount >= total_ceiling_hbar then 'exhausted' else status end
   where mandate_id = v_mandate_id;
+
+  return true;
 end;
 $$ language plpgsql;
