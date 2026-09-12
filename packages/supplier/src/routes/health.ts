@@ -7,7 +7,9 @@ export const healthRouter = Router();
 healthRouter.get("/health", async (_req, res) => {
   let facilitatorReachable = false;
   try {
-    const response = await fetch(`${FACILITATOR_URL}/health`, { signal: AbortSignal.timeout(3000) });
+    const response = await fetch(`${FACILITATOR_URL}/health`, {
+      signal: AbortSignal.timeout(3000),
+    });
     facilitatorReachable = response.ok;
   } catch {
     facilitatorReachable = false;

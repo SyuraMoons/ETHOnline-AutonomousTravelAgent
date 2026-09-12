@@ -9,13 +9,15 @@
     "start": "node dist/index.js",
     "check-types": "tsc --noEmit --incremental && tsc -p tsconfig.scripts.json",
     "flights:generate": "tsx scripts/scrape-flights.ts",
-    "test": "node --import tsx --test src/**/*.test.ts",
+    "test": "node --import tsx --test src/**/*.test.ts src/**/**/*.test.ts",
     "stays:generate": "tsx scripts/generate-stays.ts",
     "activities:generate": "tsx scripts/generate-activities.ts",
     "data:generate": "npm run flights:generate && npm run stays:generate && npm run activities:generate",
     "gen-signing-key": "tsx scripts/gen-signing-key.ts",
     "data:inspect": "tsx scripts/inspect-data.ts",
-    "sign-identity-claim": "tsx scripts/sign-identity-claim.ts"
+    "sign-identity-claim": "tsx scripts/sign-identity-claim.ts",
+    "preflight": "tsx scripts/preflight.ts",
+    "setup-env": "tsx scripts/setup-env.ts"
   },
   "dependencies": {
     "@sh/contracts": "*",

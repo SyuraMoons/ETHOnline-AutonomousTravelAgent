@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { Activity, ActivityOffer, ActivityPace } from "@sh/contracts";
 import { localTimeToUtc } from "./staysCache.js";
+import { UTC_OFFSET_HOURS } from "./airports.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CACHE_PATH = path.resolve(
@@ -83,4 +84,36 @@ export function searchActivities(query: ActivityQuery): ActivityOffer[] {
         a.startUtc.localeCompare(b.startUtc) ||
         a.activityId.localeCompare(b.activityId),
     );
+}
+
+/** One experience by its catalogue id (not a slot id), or undefined. */
+export function findActivityById(activityId: string): Activity | undefined {
+  return loadCachedActivities().find(
+    (activity) => activity.activityId === activityId,
+  );
+}
+
+/**
+ * Confirms an experience actually runs at this instant.
+ *
+ * A start time the catalogue does not offer is not a booking we can make, and
+ * accepting one would produce a signed confirmation for something that does not
+ * exist. Compared in the city's local clock, which is how startTimes are written.
+ */
+export function runsAt(activity: Activity, startUtc: string): boolean {
+  const instant = new Date(startUtc);
+  if (Number.isNaN(instant.getTime())) return false;
+  const localDate = localDateInCity(instant, activity.city);
+  return activity.startTimes.some(
+    (time) =>
+      localTimeToUtc(localDate, time, activity.city) === instant.toISOString(),
+  );
+}
+
+/** The calendar date this instant falls on, in the city's local time. */
+function localDateInCity(instant: Date, city: string): string {
+  const offsetHours = UTC_OFFSET_HOURS[city.toUpperCase()] ?? 0;
+  return new Date(instant.getTime() + offsetHours * 3_600_000)
+    .toISOString()
+    .slice(0, 10);
 }

@@ -123,49 +123,59 @@ export async function POST(request: Request) {
     );
   }
 
-  const bookings: ExecutedBooking[] = [];
-  let totalHbar = 0;
-  let failed: { offerId: string; reason: RefusalReason; message: string } | null = null;
+  // ONE booking call for the whole itinerary. It used to be one per leg, which
+  // meant a single approval authorising several payments that could fail
+  // independently — a two-leg trip could end up half-booked with the user
+  // already charged for the part that went through. The supplier now resolves
+  // and validates every component before confirming anything, so this either
+  // returns one signed confirmation covering the lot or changes nothing, and
+  // "partial" is no longer reachable.
+  const outcome = await payBooking(
+    mandateId,
+    { legs: dossier.option.legs.map(leg => ({ offerId: leg.offerId })) },
+    passenger,
+  );
 
-  for (const leg of dossier.option.legs) {
-    const outcome = await payBooking(mandateId, leg.offerId, passenger);
-    if (!outcome.ok) {
-      await submitAuditEvent(actionRefusedEvent(dossierId, outcome.reason));
-      failed = {
-        offerId: leg.offerId,
+  if (!outcome.ok) {
+    await submitAuditEvent(actionRefusedEvent(dossierId, outcome.reason));
+    const refusedResponse: ExecuteResponse = {
+      status: "refused",
+      bookings: [],
+      totalHbarPaid: "0.0000",
+      refusal: {
         reason: toRefusalReason(outcome.reason),
         message: refusalReply(outcome.reason, outcome.detail),
-      };
-      break;
-    }
-    const amountHbar = hbarFromTinybars(outcome.result.amountTinybars);
-    totalHbar += amountHbar;
-    bookings.push({
-      offerId: leg.offerId,
-      bookingId: outcome.result.body.bookingId,
-      confirmationCode: outcome.result.body.confirmationCode,
-      amountHbar: amountHbar.toFixed(4),
-      transaction: outcome.result.transaction,
-      hashscanUrl: hashscanUrl(outcome.result.transaction),
-    });
+      },
+    };
+    return NextResponse.json(refusedResponse);
   }
 
-  if (!failed) {
-    await submitAuditEvent(
-      bookingExecutedEvent(dossierId, {
-        bookingId: bookings.map(b => b.bookingId).join(","),
-        fareTotalMinor: dossier.fareTotalMinor,
-        currency: dossier.currency,
-      }),
-    );
-  }
+  const totalHbar = hbarFromTinybars(outcome.result.amountTinybars);
+
+  // One confirmation covers every leg, so each row carries the same booking id —
+  // these are parts of one reservation, not separate ones. The fee is flat and
+  // charged once, so it is reported on the itinerary rather than per leg.
+  const bookings: ExecutedBooking[] = dossier.option.legs.map(leg => ({
+    offerId: leg.offerId,
+    bookingId: outcome.result.body.bookingId,
+    confirmationCode: outcome.result.body.confirmationCode,
+    amountHbar: totalHbar.toFixed(4),
+    transaction: outcome.result.transaction,
+    hashscanUrl: hashscanUrl(outcome.result.transaction),
+  }));
+
+  await submitAuditEvent(
+    bookingExecutedEvent(dossierId, {
+      bookingId: outcome.result.body.bookingId,
+      fareTotalMinor: dossier.fareTotalMinor,
+      currency: dossier.currency,
+    }),
+  );
 
   const response: ExecuteResponse = {
-    status: failed ? (bookings.length > 0 ? "partial" : "refused") : "booked",
+    status: "booked",
     bookings,
     totalHbarPaid: totalHbar.toFixed(4),
-    failed: failed && bookings.length > 0 ? { offerId: failed.offerId, reason: failed.message } : undefined,
-    refusal: failed && bookings.length === 0 ? { reason: failed.reason, message: failed.message } : undefined,
   };
   return NextResponse.json(response);
 }

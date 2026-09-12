@@ -94,6 +94,24 @@ export function itineraryHash(plan: PlanInput): string {
       priceMinor: leg.priceMinor,
       currency: leg.currency,
     })),
+    // Always present, even when empty. Omitting them for a flight-only trip
+    // would make {legs, pax, fare} and {legs, pax, fare, stay: null} hash alike,
+    // which is the ambiguity canonicalJson exists to prevent.
+    stay: plan.stay
+      ? {
+          hotelId: plan.stay.hotelId,
+          checkInUtc: plan.stay.checkInUtc,
+          checkOutUtc: plan.stay.checkOutUtc,
+          priceMinor: plan.stay.priceMinor,
+          currency: plan.stay.currency,
+        }
+      : null,
+    activities: (plan.activities ?? []).map((activity) => ({
+      activityId: activity.activityId,
+      startUtc: activity.startUtc,
+      priceMinor: activity.priceMinor,
+      currency: activity.currency,
+    })),
     paxCount: plan.paxCount,
     fareTotalMinor: plan.fareTotalMinor,
   });

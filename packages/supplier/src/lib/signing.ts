@@ -11,7 +11,9 @@ const privateKey = createPrivateKey({
   type: "pkcs8",
 });
 
-export const supplierPublicKeyBase64 = createPublicKey(privateKey).export({ format: "der", type: "spki" }).toString("base64");
+export const supplierPublicKeyBase64 = createPublicKey(privateKey)
+  .export({ format: "der", type: "spki" })
+  .toString("base64");
 
 /** Ed25519-signs the canonical JSON of `payload`. Returns a base64 signature. */
 export function signPayload(payload: unknown): string {

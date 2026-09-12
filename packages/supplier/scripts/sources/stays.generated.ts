@@ -253,11 +253,26 @@ export function generateStays(seed: number): Stay[] {
       const hotelId = `htl_${profile.city.toLowerCase()}_${String(index + 1).padStart(3, "0")}`;
       const rand = streamFor(hotelId, seed);
 
-      // Skew towards 3-4 stars: that is what a real city's inventory looks like,
-      // and it keeps the mandate story interesting (most affordable, some not).
+      // The first four properties in every city take one tier each, so a city
+      // always has something at every star level. Left purely to the random
+      // draw, Tokyo came out with zero five-star hotels — plausible as a dice
+      // roll, implausible as a city, and it makes "find me somewhere nice in
+      // Tokyo" return nothing.
+      //
+      // The rest skew towards 3-4 stars, which is what a real city's inventory
+      // looks like and keeps the mandate story interesting: most affordable,
+      // some not.
       const roll = rand();
       const starRating =
-        roll < 0.18 ? 2 : roll < 0.52 ? 3 : roll < 0.85 ? 4 : 5;
+        index < 4
+          ? index + 2
+          : roll < 0.18
+            ? 2
+            : roll < 0.52
+              ? 3
+              : roll < 0.85
+                ? 4
+                : 5;
 
       const [low, high] = BASE_BAND[starRating]!;
       const baseNightlyPriceMinor = roundPrice(

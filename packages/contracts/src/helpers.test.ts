@@ -21,6 +21,7 @@ const leg = (over: Partial<SearchResult> = {}): SearchResult => ({
 const plan = (over: Partial<PlanInput> = {}): PlanInput => ({
   planId: "plan_demo",
   legs: [leg()],
+  activities: [],
   paxCount: 2,
   fareTotalMinor: 85000,
   currency: "USD",
@@ -99,10 +100,14 @@ describe("itineraryHash", () => {
 
   // Locks the wire format. If this fails, the hash format changed and every
   // previously issued World ID approval is invalidated — that must be deliberate.
+  //
+  // It changed once, deliberately: the hash was extended from flights-only to
+  // the whole itinerary, so `stay` and `activities` now appear in the hashed
+  // object even when empty.
   it("matches the known-good hash for a fixed plan", () => {
     assert.equal(
       itineraryHash(plan()),
-      "0xa75d3288caa3f227b995f6b17f3f1d26a0e0956442b82241668ee1e2daa12bcc",
+      "0x2c9a41b523493aa79a50f6867b2367422bb250cdf6a427a9e7f7eeadc00eebef",
     );
   });
 
@@ -194,6 +199,85 @@ describe("itineraryHash", () => {
     assert.notEqual(
       itineraryHash(plan({ legs: [a, b] })),
       itineraryHash(plan({ legs: [b, a] })),
+    );
+  });
+
+  const STAY = {
+    hotelId: "htl_nrt_001",
+    checkInUtc: "2026-11-12T06:00:00.000Z",
+    checkOutUtc: "2026-11-15T02:00:00.000Z",
+    priceMinor: 51000,
+    currency: "USD",
+  };
+  const ACTIVITY = {
+    activityId: "act_nrt_001",
+    startUtc: "2026-11-13T00:30:00.000Z",
+    priceMinor: 9100,
+    currency: "USD",
+  };
+
+  // The hash covers the whole itinerary. If it only covered flights, a hotel or
+  // an activity could be swapped after approval without invalidating it — and
+  // those are most of what a trip costs.
+  it("changes when a stay is added", () => {
+    assert.notEqual(itineraryHash(plan({ stay: STAY })), itineraryHash(plan()));
+  });
+
+  it("changes when the stay's price changes", () => {
+    assert.notEqual(
+      itineraryHash(plan({ stay: { ...STAY, priceMinor: 51001 } })),
+      itineraryHash(plan({ stay: STAY })),
+    );
+  });
+
+  it("changes when the stay's dates change", () => {
+    assert.notEqual(
+      itineraryHash(
+        plan({ stay: { ...STAY, checkOutUtc: "2026-11-16T02:00:00.000Z" } }),
+      ),
+      itineraryHash(plan({ stay: STAY })),
+    );
+  });
+
+  it("changes when the property is swapped", () => {
+    assert.notEqual(
+      itineraryHash(plan({ stay: { ...STAY, hotelId: "htl_nrt_002" } })),
+      itineraryHash(plan({ stay: STAY })),
+    );
+  });
+
+  it("changes when an activity is added", () => {
+    assert.notEqual(
+      itineraryHash(plan({ activities: [ACTIVITY] })),
+      itineraryHash(plan()),
+    );
+  });
+
+  it("changes when an activity's slot moves", () => {
+    assert.notEqual(
+      itineraryHash(
+        plan({
+          activities: [{ ...ACTIVITY, startUtc: "2026-11-13T01:30:00.000Z" }],
+        }),
+      ),
+      itineraryHash(plan({ activities: [ACTIVITY] })),
+    );
+  });
+
+  it("changes when activity order changes, so one cannot be silently reordered", () => {
+    const second = { ...ACTIVITY, activityId: "act_nrt_002" };
+    assert.notEqual(
+      itineraryHash(plan({ activities: [ACTIVITY, second] })),
+      itineraryHash(plan({ activities: [second, ACTIVITY] })),
+    );
+  });
+
+  // A null stay must not hash the same as no stay key at all.
+  it("treats an explicitly absent stay as a stated fact", () => {
+    assert.equal(itineraryHash(plan({ stay: null })), itineraryHash(plan()));
+    assert.notEqual(
+      itineraryHash(plan({ stay: STAY })),
+      itineraryHash(plan({ stay: null })),
     );
   });
 

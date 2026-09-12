@@ -57,3 +57,6 @@ Rayban-Build-Spec.pdf
 !/data/cache/hotels.meta.json
 !/data/cache/activities.meta.json
 .mcp.json
+
+# Local buyer credentials for x402:buy — never committed.
+.buyer.env.local

@@ -101,11 +101,18 @@ function generateFlights(query: FlightQuery): SearchResult[] {
 
   return CARRIERS.map((carrier, index) => {
     const stops = index % 3 === 2 ? 1 : 0;
-    const durationMinutes = baseMinutes + stops * (95 + Math.floor(rand() * 60)) + Math.floor(rand() * 25);
+    const durationMinutes =
+      baseMinutes +
+      stops * (95 + Math.floor(rand() * 60)) +
+      Math.floor(rand() * 25);
     const hour = 6 + index * 2 + Math.floor(rand() * 2);
     const minute = [0, 5, 25, 30, 45, 55][Math.floor(rand() * 6)];
     const priceMinor =
-      Math.round((baseFare * (0.86 + index * 0.06 + rand() * 0.05) - stops * baseFare * 0.11) / 100) * 100;
+      Math.round(
+        (baseFare * (0.86 + index * 0.06 + rand() * 0.05) -
+          stops * baseFare * 0.11) /
+          100,
+      ) * 100;
 
     const departUtc = departureAt(query.departDate, hour, minute);
     const result: SearchResult = {
@@ -132,13 +139,21 @@ export function findFlights(query: FlightQuery): SearchResult[] {
   const departDay = query.departDate.slice(0, 10);
 
   const cached = loadCachedFlights().filter(
-    f => f.origin === origin && f.destination === destination && f.departUtc.slice(0, 10) === departDay,
+    (f) =>
+      f.origin === origin &&
+      f.destination === destination &&
+      f.departUtc.slice(0, 10) === departDay,
   );
   if (cached.length > 0) {
-    return cached.slice(0, MAX_RESULTS).map(f => ({ ...f, fromInventory: true }));
+    return cached
+      .slice(0, MAX_RESULTS)
+      .map((f) => ({ ...f, fromInventory: true }));
   }
 
-  return generateFlights({ ...query, origin, destination }).slice(0, MAX_RESULTS);
+  return generateFlights({ ...query, origin, destination }).slice(
+    0,
+    MAX_RESULTS,
+  );
 }
 
 /** Total number of rows the supplier can serve right now (cache only, for /health). */
@@ -153,5 +168,5 @@ export function cachedInventoryCount(): number {
  * are not persisted anywhere a booking request could look them up again.
  */
 export function findOfferById(offerId: string): SearchResult | undefined {
-  return loadCachedFlights().find(f => f.offerId === offerId);
+  return loadCachedFlights().find((f) => f.offerId === offerId);
 }

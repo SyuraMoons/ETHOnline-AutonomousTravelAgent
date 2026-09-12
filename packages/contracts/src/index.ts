@@ -1,5 +1,6 @@
 export * from "./mandate.js";
 export * from "./x402.js";
+export * from "./registry.js";
 export * from "./flights.js";
 export * from "./stay.js";
 export * from "./activity.js";
@@ -8,6 +9,5 @@ export * from "./plan.js";
 export * from "./consent.js";
 export * from "./audit.js";
 export * from "./refusal.js";
-export * from "./registry.js";
 export * from "./helpers.js";
 export * from "./dossier.js";

@@ -37,7 +37,13 @@ export const TripDossier = z.object({
   currency: z.string(),
   bookable: z.boolean(),
   notBookableReason: z.string().optional(),
-  searchSpend: z.array(z.object({ amountHbar: z.string(), transaction: z.string(), hashscanUrl: z.string() })),
+  searchSpend: z.array(
+    z.object({
+      amountHbar: z.string(),
+      transaction: z.string(),
+      hashscanUrl: z.string(),
+    }),
+  ),
   bookingFeeHbarEstimate: z.string(),
 });
 export type TripDossier = z.infer<typeof TripDossier>;
@@ -63,15 +69,24 @@ export const ExecutedBooking = z.object({
 });
 export type ExecutedBooking = z.infer<typeof ExecutedBooking>;
 
-// "partial" exists because the supplier has no cancel endpoint and every booking is
-// CONFIRMED_SIMULATED — there is no rollback to pretend at if leg 2 fails after leg 1 settles,
-// so a partial result is reported honestly rather than hidden behind an all-or-nothing status.
+// "partial" is no longer reachable. It existed when /api/execute booked one leg at a time and
+// leg 2 could fail after leg 1 had settled, with no cancel endpoint to roll back to — a partial
+// result reported honestly rather than hidden behind an all-or-nothing status. Booking is now a
+// single call over the whole itinerary: the supplier resolves and validates every component
+// before confirming anything, so a run either books the lot or books nothing.
+//
+// The value is kept in the enum so existing UI that switches on three states keeps compiling.
+// Remove it once nothing branches on it.
 export const ExecuteResponse = z.object({
   status: z.enum(["booked", "partial", "refused"]),
   bookings: z.array(ExecutedBooking),
   totalHbarPaid: z.string(),
   refusal: z
-    .object({ reason: RefusalReason, detail: z.string().optional(), message: z.string() })
+    .object({
+      reason: RefusalReason,
+      detail: z.string().optional(),
+      message: z.string(),
+    })
     .optional(),
   failed: z.object({ offerId: z.string(), reason: z.string() }).optional(),
 });
