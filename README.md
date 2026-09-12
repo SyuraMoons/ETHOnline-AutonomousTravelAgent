@@ -76,9 +76,8 @@ don't change. Money is stored in **minor units (USD cents)** and formatted only 
 
 These buttons render but are **intentional stubs** — the real wiring is documented, not done:
 
-- **Auth** (Google / GitHub / email) — via Auth.js — see [`FRONTEND/AUTH-SETUP.md`](FRONTEND/AUTH-SETUP.md)
 - **Connect wallet** (HashPack via Reown AppKit) — the essential one for x402 payments
-- **World ID** face check, and the **Hedera x402** payment/audit backend
+- **World ID** face check, and the **Hedera x402** payment/audit backend (NOT IMPLEMENTED -- FINAL)
 
 Full map of every integration point: [`FRONTEND/INTEGRATION.md`](FRONTEND/INTEGRATION.md).
 Build status / checklist: [`FRONTEND/PROGRESS.md`](FRONTEND/PROGRESS.md).
