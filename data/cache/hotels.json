@@ -1,0 +1,2916 @@
+[
+  {
+    "hotelId": "htl_bkk_010",
+    "city": "BKK",
+    "name": "Khlong Quarters",
+    "area": "Ari",
+    "starRating": 2,
+    "roomType": "Standard Twin",
+    "baseNightlyPriceMinor": 3100,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Free WiFi",
+      "Breakfast included",
+      "Airport transfer",
+      "Rooftop bar",
+      "Laundry",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_bkk_004",
+    "city": "BKK",
+    "name": "Sala Thip Quarters",
+    "area": "Thonglor",
+    "starRating": 2,
+    "roomType": "Standard Twin",
+    "baseNightlyPriceMinor": 3700,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Airport transfer",
+      "Pool",
+      "Rooftop bar",
+      "Laundry",
+      "Family rooms",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_bkk_013",
+    "city": "BKK",
+    "name": "Bang Rak House",
+    "area": "Sukhumvit",
+    "starRating": 2,
+    "roomType": "Standard Twin",
+    "baseNightlyPriceMinor": 4300,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Rooftop bar",
+      "Family rooms",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_bkk_018",
+    "city": "BKK",
+    "name": "Bang Rak Rooms",
+    "area": "Silom",
+    "starRating": 2,
+    "roomType": "Compact Double",
+    "baseNightlyPriceMinor": 4300,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Airport transfer",
+      "Gym",
+      "Rooftop bar",
+      "Laundry"
+    ]
+  },
+  {
+    "hotelId": "htl_bkk_012",
+    "city": "BKK",
+    "name": "Bang Rak Residences",
+    "area": "Silom",
+    "starRating": 3,
+    "roomType": "Superior Double",
+    "baseNightlyPriceMinor": 4600,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Airport transfer",
+      "Gym",
+      "Onsen",
+      "Rooftop bar",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_bkk_009",
+    "city": "BKK",
+    "name": "Suan Dok Stay",
+    "area": "Rattanakosin",
+    "starRating": 3,
+    "roomType": "Superior Double",
+    "baseNightlyPriceMinor": 5000,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Onsen",
+      "Laundry",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_bkk_008",
+    "city": "BKK",
+    "name": "Chao Phraya Collection",
+    "area": "Silom",
+    "starRating": 3,
+    "roomType": "Standard King",
+    "baseNightlyPriceMinor": 5700,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 3,
+    "amenities": [
+      "Free WiFi",
+      "Pool",
+      "Onsen",
+      "Laundry",
+      "Family rooms",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_bkk_005",
+    "city": "BKK",
+    "name": "Khlong Rooms",
+    "area": "Riverside",
+    "starRating": 3,
+    "roomType": "Superior Double",
+    "baseNightlyPriceMinor": 6700,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Gym",
+      "Rooftop bar",
+      "Laundry",
+      "Family rooms",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_bkk_003",
+    "city": "BKK",
+    "name": "Sala Thip Collection",
+    "area": "Thonglor",
+    "starRating": 3,
+    "roomType": "Superior Double",
+    "baseNightlyPriceMinor": 6800,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Airport transfer",
+      "Pool",
+      "Onsen",
+      "Co-working desk",
+      "Family rooms",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_bkk_014",
+    "city": "BKK",
+    "name": "Lumphini Stay",
+    "area": "Riverside",
+    "starRating": 4,
+    "roomType": "Deluxe King",
+    "baseNightlyPriceMinor": 7900,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 4,
+    "amenities": [
+      "Breakfast included",
+      "Co-working desk",
+      "Family rooms",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_bkk_007",
+    "city": "BKK",
+    "name": "Benjasiri Residences",
+    "area": "Rattanakosin",
+    "starRating": 4,
+    "roomType": "Executive Twin",
+    "baseNightlyPriceMinor": 8600,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Airport transfer",
+      "Pool",
+      "Gym",
+      "Family rooms",
+      "Airport shuttle",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_bkk_020",
+    "city": "BKK",
+    "name": "Sala Thip Hotel",
+    "area": "Silom",
+    "starRating": 4,
+    "roomType": "Deluxe King",
+    "baseNightlyPriceMinor": 11200,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 4,
+    "amenities": [
+      "Free WiFi",
+      "Gym",
+      "Onsen",
+      "Laundry",
+      "Family rooms",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_bkk_001",
+    "city": "BKK",
+    "name": "Suan Dok Hotel",
+    "area": "Riverside",
+    "starRating": 4,
+    "roomType": "Premier Double",
+    "baseNightlyPriceMinor": 11400,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 4,
+    "amenities": [
+      "Breakfast included",
+      "Pool",
+      "Gym",
+      "Onsen",
+      "Rooftop bar",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_bkk_017",
+    "city": "BKK",
+    "name": "Benjasiri House",
+    "area": "Thonglor",
+    "starRating": 4,
+    "roomType": "Premier Double",
+    "baseNightlyPriceMinor": 12400,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 3,
+    "amenities": [
+      "Breakfast included",
+      "Gym",
+      "Rooftop bar",
+      "Laundry",
+      "Co-working desk"
+    ]
+  },
+  {
+    "hotelId": "htl_bkk_015",
+    "city": "BKK",
+    "name": "Sala Thip Rooms",
+    "area": "Riverside",
+    "starRating": 4,
+    "roomType": "Premier Double",
+    "baseNightlyPriceMinor": 13100,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 3,
+    "amenities": [
+      "Free WiFi",
+      "Pool",
+      "Rooftop bar",
+      "Co-working desk",
+      "Family rooms"
+    ]
+  },
+  {
+    "hotelId": "htl_bkk_002",
+    "city": "BKK",
+    "name": "Sala Thip Stay",
+    "area": "Sukhumvit",
+    "starRating": 4,
+    "roomType": "Executive Twin",
+    "baseNightlyPriceMinor": 13300,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 2,
+    "amenities": [
+      "Free WiFi",
+      "Gym",
+      "Laundry",
+      "Co-working desk"
+    ]
+  },
+  {
+    "hotelId": "htl_bkk_006",
+    "city": "BKK",
+    "name": "Suan Dok Rooms",
+    "area": "Sukhumvit",
+    "starRating": 4,
+    "roomType": "Executive Twin",
+    "baseNightlyPriceMinor": 13400,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 4,
+    "amenities": [
+      "Airport transfer",
+      "Pool",
+      "Co-working desk",
+      "Family rooms"
+    ]
+  },
+  {
+    "hotelId": "htl_bkk_016",
+    "city": "BKK",
+    "name": "Chao Phraya Rooms",
+    "area": "Rattanakosin",
+    "starRating": 5,
+    "roomType": "Deluxe King",
+    "baseNightlyPriceMinor": 25700,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Onsen",
+      "Co-working desk",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_bkk_011",
+    "city": "BKK",
+    "name": "Lumphini Rooms",
+    "area": "Silom",
+    "starRating": 5,
+    "roomType": "Corner Suite",
+    "baseNightlyPriceMinor": 29300,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 3,
+    "amenities": [
+      "Gym",
+      "Rooftop bar",
+      "Laundry",
+      "Co-working desk",
+      "Family rooms",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_bkk_019",
+    "city": "BKK",
+    "name": "Sala Thip Residences",
+    "area": "Ari",
+    "starRating": 5,
+    "roomType": "Panorama Suite",
+    "baseNightlyPriceMinor": 29500,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 3,
+    "amenities": [
+      "Airport transfer",
+      "Gym",
+      "Rooftop bar"
+    ]
+  },
+  {
+    "hotelId": "htl_cgk_009",
+    "city": "CGK",
+    "name": "Cendana Stay",
+    "area": "SCBD",
+    "starRating": 2,
+    "roomType": "Compact Double",
+    "baseNightlyPriceMinor": 2700,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Free WiFi",
+      "Onsen",
+      "Laundry",
+      "Co-working desk"
+    ]
+  },
+  {
+    "hotelId": "htl_cgk_016",
+    "city": "CGK",
+    "name": "Ancol Rooms",
+    "area": "SCBD",
+    "starRating": 2,
+    "roomType": "Standard Twin",
+    "baseNightlyPriceMinor": 3000,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Free WiFi",
+      "Breakfast included",
+      "Rooftop bar",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_cgk_001",
+    "city": "CGK",
+    "name": "Ancol Stay",
+    "area": "Kota Tua",
+    "starRating": 2,
+    "roomType": "Standard Double",
+    "baseNightlyPriceMinor": 3200,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Breakfast included",
+      "Gym",
+      "Rooftop bar",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_cgk_011",
+    "city": "CGK",
+    "name": "Tugu Lodge",
+    "area": "Kota Tua",
+    "starRating": 2,
+    "roomType": "Standard Twin",
+    "baseNightlyPriceMinor": 3700,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Gym",
+      "Rooftop bar",
+      "Laundry",
+      "Co-working desk",
+      "Airport shuttle",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_cgk_012",
+    "city": "CGK",
+    "name": "Tugu Quarters",
+    "area": "Kota Tua",
+    "starRating": 3,
+    "roomType": "Deluxe Twin",
+    "baseNightlyPriceMinor": 4100,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 3,
+    "amenities": [
+      "Pool",
+      "Gym",
+      "Laundry",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_cgk_003",
+    "city": "CGK",
+    "name": "Kebayoran Stay",
+    "area": "Kemang",
+    "starRating": 3,
+    "roomType": "Standard King",
+    "baseNightlyPriceMinor": 4800,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 3,
+    "amenities": [
+      "Breakfast included",
+      "Gym",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_cgk_006",
+    "city": "CGK",
+    "name": "Ancol Residences",
+    "area": "Menteng",
+    "starRating": 3,
+    "roomType": "Standard King",
+    "baseNightlyPriceMinor": 5300,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Free WiFi",
+      "Pool",
+      "Gym",
+      "Laundry",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_cgk_007",
+    "city": "CGK",
+    "name": "Cendana Lodge",
+    "area": "Kuningan",
+    "starRating": 3,
+    "roomType": "Standard King",
+    "baseNightlyPriceMinor": 5700,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Airport transfer",
+      "Pool",
+      "Gym",
+      "Co-working desk",
+      "Family rooms",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_cgk_004",
+    "city": "CGK",
+    "name": "Pasar Baru Collection",
+    "area": "Kota Tua",
+    "starRating": 3,
+    "roomType": "Deluxe Twin",
+    "baseNightlyPriceMinor": 5800,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 3,
+    "amenities": [
+      "Gym",
+      "Co-working desk",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_cgk_017",
+    "city": "CGK",
+    "name": "Melati Rooms",
+    "area": "Senayan",
+    "starRating": 3,
+    "roomType": "Standard King",
+    "baseNightlyPriceMinor": 5800,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Free WiFi",
+      "Airport transfer",
+      "Rooftop bar",
+      "Family rooms"
+    ]
+  },
+  {
+    "hotelId": "htl_cgk_018",
+    "city": "CGK",
+    "name": "Pasar Baru House",
+    "area": "Senayan",
+    "starRating": 3,
+    "roomType": "Standard King",
+    "baseNightlyPriceMinor": 5900,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Free WiFi",
+      "Pool",
+      "Gym",
+      "Rooftop bar",
+      "Co-working desk",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_cgk_010",
+    "city": "CGK",
+    "name": "Kebayoran Residences",
+    "area": "Menteng",
+    "starRating": 3,
+    "roomType": "Superior Double",
+    "baseNightlyPriceMinor": 6300,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Breakfast included",
+      "Pool",
+      "Onsen",
+      "Rooftop bar",
+      "Co-working desk",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_cgk_015",
+    "city": "CGK",
+    "name": "Kebayoran Rooms",
+    "area": "Senayan",
+    "starRating": 4,
+    "roomType": "Executive Twin",
+    "baseNightlyPriceMinor": 6900,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 3,
+    "amenities": [
+      "Free WiFi",
+      "Onsen",
+      "Co-working desk",
+      "Family rooms",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_cgk_002",
+    "city": "CGK",
+    "name": "Pasar Baru Quarters",
+    "area": "Kemang",
+    "starRating": 4,
+    "roomType": "Premier Double",
+    "baseNightlyPriceMinor": 9200,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Breakfast included",
+      "Airport transfer",
+      "Gym",
+      "Onsen",
+      "Laundry",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_cgk_005",
+    "city": "CGK",
+    "name": "Pasar Baru Rooms",
+    "area": "SCBD",
+    "starRating": 4,
+    "roomType": "Executive Twin",
+    "baseNightlyPriceMinor": 10400,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Pool",
+      "Onsen",
+      "Rooftop bar",
+      "Family rooms",
+      "Airport shuttle",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_cgk_008",
+    "city": "CGK",
+    "name": "Bintaro Collection",
+    "area": "Kemang",
+    "starRating": 5,
+    "roomType": "Junior Suite",
+    "baseNightlyPriceMinor": 12700,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Pool",
+      "Gym",
+      "Co-working desk"
+    ]
+  },
+  {
+    "hotelId": "htl_cgk_013",
+    "city": "CGK",
+    "name": "Pasar Baru Lodge",
+    "area": "Menteng",
+    "starRating": 5,
+    "roomType": "Deluxe King",
+    "baseNightlyPriceMinor": 20900,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Free WiFi",
+      "Laundry",
+      "Family rooms",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_cgk_014",
+    "city": "CGK",
+    "name": "Ancol House",
+    "area": "Menteng",
+    "starRating": 5,
+    "roomType": "Deluxe King",
+    "baseNightlyPriceMinor": 22000,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 3,
+    "amenities": [
+      "Breakfast included",
+      "Family rooms",
+      "Airport shuttle",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_dps_022",
+    "city": "DPS",
+    "name": "Padi Residences",
+    "area": "Ubud",
+    "starRating": 2,
+    "roomType": "Compact Double",
+    "baseNightlyPriceMinor": 2600,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 2,
+    "amenities": [
+      "Free WiFi",
+      "Breakfast included",
+      "Gym"
+    ]
+  },
+  {
+    "hotelId": "htl_dps_003",
+    "city": "DPS",
+    "name": "Bale House",
+    "area": "Uluwatu",
+    "starRating": 2,
+    "roomType": "Standard Double",
+    "baseNightlyPriceMinor": 3000,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 2,
+    "amenities": [
+      "Free WiFi",
+      "Breakfast included",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_dps_011",
+    "city": "DPS",
+    "name": "Segara Hotel",
+    "area": "Sanur",
+    "starRating": 2,
+    "roomType": "Compact Double",
+    "baseNightlyPriceMinor": 3800,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 2,
+    "amenities": [
+      "Breakfast included",
+      "Rooftop bar",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_dps_006",
+    "city": "DPS",
+    "name": "Padi Rooms",
+    "area": "Seminyak",
+    "starRating": 3,
+    "roomType": "Superior Double",
+    "baseNightlyPriceMinor": 4600,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Pool",
+      "Gym",
+      "Onsen",
+      "Co-working desk",
+      "Family rooms",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_dps_001",
+    "city": "DPS",
+    "name": "Kirana Residences",
+    "area": "Ubud",
+    "starRating": 3,
+    "roomType": "Superior Double",
+    "baseNightlyPriceMinor": 4800,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Free WiFi",
+      "Rooftop bar",
+      "Family rooms"
+    ]
+  },
+  {
+    "hotelId": "htl_dps_016",
+    "city": "DPS",
+    "name": "Bale Collection",
+    "area": "Sanur",
+    "starRating": 3,
+    "roomType": "Superior Double",
+    "baseNightlyPriceMinor": 5200,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 3,
+    "amenities": [
+      "Airport transfer",
+      "Pool",
+      "Laundry",
+      "Co-working desk"
+    ]
+  },
+  {
+    "hotelId": "htl_dps_014",
+    "city": "DPS",
+    "name": "Tirta Rooms",
+    "area": "Jimbaran",
+    "starRating": 3,
+    "roomType": "Deluxe Twin",
+    "baseNightlyPriceMinor": 5400,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Breakfast included",
+      "Airport transfer",
+      "Co-working desk",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_dps_007",
+    "city": "DPS",
+    "name": "Amerta Stay",
+    "area": "Uluwatu",
+    "starRating": 3,
+    "roomType": "Superior Double",
+    "baseNightlyPriceMinor": 5500,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Laundry",
+      "Family rooms",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_dps_004",
+    "city": "DPS",
+    "name": "Segara Stay",
+    "area": "Sanur",
+    "starRating": 3,
+    "roomType": "Superior Double",
+    "baseNightlyPriceMinor": 5900,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 2,
+    "amenities": [
+      "Airport transfer",
+      "Rooftop bar",
+      "Laundry",
+      "Co-working desk",
+      "Family rooms",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_dps_009",
+    "city": "DPS",
+    "name": "Bale Stay",
+    "area": "Canggu",
+    "starRating": 3,
+    "roomType": "Deluxe Twin",
+    "baseNightlyPriceMinor": 6000,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Free WiFi",
+      "Breakfast included",
+      "Rooftop bar",
+      "Co-working desk",
+      "Airport shuttle",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_dps_005",
+    "city": "DPS",
+    "name": "Tirta Quarters",
+    "area": "Seminyak",
+    "starRating": 3,
+    "roomType": "Standard King",
+    "baseNightlyPriceMinor": 6500,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Airport transfer",
+      "Gym",
+      "Onsen",
+      "Rooftop bar",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_dps_020",
+    "city": "DPS",
+    "name": "Tirta House",
+    "area": "Ubud",
+    "starRating": 3,
+    "roomType": "Standard King",
+    "baseNightlyPriceMinor": 6500,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 3,
+    "amenities": [
+      "Free WiFi",
+      "Airport transfer",
+      "Pool",
+      "Gym",
+      "Family rooms",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_dps_002",
+    "city": "DPS",
+    "name": "Padi Quarters",
+    "area": "Uluwatu",
+    "starRating": 3,
+    "roomType": "Deluxe Twin",
+    "baseNightlyPriceMinor": 7000,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Breakfast included",
+      "Pool",
+      "Family rooms",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_dps_017",
+    "city": "DPS",
+    "name": "Padi House",
+    "area": "Seminyak",
+    "starRating": 3,
+    "roomType": "Deluxe Twin",
+    "baseNightlyPriceMinor": 7300,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Airport transfer",
+      "Rooftop bar",
+      "Laundry",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_dps_021",
+    "city": "DPS",
+    "name": "Padi Lodge",
+    "area": "Sanur",
+    "starRating": 4,
+    "roomType": "Premier Double",
+    "baseNightlyPriceMinor": 7500,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Airport transfer",
+      "Pool",
+      "Onsen",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_dps_023",
+    "city": "DPS",
+    "name": "Wanagiri Hotel",
+    "area": "Seminyak",
+    "starRating": 4,
+    "roomType": "Executive Twin",
+    "baseNightlyPriceMinor": 9300,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 4,
+    "amenities": [
+      "Breakfast included",
+      "Gym",
+      "Onsen",
+      "Laundry",
+      "Co-working desk",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_dps_008",
+    "city": "DPS",
+    "name": "Amerta Collection",
+    "area": "Uluwatu",
+    "starRating": 4,
+    "roomType": "Premier Double",
+    "baseNightlyPriceMinor": 10300,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 4,
+    "amenities": [
+      "Free WiFi",
+      "Onsen",
+      "Rooftop bar",
+      "Family rooms",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_dps_019",
+    "city": "DPS",
+    "name": "Amerta Quarters",
+    "area": "Seminyak",
+    "starRating": 4,
+    "roomType": "Deluxe King",
+    "baseNightlyPriceMinor": 10900,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Pool",
+      "Gym",
+      "Onsen",
+      "Laundry",
+      "Co-working desk",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_dps_018",
+    "city": "DPS",
+    "name": "Tirta Hotel",
+    "area": "Sanur",
+    "starRating": 4,
+    "roomType": "Deluxe King",
+    "baseNightlyPriceMinor": 11200,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 2,
+    "amenities": [
+      "Breakfast included",
+      "Onsen",
+      "Co-working desk",
+      "Family rooms",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_dps_024",
+    "city": "DPS",
+    "name": "Amerta Lodge",
+    "area": "Jimbaran",
+    "starRating": 4,
+    "roomType": "Deluxe King",
+    "baseNightlyPriceMinor": 12100,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 3,
+    "amenities": [
+      "Gym",
+      "Family rooms",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_dps_015",
+    "city": "DPS",
+    "name": "Tirta Collection",
+    "area": "Canggu",
+    "starRating": 5,
+    "roomType": "Junior Suite",
+    "baseNightlyPriceMinor": 15500,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 4,
+    "amenities": [
+      "Free WiFi",
+      "Breakfast included",
+      "Pool"
+    ]
+  },
+  {
+    "hotelId": "htl_dps_010",
+    "city": "DPS",
+    "name": "Segara Residences",
+    "area": "Seminyak",
+    "starRating": 5,
+    "roomType": "Deluxe King",
+    "baseNightlyPriceMinor": 18200,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Airport transfer",
+      "Co-working desk",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_dps_012",
+    "city": "DPS",
+    "name": "Amerta House",
+    "area": "Ubud",
+    "starRating": 5,
+    "roomType": "Junior Suite",
+    "baseNightlyPriceMinor": 20400,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 2,
+    "amenities": [
+      "Breakfast included",
+      "Pool",
+      "Laundry"
+    ]
+  },
+  {
+    "hotelId": "htl_dps_013",
+    "city": "DPS",
+    "name": "Tirta Residences",
+    "area": "Uluwatu",
+    "starRating": 5,
+    "roomType": "Corner Suite",
+    "baseNightlyPriceMinor": 28600,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 4,
+    "amenities": [
+      "Free WiFi",
+      "Breakfast included",
+      "Pool",
+      "Gym",
+      "Onsen",
+      "Laundry"
+    ]
+  },
+  {
+    "hotelId": "htl_hkg_009",
+    "city": "HKG",
+    "name": "Tai Ping Residences",
+    "area": "Sheung Wan",
+    "starRating": 2,
+    "roomType": "Standard Double",
+    "baseNightlyPriceMinor": 4900,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Free WiFi",
+      "Pool",
+      "Rooftop bar"
+    ]
+  },
+  {
+    "hotelId": "htl_hkg_011",
+    "city": "HKG",
+    "name": "Sai Kung Quarters",
+    "area": "Sai Ying Pun",
+    "starRating": 2,
+    "roomType": "Compact Double",
+    "baseNightlyPriceMinor": 5300,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 2,
+    "amenities": [
+      "Breakfast included",
+      "Pool",
+      "Gym"
+    ]
+  },
+  {
+    "hotelId": "htl_hkg_005",
+    "city": "HKG",
+    "name": "Lantau View Residences",
+    "area": "Causeway Bay",
+    "starRating": 2,
+    "roomType": "Compact Double",
+    "baseNightlyPriceMinor": 6100,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Breakfast included",
+      "Airport transfer",
+      "Family rooms",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_hkg_017",
+    "city": "HKG",
+    "name": "Bonham Lodge",
+    "area": "Wan Chai",
+    "starRating": 2,
+    "roomType": "Standard Double",
+    "baseNightlyPriceMinor": 6200,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Free WiFi",
+      "Gym",
+      "Family rooms"
+    ]
+  },
+  {
+    "hotelId": "htl_hkg_018",
+    "city": "HKG",
+    "name": "Pok Fu Stay",
+    "area": "Causeway Bay",
+    "starRating": 2,
+    "roomType": "Standard Twin",
+    "baseNightlyPriceMinor": 6700,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 2,
+    "amenities": [
+      "Breakfast included",
+      "Airport transfer",
+      "Gym",
+      "Onsen",
+      "Rooftop bar",
+      "Co-working desk"
+    ]
+  },
+  {
+    "hotelId": "htl_hkg_004",
+    "city": "HKG",
+    "name": "Tai Ping Quarters",
+    "area": "Sai Ying Pun",
+    "starRating": 2,
+    "roomType": "Standard Double",
+    "baseNightlyPriceMinor": 7400,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Airport transfer",
+      "Pool",
+      "Onsen",
+      "Rooftop bar",
+      "Family rooms",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_hkg_003",
+    "city": "HKG",
+    "name": "Kennedy Residences",
+    "area": "Tsim Sha Tsui",
+    "starRating": 3,
+    "roomType": "Standard King",
+    "baseNightlyPriceMinor": 7900,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 3,
+    "amenities": [
+      "Breakfast included",
+      "Rooftop bar",
+      "Laundry",
+      "Airport shuttle",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_hkg_013",
+    "city": "HKG",
+    "name": "Tai Ping Hotel",
+    "area": "Sai Ying Pun",
+    "starRating": 3,
+    "roomType": "Superior Double",
+    "baseNightlyPriceMinor": 9800,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Free WiFi",
+      "Laundry",
+      "Co-working desk",
+      "Family rooms"
+    ]
+  },
+  {
+    "hotelId": "htl_hkg_001",
+    "city": "HKG",
+    "name": "Tai Ping Stay",
+    "area": "Central",
+    "starRating": 3,
+    "roomType": "Deluxe Twin",
+    "baseNightlyPriceMinor": 11600,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Gym",
+      "Laundry",
+      "Co-working desk",
+      "Family rooms"
+    ]
+  },
+  {
+    "hotelId": "htl_hkg_015",
+    "city": "HKG",
+    "name": "Harbour Rise Lodge",
+    "area": "Causeway Bay",
+    "starRating": 3,
+    "roomType": "Deluxe Twin",
+    "baseNightlyPriceMinor": 11800,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Airport transfer",
+      "Laundry",
+      "Co-working desk",
+      "Airport shuttle",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_hkg_008",
+    "city": "HKG",
+    "name": "Tai Ping Lodge",
+    "area": "Central",
+    "starRating": 4,
+    "roomType": "Deluxe King",
+    "baseNightlyPriceMinor": 12300,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 4,
+    "amenities": [
+      "Gym",
+      "Laundry",
+      "Family rooms",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_hkg_016",
+    "city": "HKG",
+    "name": "Lantau View Rooms",
+    "area": "Central",
+    "starRating": 4,
+    "roomType": "Executive Twin",
+    "baseNightlyPriceMinor": 13600,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 3,
+    "amenities": [
+      "Family rooms",
+      "Airport shuttle",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_hkg_002",
+    "city": "HKG",
+    "name": "Pok Fu Hotel",
+    "area": "Sheung Wan",
+    "starRating": 4,
+    "roomType": "Premier Double",
+    "baseNightlyPriceMinor": 14100,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 2,
+    "amenities": [
+      "Pool",
+      "Onsen",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_hkg_014",
+    "city": "HKG",
+    "name": "Bonham House",
+    "area": "Sheung Wan",
+    "starRating": 4,
+    "roomType": "Deluxe King",
+    "baseNightlyPriceMinor": 14500,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 3,
+    "amenities": [
+      "Free WiFi",
+      "Gym",
+      "Family rooms",
+      "Airport shuttle",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_hkg_012",
+    "city": "HKG",
+    "name": "Lantau View House",
+    "area": "Sheung Wan",
+    "starRating": 4,
+    "roomType": "Deluxe King",
+    "baseNightlyPriceMinor": 15900,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 2,
+    "amenities": [
+      "Free WiFi",
+      "Breakfast included",
+      "Airport transfer",
+      "Pool",
+      "Rooftop bar",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_hkg_006",
+    "city": "HKG",
+    "name": "Harbour Rise Quarters",
+    "area": "Sai Ying Pun",
+    "starRating": 4,
+    "roomType": "Executive Twin",
+    "baseNightlyPriceMinor": 17200,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 2,
+    "amenities": [
+      "Free WiFi",
+      "Breakfast included",
+      "Gym",
+      "Laundry"
+    ]
+  },
+  {
+    "hotelId": "htl_hkg_010",
+    "city": "HKG",
+    "name": "Bonham Stay",
+    "area": "Central",
+    "starRating": 4,
+    "roomType": "Executive Twin",
+    "baseNightlyPriceMinor": 21500,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Free WiFi",
+      "Gym",
+      "Onsen",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_hkg_007",
+    "city": "HKG",
+    "name": "Harbour Rise House",
+    "area": "Sheung Wan",
+    "starRating": 5,
+    "roomType": "Panorama Suite",
+    "baseNightlyPriceMinor": 28600,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 3,
+    "amenities": [
+      "Breakfast included",
+      "Laundry",
+      "Family rooms"
+    ]
+  },
+  {
+    "hotelId": "htl_kul_004",
+    "city": "KUL",
+    "name": "Tanglin Collection",
+    "area": "Bukit Bintang",
+    "starRating": 2,
+    "roomType": "Compact Double",
+    "baseNightlyPriceMinor": 2600,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Free WiFi",
+      "Rooftop bar",
+      "Family rooms",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_kul_007",
+    "city": "KUL",
+    "name": "Angsana Rooms",
+    "area": "Chow Kit",
+    "starRating": 2,
+    "roomType": "Standard Twin",
+    "baseNightlyPriceMinor": 2600,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 3,
+    "amenities": [
+      "Airport transfer",
+      "Onsen",
+      "Rooftop bar",
+      "Co-working desk",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_kul_018",
+    "city": "KUL",
+    "name": "Sri Hartamas Hotel",
+    "area": "Chow Kit",
+    "starRating": 2,
+    "roomType": "Standard Twin",
+    "baseNightlyPriceMinor": 4100,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Breakfast included",
+      "Airport transfer",
+      "Airport shuttle",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_kul_013",
+    "city": "KUL",
+    "name": "Tanglin Residences",
+    "area": "Chow Kit",
+    "starRating": 3,
+    "roomType": "Standard King",
+    "baseNightlyPriceMinor": 4300,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Free WiFi",
+      "Gym",
+      "Onsen",
+      "Laundry",
+      "Airport shuttle",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_kul_001",
+    "city": "KUL",
+    "name": "Bunga Raya Lodge",
+    "area": "Damansara",
+    "starRating": 3,
+    "roomType": "Superior Double",
+    "baseNightlyPriceMinor": 4400,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 3,
+    "amenities": [
+      "Breakfast included",
+      "Pool",
+      "Onsen",
+      "Rooftop bar"
+    ]
+  },
+  {
+    "hotelId": "htl_kul_003",
+    "city": "KUL",
+    "name": "Tanglin House",
+    "area": "Damansara",
+    "starRating": 3,
+    "roomType": "Standard King",
+    "baseNightlyPriceMinor": 4400,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Pool",
+      "Laundry",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_kul_005",
+    "city": "KUL",
+    "name": "Sri Hartamas House",
+    "area": "Damansara",
+    "starRating": 3,
+    "roomType": "Deluxe Twin",
+    "baseNightlyPriceMinor": 4400,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Free WiFi",
+      "Onsen",
+      "Laundry",
+      "Family rooms",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_kul_006",
+    "city": "KUL",
+    "name": "Selayang Quarters",
+    "area": "Bangsar",
+    "starRating": 3,
+    "roomType": "Deluxe Twin",
+    "baseNightlyPriceMinor": 4400,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Breakfast included",
+      "Pool",
+      "Gym",
+      "Onsen",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_kul_008",
+    "city": "KUL",
+    "name": "Tanglin Stay",
+    "area": "Brickfields",
+    "starRating": 3,
+    "roomType": "Standard King",
+    "baseNightlyPriceMinor": 5000,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 3,
+    "amenities": [
+      "Breakfast included",
+      "Gym",
+      "Onsen",
+      "Laundry",
+      "Family rooms",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_kul_009",
+    "city": "KUL",
+    "name": "Selayang Lodge",
+    "area": "Bukit Bintang",
+    "starRating": 3,
+    "roomType": "Superior Double",
+    "baseNightlyPriceMinor": 5100,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Gym",
+      "Rooftop bar",
+      "Co-working desk",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_kul_015",
+    "city": "KUL",
+    "name": "Sri Hartamas Lodge",
+    "area": "Bukit Bintang",
+    "starRating": 3,
+    "roomType": "Deluxe Twin",
+    "baseNightlyPriceMinor": 5400,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Airport transfer",
+      "Pool",
+      "Onsen",
+      "Rooftop bar"
+    ]
+  },
+  {
+    "hotelId": "htl_kul_010",
+    "city": "KUL",
+    "name": "Angsana Quarters",
+    "area": "Brickfields",
+    "starRating": 3,
+    "roomType": "Standard King",
+    "baseNightlyPriceMinor": 5500,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Airport transfer",
+      "Gym",
+      "Onsen",
+      "Laundry",
+      "Family rooms",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_kul_014",
+    "city": "KUL",
+    "name": "Sri Hartamas Stay",
+    "area": "KLCC",
+    "starRating": 3,
+    "roomType": "Standard King",
+    "baseNightlyPriceMinor": 6700,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Rooftop bar",
+      "Co-working desk",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_kul_016",
+    "city": "KUL",
+    "name": "Pudu Lodge",
+    "area": "Bangsar",
+    "starRating": 4,
+    "roomType": "Executive Twin",
+    "baseNightlyPriceMinor": 8400,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 4,
+    "amenities": [
+      "Free WiFi",
+      "Pool",
+      "Rooftop bar",
+      "Co-working desk",
+      "Family rooms",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_kul_012",
+    "city": "KUL",
+    "name": "Sri Hartamas Rooms",
+    "area": "Brickfields",
+    "starRating": 4,
+    "roomType": "Executive Twin",
+    "baseNightlyPriceMinor": 9200,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 4,
+    "amenities": [
+      "Gym",
+      "Laundry",
+      "Co-working desk",
+      "Family rooms"
+    ]
+  },
+  {
+    "hotelId": "htl_kul_011",
+    "city": "KUL",
+    "name": "Angsana House",
+    "area": "Bangsar",
+    "starRating": 4,
+    "roomType": "Premier Double",
+    "baseNightlyPriceMinor": 9900,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Free WiFi",
+      "Breakfast included",
+      "Gym",
+      "Onsen",
+      "Laundry"
+    ]
+  },
+  {
+    "hotelId": "htl_kul_017",
+    "city": "KUL",
+    "name": "Sri Hartamas Residences",
+    "area": "Bukit Bintang",
+    "starRating": 4,
+    "roomType": "Executive Twin",
+    "baseNightlyPriceMinor": 11900,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 3,
+    "amenities": [
+      "Gym",
+      "Co-working desk",
+      "Family rooms",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_kul_002",
+    "city": "KUL",
+    "name": "Bunga Raya Hotel",
+    "area": "Brickfields",
+    "starRating": 5,
+    "roomType": "Corner Suite",
+    "baseNightlyPriceMinor": 13500,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 2,
+    "amenities": [
+      "Free WiFi",
+      "Airport transfer",
+      "Rooftop bar"
+    ]
+  },
+  {
+    "hotelId": "htl_nrt_021",
+    "city": "NRT",
+    "name": "Midori Quarters",
+    "area": "Asakusa",
+    "starRating": 2,
+    "roomType": "Standard Double",
+    "baseNightlyPriceMinor": 4900,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Gym",
+      "Onsen",
+      "Co-working desk",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_nrt_012",
+    "city": "NRT",
+    "name": "Midori House",
+    "area": "Yanaka",
+    "starRating": 2,
+    "roomType": "Standard Double",
+    "baseNightlyPriceMinor": 5500,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Airport transfer",
+      "Rooftop bar",
+      "Laundry"
+    ]
+  },
+  {
+    "hotelId": "htl_nrt_014",
+    "city": "NRT",
+    "name": "Kaiyo Residences",
+    "area": "Asakusa",
+    "starRating": 2,
+    "roomType": "Compact Double",
+    "baseNightlyPriceMinor": 6100,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Free WiFi",
+      "Pool",
+      "Onsen",
+      "Airport shuttle",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_nrt_018",
+    "city": "NRT",
+    "name": "Hoshizora Residences",
+    "area": "Nakameguro",
+    "starRating": 2,
+    "roomType": "Standard Twin",
+    "baseNightlyPriceMinor": 6700,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Breakfast included",
+      "Gym",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_nrt_002",
+    "city": "NRT",
+    "name": "Hoshizora House",
+    "area": "Ginza",
+    "starRating": 2,
+    "roomType": "Standard Twin",
+    "baseNightlyPriceMinor": 7600,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 3,
+    "amenities": [
+      "Pool",
+      "Gym",
+      "Rooftop bar",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_nrt_007",
+    "city": "NRT",
+    "name": "Kaiyo Lodge",
+    "area": "Ginza",
+    "starRating": 3,
+    "roomType": "Deluxe Twin",
+    "baseNightlyPriceMinor": 8200,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Free WiFi",
+      "Onsen",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_nrt_010",
+    "city": "NRT",
+    "name": "Kaiyo Rooms",
+    "area": "Yanaka",
+    "starRating": 3,
+    "roomType": "Standard King",
+    "baseNightlyPriceMinor": 8300,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Pool",
+      "Rooftop bar",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_nrt_017",
+    "city": "NRT",
+    "name": "Asagiri Hotel",
+    "area": "Asakusa",
+    "starRating": 3,
+    "roomType": "Superior Double",
+    "baseNightlyPriceMinor": 8700,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 2,
+    "amenities": [
+      "Breakfast included",
+      "Pool",
+      "Onsen"
+    ]
+  },
+  {
+    "hotelId": "htl_nrt_019",
+    "city": "NRT",
+    "name": "Hoshizora Hotel",
+    "area": "Yanaka",
+    "starRating": 3,
+    "roomType": "Standard King",
+    "baseNightlyPriceMinor": 8900,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Free WiFi",
+      "Pool",
+      "Onsen",
+      "Rooftop bar",
+      "Laundry",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_nrt_009",
+    "city": "NRT",
+    "name": "Shirakaba House",
+    "area": "Ginza",
+    "starRating": 3,
+    "roomType": "Standard King",
+    "baseNightlyPriceMinor": 9000,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 3,
+    "amenities": [
+      "Free WiFi",
+      "Airport transfer",
+      "Onsen",
+      "Laundry",
+      "Co-working desk"
+    ]
+  },
+  {
+    "hotelId": "htl_nrt_015",
+    "city": "NRT",
+    "name": "Tsukiji Lodge",
+    "area": "Shinjuku",
+    "starRating": 3,
+    "roomType": "Standard King",
+    "baseNightlyPriceMinor": 10200,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 3,
+    "amenities": [
+      "Rooftop bar",
+      "Laundry",
+      "Co-working desk"
+    ]
+  },
+  {
+    "hotelId": "htl_nrt_003",
+    "city": "NRT",
+    "name": "Asagiri Stay",
+    "area": "Asakusa",
+    "starRating": 3,
+    "roomType": "Superior Double",
+    "baseNightlyPriceMinor": 10500,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Airport transfer",
+      "Laundry",
+      "Family rooms",
+      "Airport shuttle",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_nrt_020",
+    "city": "NRT",
+    "name": "Hoshizora Rooms",
+    "area": "Shibuya",
+    "starRating": 3,
+    "roomType": "Standard King",
+    "baseNightlyPriceMinor": 10700,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Free WiFi",
+      "Airport transfer",
+      "Pool",
+      "Onsen",
+      "Co-working desk"
+    ]
+  },
+  {
+    "hotelId": "htl_nrt_016",
+    "city": "NRT",
+    "name": "Midori Lodge",
+    "area": "Shinjuku",
+    "starRating": 3,
+    "roomType": "Superior Double",
+    "baseNightlyPriceMinor": 11200,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 2,
+    "amenities": [
+      "Pool",
+      "Gym",
+      "Family rooms"
+    ]
+  },
+  {
+    "hotelId": "htl_nrt_011",
+    "city": "NRT",
+    "name": "Kogarashi Residences",
+    "area": "Nakameguro",
+    "starRating": 3,
+    "roomType": "Superior Double",
+    "baseNightlyPriceMinor": 11900,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Free WiFi",
+      "Gym",
+      "Co-working desk",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_nrt_005",
+    "city": "NRT",
+    "name": "Shirakaba Hotel",
+    "area": "Yanaka",
+    "starRating": 4,
+    "roomType": "Executive Twin",
+    "baseNightlyPriceMinor": 13500,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 4,
+    "amenities": [
+      "Breakfast included",
+      "Gym",
+      "Laundry",
+      "Co-working desk"
+    ]
+  },
+  {
+    "hotelId": "htl_nrt_008",
+    "city": "NRT",
+    "name": "Kogarashi House",
+    "area": "Ginza",
+    "starRating": 4,
+    "roomType": "Premier Double",
+    "baseNightlyPriceMinor": 14700,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 4,
+    "amenities": [
+      "Onsen",
+      "Rooftop bar",
+      "Laundry",
+      "Co-working desk",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_nrt_022",
+    "city": "NRT",
+    "name": "Tsukiji Hotel",
+    "area": "Shinjuku",
+    "starRating": 4,
+    "roomType": "Executive Twin",
+    "baseNightlyPriceMinor": 16200,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 4,
+    "amenities": [
+      "Gym",
+      "Onsen",
+      "Laundry",
+      "Family rooms"
+    ]
+  },
+  {
+    "hotelId": "htl_nrt_013",
+    "city": "NRT",
+    "name": "Asagiri Quarters",
+    "area": "Ginza",
+    "starRating": 4,
+    "roomType": "Executive Twin",
+    "baseNightlyPriceMinor": 17900,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 2,
+    "amenities": [
+      "Airport transfer",
+      "Rooftop bar",
+      "Co-working desk",
+      "Family rooms"
+    ]
+  },
+  {
+    "hotelId": "htl_nrt_006",
+    "city": "NRT",
+    "name": "Shirakaba Lodge",
+    "area": "Ginza",
+    "starRating": 4,
+    "roomType": "Premier Double",
+    "baseNightlyPriceMinor": 18400,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 4,
+    "amenities": [
+      "Free WiFi",
+      "Breakfast included",
+      "Co-working desk"
+    ]
+  },
+  {
+    "hotelId": "htl_nrt_001",
+    "city": "NRT",
+    "name": "Kogarashi Lodge",
+    "area": "Asakusa",
+    "starRating": 4,
+    "roomType": "Executive Twin",
+    "baseNightlyPriceMinor": 21300,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 4,
+    "amenities": [
+      "Breakfast included",
+      "Pool",
+      "Gym",
+      "Co-working desk",
+      "Family rooms",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_nrt_004",
+    "city": "NRT",
+    "name": "Kogarashi Rooms",
+    "area": "Yanaka",
+    "starRating": 4,
+    "roomType": "Deluxe King",
+    "baseNightlyPriceMinor": 22100,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 3,
+    "amenities": [
+      "Free WiFi",
+      "Airport transfer",
+      "Family rooms"
+    ]
+  },
+  {
+    "hotelId": "htl_sin_001",
+    "city": "SIN",
+    "name": "Peranakan Collection",
+    "area": "Tiong Bahru",
+    "starRating": 2,
+    "roomType": "Standard Twin",
+    "baseNightlyPriceMinor": 4500,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Airport transfer",
+      "Pool",
+      "Rooftop bar",
+      "Laundry",
+      "Airport shuttle",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_sin_008",
+    "city": "SIN",
+    "name": "Raffles Quay House",
+    "area": "Marina Bay",
+    "starRating": 2,
+    "roomType": "Standard Double",
+    "baseNightlyPriceMinor": 4600,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Free WiFi",
+      "Breakfast included",
+      "Airport transfer",
+      "Onsen"
+    ]
+  },
+  {
+    "hotelId": "htl_sin_019",
+    "city": "SIN",
+    "name": "Bougainvillea Residences",
+    "area": "Orchard",
+    "starRating": 2,
+    "roomType": "Standard Twin",
+    "baseNightlyPriceMinor": 6500,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Free WiFi",
+      "Gym",
+      "Co-working desk"
+    ]
+  },
+  {
+    "hotelId": "htl_sin_014",
+    "city": "SIN",
+    "name": "Tanjong Hotel",
+    "area": "Kampong Glam",
+    "starRating": 3,
+    "roomType": "Deluxe Twin",
+    "baseNightlyPriceMinor": 8300,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Airport transfer",
+      "Rooftop bar",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_sin_006",
+    "city": "SIN",
+    "name": "Straits Lodge",
+    "area": "Marina Bay",
+    "starRating": 3,
+    "roomType": "Deluxe Twin",
+    "baseNightlyPriceMinor": 8400,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Airport transfer",
+      "Gym",
+      "Onsen",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_sin_020",
+    "city": "SIN",
+    "name": "Straits House",
+    "area": "Katong",
+    "starRating": 3,
+    "roomType": "Deluxe Twin",
+    "baseNightlyPriceMinor": 9000,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Breakfast included",
+      "Airport transfer",
+      "Onsen",
+      "Co-working desk",
+      "Family rooms",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_sin_015",
+    "city": "SIN",
+    "name": "Raffles Quay Collection",
+    "area": "Orchard",
+    "starRating": 3,
+    "roomType": "Superior Double",
+    "baseNightlyPriceMinor": 9200,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Pool",
+      "Gym",
+      "Rooftop bar",
+      "Laundry",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_sin_016",
+    "city": "SIN",
+    "name": "Bougainvillea Collection",
+    "area": "Marina Bay",
+    "starRating": 3,
+    "roomType": "Standard King",
+    "baseNightlyPriceMinor": 9200,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 3,
+    "amenities": [
+      "Free WiFi",
+      "Gym",
+      "Rooftop bar"
+    ]
+  },
+  {
+    "hotelId": "htl_sin_012",
+    "city": "SIN",
+    "name": "Peranakan Lodge",
+    "area": "Tiong Bahru",
+    "starRating": 3,
+    "roomType": "Superior Double",
+    "baseNightlyPriceMinor": 9300,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Pool",
+      "Onsen",
+      "Rooftop bar",
+      "Co-working desk",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_sin_007",
+    "city": "SIN",
+    "name": "Raffles Quay Hotel",
+    "area": "Chinatown",
+    "starRating": 3,
+    "roomType": "Superior Double",
+    "baseNightlyPriceMinor": 9500,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Airport transfer",
+      "Rooftop bar",
+      "Laundry",
+      "Co-working desk",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_sin_011",
+    "city": "SIN",
+    "name": "Lantern Stay",
+    "area": "Tiong Bahru",
+    "starRating": 3,
+    "roomType": "Superior Double",
+    "baseNightlyPriceMinor": 9700,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 2,
+    "amenities": [
+      "Breakfast included",
+      "Pool",
+      "Laundry",
+      "Family rooms"
+    ]
+  },
+  {
+    "hotelId": "htl_sin_002",
+    "city": "SIN",
+    "name": "Raffles Quay Quarters",
+    "area": "Marina Bay",
+    "starRating": 3,
+    "roomType": "Standard King",
+    "baseNightlyPriceMinor": 9800,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Gym",
+      "Laundry",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_sin_010",
+    "city": "SIN",
+    "name": "Merlion Gate Residences",
+    "area": "Marina Bay",
+    "starRating": 3,
+    "roomType": "Superior Double",
+    "baseNightlyPriceMinor": 11000,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 3,
+    "amenities": [
+      "Onsen",
+      "Family rooms",
+      "Airport shuttle",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_sin_003",
+    "city": "SIN",
+    "name": "Bougainvillea House",
+    "area": "Kampong Glam",
+    "starRating": 4,
+    "roomType": "Premier Double",
+    "baseNightlyPriceMinor": 14500,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 3,
+    "amenities": [
+      "Free WiFi",
+      "Gym",
+      "Onsen",
+      "Laundry",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_sin_005",
+    "city": "SIN",
+    "name": "Tanjong Quarters",
+    "area": "Tiong Bahru",
+    "starRating": 4,
+    "roomType": "Deluxe King",
+    "baseNightlyPriceMinor": 15600,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 4,
+    "amenities": [
+      "Breakfast included",
+      "Pool",
+      "Onsen"
+    ]
+  },
+  {
+    "hotelId": "htl_sin_018",
+    "city": "SIN",
+    "name": "Bougainvillea Lodge",
+    "area": "Orchard",
+    "starRating": 4,
+    "roomType": "Premier Double",
+    "baseNightlyPriceMinor": 17300,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 4,
+    "amenities": [
+      "Breakfast included",
+      "Gym",
+      "Onsen",
+      "Rooftop bar",
+      "Family rooms",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_sin_009",
+    "city": "SIN",
+    "name": "Lantern Lodge",
+    "area": "Chinatown",
+    "starRating": 5,
+    "roomType": "Corner Suite",
+    "baseNightlyPriceMinor": 30200,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 4,
+    "amenities": [
+      "Breakfast included",
+      "Airport transfer",
+      "Pool",
+      "Family rooms",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_sin_013",
+    "city": "SIN",
+    "name": "Tanjong Lodge",
+    "area": "Orchard",
+    "starRating": 5,
+    "roomType": "Panorama Suite",
+    "baseNightlyPriceMinor": 39500,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 3,
+    "amenities": [
+      "Breakfast included",
+      "Gym",
+      "Rooftop bar",
+      "Laundry"
+    ]
+  },
+  {
+    "hotelId": "htl_sin_017",
+    "city": "SIN",
+    "name": "Lantern House",
+    "area": "Marina Bay",
+    "starRating": 5,
+    "roomType": "Deluxe King",
+    "baseNightlyPriceMinor": 40500,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 2,
+    "amenities": [
+      "Breakfast included",
+      "Laundry",
+      "Family rooms"
+    ]
+  },
+  {
+    "hotelId": "htl_sin_004",
+    "city": "SIN",
+    "name": "Merlion Gate Hotel",
+    "area": "Orchard",
+    "starRating": 5,
+    "roomType": "Deluxe King",
+    "baseNightlyPriceMinor": 42700,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 4,
+    "amenities": [
+      "Free WiFi",
+      "Airport transfer",
+      "Onsen",
+      "Rooftop bar",
+      "Laundry"
+    ]
+  },
+  {
+    "hotelId": "htl_syd_001",
+    "city": "SYD",
+    "name": "Coogee Quarters",
+    "area": "Surry Hills",
+    "starRating": 2,
+    "roomType": "Compact Double",
+    "baseNightlyPriceMinor": 4500,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Breakfast included",
+      "Pool",
+      "Onsen",
+      "Co-working desk",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_syd_016",
+    "city": "SYD",
+    "name": "Paperbark Stay",
+    "area": "Newtown",
+    "starRating": 2,
+    "roomType": "Standard Double",
+    "baseNightlyPriceMinor": 5700,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Free WiFi",
+      "Airport transfer",
+      "Gym",
+      "Laundry",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_syd_012",
+    "city": "SYD",
+    "name": "Coogee Residences",
+    "area": "Newtown",
+    "starRating": 3,
+    "roomType": "Deluxe Twin",
+    "baseNightlyPriceMinor": 6700,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 2,
+    "amenities": [
+      "Free WiFi",
+      "Breakfast included",
+      "Gym",
+      "Laundry",
+      "Airport shuttle",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_syd_008",
+    "city": "SYD",
+    "name": "Paperbark Residences",
+    "area": "Darlinghurst",
+    "starRating": 3,
+    "roomType": "Standard King",
+    "baseNightlyPriceMinor": 7100,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Free WiFi",
+      "Rooftop bar",
+      "Family rooms",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_syd_009",
+    "city": "SYD",
+    "name": "Paperbark Rooms",
+    "area": "Newtown",
+    "starRating": 3,
+    "roomType": "Standard King",
+    "baseNightlyPriceMinor": 7100,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Breakfast included",
+      "Airport transfer",
+      "Gym",
+      "Laundry",
+      "Co-working desk"
+    ]
+  },
+  {
+    "hotelId": "htl_syd_007",
+    "city": "SYD",
+    "name": "Jacaranda Collection",
+    "area": "The Rocks",
+    "starRating": 3,
+    "roomType": "Deluxe Twin",
+    "baseNightlyPriceMinor": 7200,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 2,
+    "amenities": [
+      "Free WiFi",
+      "Airport transfer",
+      "Rooftop bar",
+      "Laundry",
+      "Co-working desk",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_syd_015",
+    "city": "SYD",
+    "name": "Waratah Lodge",
+    "area": "Surry Hills",
+    "starRating": 3,
+    "roomType": "Standard King",
+    "baseNightlyPriceMinor": 7200,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 3,
+    "amenities": [
+      "Free WiFi",
+      "Gym",
+      "Rooftop bar",
+      "Laundry",
+      "Family rooms",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_syd_011",
+    "city": "SYD",
+    "name": "Woolloomooloo Residences",
+    "area": "Darlinghurst",
+    "starRating": 3,
+    "roomType": "Deluxe Twin",
+    "baseNightlyPriceMinor": 7900,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Free WiFi",
+      "Gym",
+      "Rooftop bar",
+      "Laundry",
+      "Co-working desk"
+    ]
+  },
+  {
+    "hotelId": "htl_syd_014",
+    "city": "SYD",
+    "name": "Paperbark Lodge",
+    "area": "Manly",
+    "starRating": 4,
+    "roomType": "Premier Double",
+    "baseNightlyPriceMinor": 11800,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 4,
+    "amenities": [
+      "Onsen",
+      "Co-working desk",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_syd_013",
+    "city": "SYD",
+    "name": "Coogee Hotel",
+    "area": "Newtown",
+    "starRating": 4,
+    "roomType": "Premier Double",
+    "baseNightlyPriceMinor": 13400,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 3,
+    "amenities": [
+      "Pool",
+      "Onsen",
+      "Rooftop bar",
+      "Co-working desk",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_syd_002",
+    "city": "SYD",
+    "name": "Jacaranda Rooms",
+    "area": "Bondi",
+    "starRating": 4,
+    "roomType": "Deluxe King",
+    "baseNightlyPriceMinor": 16900,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 2,
+    "amenities": [
+      "Free WiFi",
+      "Onsen",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_syd_004",
+    "city": "SYD",
+    "name": "Woolloomooloo Rooms",
+    "area": "Bondi",
+    "starRating": 4,
+    "roomType": "Executive Twin",
+    "baseNightlyPriceMinor": 17200,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 3,
+    "amenities": [
+      "Free WiFi",
+      "Airport transfer",
+      "Laundry"
+    ]
+  },
+  {
+    "hotelId": "htl_syd_005",
+    "city": "SYD",
+    "name": "Woolloomooloo Hotel",
+    "area": "Darlinghurst",
+    "starRating": 4,
+    "roomType": "Executive Twin",
+    "baseNightlyPriceMinor": 18100,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 4,
+    "amenities": [
+      "Breakfast included",
+      "Airport transfer",
+      "Gym",
+      "Onsen",
+      "Co-working desk",
+      "Family rooms"
+    ]
+  },
+  {
+    "hotelId": "htl_syd_017",
+    "city": "SYD",
+    "name": "Coogee House",
+    "area": "Surry Hills",
+    "starRating": 4,
+    "roomType": "Premier Double",
+    "baseNightlyPriceMinor": 19800,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 4,
+    "amenities": [
+      "Free WiFi",
+      "Breakfast included",
+      "Gym",
+      "Co-working desk",
+      "Family rooms"
+    ]
+  },
+  {
+    "hotelId": "htl_syd_010",
+    "city": "SYD",
+    "name": "Banksia Hotel",
+    "area": "Surry Hills",
+    "starRating": 5,
+    "roomType": "Panorama Suite",
+    "baseNightlyPriceMinor": 24900,
+    "currency": "USD",
+    "refundable": false,
+    "maxGuests": 4,
+    "amenities": [
+      "Breakfast included",
+      "Gym",
+      "Onsen",
+      "Co-working desk"
+    ]
+  },
+  {
+    "hotelId": "htl_syd_006",
+    "city": "SYD",
+    "name": "Gundawarra House",
+    "area": "Darlinghurst",
+    "starRating": 5,
+    "roomType": "Deluxe King",
+    "baseNightlyPriceMinor": 29000,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 4,
+    "amenities": [
+      "Free WiFi",
+      "Gym",
+      "Onsen",
+      "Laundry",
+      "Co-working desk",
+      "Spa"
+    ]
+  },
+  {
+    "hotelId": "htl_syd_018",
+    "city": "SYD",
+    "name": "Waratah Stay",
+    "area": "Newtown",
+    "starRating": 5,
+    "roomType": "Junior Suite",
+    "baseNightlyPriceMinor": 32600,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 3,
+    "amenities": [
+      "Free WiFi",
+      "Airport transfer",
+      "Pool",
+      "Laundry",
+      "Family rooms",
+      "Airport shuttle"
+    ]
+  },
+  {
+    "hotelId": "htl_syd_003",
+    "city": "SYD",
+    "name": "Woolloomooloo Stay",
+    "area": "Manly",
+    "starRating": 5,
+    "roomType": "Deluxe King",
+    "baseNightlyPriceMinor": 48200,
+    "currency": "USD",
+    "refundable": true,
+    "maxGuests": 3,
+    "amenities": [
+      "Free WiFi",
+      "Breakfast included",
+      "Pool",
+      "Rooftop bar",
+      "Laundry",
+      "Family rooms"
+    ]
+  }
+]
