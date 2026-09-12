@@ -3,7 +3,7 @@
 // post-booking modal; everything stateful lives under <PlanProvider> (mounted in the
 // (app) layout, shared with /chat).
 import { Suspense } from "react";
-import { BookingConfirmedModal } from "~~/components/autovoyage/approval/BookingConfirmedModal";
+import { BookingConfirmedModal } from "~~/components/autovoyage/plan/BookingConfirmedModal";
 import { AgentPanel } from "~~/components/autovoyage/plan/AgentPanel";
 import { PlanWorkspace } from "~~/components/autovoyage/plan/PlanWorkspace";
 import { getBooking, getTripPlan } from "~~/services/autovoyage/tripData";

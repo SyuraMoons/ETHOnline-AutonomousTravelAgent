@@ -1,11 +1,11 @@
 // Itinerary page
 import Link from "next/link";
-import { getBooking } from "~~/services/autovoyage/tripData";
-import { formatUsd } from "~~/services/autovoyage/currency";
-import { PlanSection } from "~~/components/autovoyage/plan/PlanSection";
 import { FlightRow } from "~~/components/autovoyage/plan/FlightRow";
+import { PlanSection } from "~~/components/autovoyage/plan/PlanSection";
 import { OnChainProof } from "~~/components/autovoyage/ui/OnChainProof";
 import { StatusPill } from "~~/components/autovoyage/ui/StatusPill";
+import { formatUsd } from "~~/services/autovoyage/currency";
+import { getBooking } from "~~/services/autovoyage/tripData";
 
 export default async function ItineraryPage() {
   const b = await getBooking();

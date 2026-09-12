@@ -2,9 +2,11 @@
 "use client";
 
 import { useRef } from "react";
-import type { PlanProgress } from "~~/types/autovoyage/plan";
-import { useBeat } from "~~/hooks/autovoyage/useBeat";
 import { CheckIcon } from "../ui/icons";
+import { useBeat } from "~~/hooks/autovoyage/useBeat";
+import type { PlanProgress } from "~~/types/autovoyage/plan";
+
+// Agent progress steps
 
 export function AgentSteps({ progress }: { progress: PlanProgress }) {
   const ref = useRef<HTMLDivElement>(null);

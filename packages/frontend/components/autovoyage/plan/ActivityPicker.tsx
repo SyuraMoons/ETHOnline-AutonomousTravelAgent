@@ -2,9 +2,9 @@
 
 // Activity picker
 import { useState } from "react";
-import type { ActivitiesSection, ActivitySuggestion } from "~~/types/autovoyage/plan";
-import { formatUsd } from "~~/services/autovoyage/currency";
 import { MapPinIcon, PlusIcon } from "../ui/icons";
+import { formatUsd } from "~~/services/autovoyage/currency";
+import type { ActivitiesSection, ActivitySuggestion } from "~~/types/autovoyage/plan";
 
 function ActivityCard({ item }: { item: ActivitySuggestion }) {
   return (

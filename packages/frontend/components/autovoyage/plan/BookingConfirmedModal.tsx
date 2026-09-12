@@ -3,10 +3,10 @@
 
 import { useRef } from "react";
 import Link from "next/link";
-import type { Booking } from "~~/types/autovoyage/plan";
-import { formatUsd } from "~~/services/autovoyage/currency";
-import { useBeat } from "~~/hooks/autovoyage/useBeat";
 import { OnChainProof } from "../ui/OnChainProof";
+import { useBeat } from "~~/hooks/autovoyage/useBeat";
+import { formatUsd } from "~~/services/autovoyage/currency";
+import type { Booking } from "~~/types/autovoyage/plan";
 
 function SummaryRow({ label, value }: { label: string; value: string }) {
   return (

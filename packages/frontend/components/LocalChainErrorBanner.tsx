@@ -27,8 +27,8 @@ export const LocalChainErrorBanner = () => {
       <ExclamationTriangleIcon className="h-5 w-5 shrink-0" />
       <p className="text-sm font-medium m-0">
         Cannot connect to local node. Run{" "}
-        <code className="bg-error/20 px-1.5 py-0.5 rounded">npm run hardhat:chain</code>{" "}
-        in a terminal or switch to Testnet/Mainnet.
+        <code className="bg-error/20 px-1.5 py-0.5 rounded">npm run hardhat:chain</code> in a terminal or switch to
+        Testnet/Mainnet.
       </p>
     </div>
   );

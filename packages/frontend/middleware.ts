@@ -1,4 +1,4 @@
-// Next.js middleware — protects the app-group pages (plan/chat/activity/audit/itinerary).
+// Next.js middleware — protects the app-group pages (plan/chat/activity/audit/itinerary/approve).
 // Unauthenticated visitors are redirected to /login by Auth.js.
 export { auth as middleware } from "~~/auth";
 
@@ -11,5 +11,6 @@ export const config = {
     "/activity/:path*",
     "/audit/:path*",
     "/itinerary/:path*",
+    "/approve/:path*",
   ],
 };

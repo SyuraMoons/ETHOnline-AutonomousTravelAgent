@@ -1,13 +1,12 @@
 // Login page
 import Image from "next/image";
 import Link from "next/link";
-import { SignInCard } from "~~/components/autovoyage/marketing/SignInCard";
 import { Wordmark } from "~~/components/autovoyage/brand/Wordmark";
+import { SignInCard } from "~~/components/autovoyage/marketing/SignInCard";
 
 export default function LoginPage() {
   return (
     <div className="flex min-h-svh w-full">
-
       <div className="relative hidden w-[42%] max-w-[620px] overflow-hidden lg:block">
         <Image
           src="/brand/login-panel.png"
@@ -54,8 +53,14 @@ export default function LoginPage() {
 
         <div className="px-6 pb-6 text-right md:px-10">
           <p className="m-0 text-[12px] text-av-muted">
-            © 2026 AutoVoyage · <Link href="/" className="no-underline hover:opacity-70">Privacy</Link> ·{" "}
-            <Link href="/" className="no-underline hover:opacity-70">Terms</Link>
+            © 2026 AutoVoyage ·{" "}
+            <Link href="/" className="no-underline hover:opacity-70">
+              Privacy
+            </Link>{" "}
+            ·{" "}
+            <Link href="/" className="no-underline hover:opacity-70">
+              Terms
+            </Link>
           </p>
         </div>
       </div>

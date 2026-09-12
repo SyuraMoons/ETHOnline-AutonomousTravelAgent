@@ -3,6 +3,8 @@
 
 import { useEffect, useRef } from "react";
 
+// useReveal — CSS-only scroll reveal (no GSAP)
+
 /**
  * Adds `is-revealed` the first time the element scrolls into view, driving a pure-CSS fade/slide
  * (`.reveal` in globals.css). Zero JS animation weight. Safety net: reveals immediately with no

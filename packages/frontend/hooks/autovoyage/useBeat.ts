@@ -4,7 +4,7 @@
 import { type RefObject, useEffect, useRef } from "react";
 
 type Gsap = (typeof import("gsap"))["gsap"];
-type BeatAnim = { progress: (value?: number) => number } | void;
+type BeatAnim = { progress: (value?: number) => number } | undefined;
 
 /**
  * Runs one GSAP "beat" against `ref` after mount — client-side only, and only when motion is
@@ -37,15 +37,13 @@ export function useBeat(ref: RefObject<HTMLElement | null>, build: (gsap: Gsap, 
       .then(({ gsap }) => {
         if (cancelled || !ref.current) return;
         reveal();
-        // gsap.context() runs its callback synchronously, so `anim` is assigned
-        // by the time it returns — TS can't see that, hence the explicit undefined.
-        let anim: BeatAnim | undefined;
+        let anim: BeatAnim = undefined;
         ctx = gsap.context(() => {
           anim = buildRef.current(gsap, el);
         }, el);
-        if (anim) {
+        if (anim != null) {
           timer = window.setTimeout(() => {
-            if (anim && anim.progress() < 1) anim.progress(1);
+            if (anim != null && anim.progress() < 1) anim.progress(1);
           }, 1800);
         }
       })

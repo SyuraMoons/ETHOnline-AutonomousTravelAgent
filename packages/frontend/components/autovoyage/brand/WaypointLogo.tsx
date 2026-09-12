@@ -26,7 +26,6 @@ export function WaypointLogo({
       role="img"
       aria-label="AutoVoyage"
     >
-
       <circle cx="5" cy="22" r="2.6" fill={route} />
 
       <path d="M5 22 C 5 13, 14 12, 21 10" stroke={route} strokeWidth="2" strokeLinecap="round" />

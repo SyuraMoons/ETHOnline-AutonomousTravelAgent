@@ -30,10 +30,7 @@ export function SponsorBand() {
         </p>
         <div className="mt-12 flex flex-col">
           {RAILS.map(r => (
-            <div
-              key={r.tag}
-              className="flex flex-col gap-2 border-t border-av-paper/15 py-7 sm:flex-row sm:gap-8"
-            >
+            <div key={r.tag} className="flex flex-col gap-2 border-t border-av-paper/15 py-7 sm:flex-row sm:gap-8">
               <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-av-blue sm:w-40 sm:pt-1">
                 {r.tag}
               </span>
