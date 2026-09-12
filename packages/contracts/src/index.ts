@@ -8,5 +8,6 @@ export * from "./plan.js";
 export * from "./consent.js";
 export * from "./audit.js";
 export * from "./refusal.js";
+export * from "./registry.js";
 export * from "./helpers.js";
 export * from "./dossier.js";

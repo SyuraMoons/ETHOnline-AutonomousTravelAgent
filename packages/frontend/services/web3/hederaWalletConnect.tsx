@@ -120,7 +120,7 @@ export const HederaWalletConnectProvider = ({ children }: { children: React.Reac
     const fromAppKit = appKitHederaConnected && appKitHederaAddress ? parseHederaAccountId(appKitHederaAddress) : null;
     const accountId = fromProvider ?? fromAppKit;
     const sessionReady = hasHederaSession(provider);
-    const connected = Boolean(appKitHederaConnected && accountId);
+    const connected = Boolean(accountId);
 
     return {
       hederaAccountId: accountId,

@@ -82,10 +82,33 @@ key) are the two other buyer paths — neither is used by the planner's own paym
 
 ### Not yet built
 
-- **HCS registry discovery** — `app/api/registry/route.ts` is a 501 stub. The planner still
-  reaches the supplier via `SUPPLIER_BASE_URL` env var, not an HCS registry topic read via
-  Mirror Node.
 - **Public deployment** — facilitator and supplier both run on `localhost` only.
+
+### HCS agent registry — discovery + self-attested identity (real, live)
+
+`GET /api/registry` reads a real HCS topic (`HCS_REGISTRY_TOPIC_ID`) live via Mirror Node — no
+local cache, no synthetic data. Two message types, schema `packages/contracts/src/registry.ts`:
+
+- `AgentRegistered` — an `{agentId, card}` message wrapping the supplier's own
+  `GET /.well-known/x402` `AgentCard`, so a discovering agent gets `payTo`/services/pricing
+  without a second fetch or a hardcoded endpoint.
+- `AgentIdentityClaimed` — an HCS-14-style self-attested identity claim: binds `agentId` to the
+  same Ed25519 public key already published as the card's `bookingPublicKey`, signed with the
+  supplier's existing `signPayload()` (`packages/supplier/src/lib/signing.ts`) over
+  `canonicalJson({agentId, publicKeyBase64, v, timestamp})`. This proves key possession, not
+  real-world identity — any reader independently re-verifies the signature
+  (`services/hedera/registry.ts`'s `verifySignedClaim`) rather than trusting the registry writer.
+
+Reader: `services/hedera/registry.ts`'s `readRegistry()` — folds messages per `agentId` (latest
+card + latest identity claim), shared by the API route and by
+`services/autovoyage/supplierClient.ts`'s discovery fallback (tries the registry first, falls
+back to the static `SUPPLIER_BASE_URL` env var on any miss or read failure — registry data is
+eventually consistent via Mirror Node and must never block the golden path). Writer: two
+one-time scripts — `packages/supplier/scripts/sign-identity-claim.ts` (signs the claim inside
+`packages/supplier`, since the private key never leaves that package) and
+`packages/frontend/scripts/hcs-register-supplier.ts` (fetches the live agent card, submits both
+events). One-time setup: `npm run registry:create-topic`
+(`scripts/hcs-create-registry-topic.ts`) creates the topic — separate from the audit topic.
 
 ### HCS audit topic — 4 plaintext event types (real, live)
 
@@ -125,7 +148,7 @@ itinerary_mismatch`, never trusting a client-sent hash.
 | `POST /api/consent/initiate` / `/verify` (planner) | **done** | Booking confirm session, signal = itinerary hash, writes `HumanApproval` |
 | `POST /api/execute` (planner) | **done** | Re-derive hash, spend execution token, book, write `BookingExecuted`/`ActionRefused` |
 | `GET /api/audit/:planId` (planner) | **done** | Live audit read via Mirror Node |
-| `GET /api/registry` (planner) | **stub (501)** | HCS registry topic read via Mirror Node |
+| `GET /api/registry` (planner) | **done** | HCS agent registry read via Mirror Node — discovery + self-attested identity |
 
 ### Refusal reason codes (closed set)
 
@@ -152,8 +175,10 @@ agent's own treasury balance, never against a user's account.
 Beyond the tables under "Addresses & Config" below:
 
 `HCS_AUDIT_TOPIC_ID` — real, used by `services/hedera/hcsAudit.ts` and `GET /api/audit/[planId]`
-(create the topic with `npm run audit:create-topic`). `HCS_REGISTRY_TOPIC_ID` — declared, not yet
-read by any code (`GET /api/registry` is still a stub). `EXECUTION_TOKEN_SECRET`,
+(create the topic with `npm run audit:create-topic`). `HCS_REGISTRY_TOPIC_ID` — real, used by
+`services/hedera/registry.ts`, `GET /api/registry`, and `supplierClient.ts`'s discovery fallback
+(create the topic with `npm run registry:create-topic`, then register the supplier with
+`npm run registry:register-supplier`). `EXECUTION_TOKEN_SECRET`,
 `EXECUTION_TOKEN_TTL_SECONDS` — real, used by
 `services/autovoyage/executionToken.ts`. `OPENROUTER_API_KEY`, `OPENROUTER_BASE_URL`,
 `OPENROUTER_MODEL` — real, used by `services/ai/travelAgent.ts`. `NEXT_PUBLIC_DEMO_MODE` —
@@ -270,6 +295,47 @@ roles: debited = user, signer/transaction-id = agent, credited = `PAY_TO`.
 a session must also revoke on-chain (`approveHbarAllowance(owner, spender, 0)`, see
 `services/web3/hbarAllowance.ts`) or the agent keeps its spending power indefinitely.
 
+### Blocky402 as an alternate facilitator
+
+[Blocky402](https://blocky402.com) is a hosted x402 facilitator, wire-compatible with this repo's
+own: `GET /supported`, `POST /verify`, `POST /settle`, the same `scheme: "exact"` /
+CAIP-2-network / `extra.feePayer` / base64 `payload.transaction` shapes `@x402/hedera` produces.
+Its testnet instance (`https://api.testnet.blocky402.com`) needs no API key.
+
+**It can only power treasury-mode payments, never allowance mode.** Blocky402 advertises its own
+fixed fee-payer account in `/supported` — there's no way to register a custom one. Allowance-mode
+payments (`services/x402/allowanceSigner.ts`) hard-require `extra.feePayer === AGENT_ACCOUNT_ID`,
+because the probes above proved the HIP-336-debited transfer's transaction-id owner must be the
+spender — no third party, including a facilitator, can hold that role. Treasury mode doesn't care
+who the facilitator is (it just sponsors gas as an unrelated third party), so it's unaffected.
+
+To prove a real settlement through Blocky402 (e.g. for a qualification write-up citing it by
+name): point the supplier at it and pay with the existing CLI buyer, which is already
+treasury-mode and needs no changes —
+
+```bash
+# Terminal 1 — supplier settles via Blocky402 instead of the local facilitator
+FACILITATOR_URL=https://api.testnet.blocky402.com npm run supplier:dev
+
+# Terminal 2 — pay it (a funded testnet account distinct from PAY_TO)
+RESOURCE_URL="http://localhost:4100/v1/flights/search?origin=SIN&destination=NRT&departDate=2026-10-12&paxCount=1" \
+BUYER_ACCOUNT_ID=0.0.x BUYER_PRIVATE_KEY=0x... npm run x402:buy
+```
+
+A successful run prints `Settled · tx <id> · payer <account>` — that transaction id resolves on
+HashScan as the evidence. The planner's own `/api/plan` keeps using the self-hosted facilitator
+(`facilitator/`) for its allowance-mode flow; this is a separate, additive proof path, not a
+replacement — do not delete or stop using `facilitator/`, allowance mode depends on it.
+
+**Verified (2026-09-12):** ran the two-terminal proof above and got a real settled testnet
+payment: `Settled · tx 0.0.7162784@1789203651.016492909 · payer 0.0.10286792`. Independently
+confirmed via Mirror Node
+(`https://testnet.mirrornode.hedera.com/api/v1/transactions/0.0.7162784-1789203651-016492909`):
+`result: SUCCESS`, type `CRYPTOTRANSFER`, transfers `0.0.10286792 -30,000,000` (buyer) /
+`0.0.10440357 +30,000,000` (supplier's `PAY_TO`) / `0.0.7162784 -268,330` / `0.0.802 +268,330`
+(Blocky402's fee-payer paying the Hedera network fee to the consensus node) — exactly the shape
+described above: the buyer pays `PAY_TO` in full, Blocky402 only sponsors gas as fee-payer.
+
 ### HashPack / wallet integration
 
 - Reown AppKit uses **only** the `hedera` namespace (`HederaAdapter` in `appKitHedera.ts`) — no
@@ -307,7 +373,8 @@ Currently empty (no contract deployed).
 | `app/api/consent/{initiate,verify}/route.ts` | Booking confirm session + verify, signal = itinerary hash, writes `HumanApproval` |
 | `app/api/execute/route.ts` | Spends the execution token, books every leg, writes `BookingExecuted`/`ActionRefused` |
 | `app/api/audit/[planId]/route.ts` | Live HCS audit read via Mirror Node — no local cache |
-| `app/api/registry/route.ts` | Stub — not yet built (see "Not yet built" above) |
+| `app/api/registry/route.ts` | Live HCS agent registry read via Mirror Node — discovery + self-attested identity |
+| `services/hedera/registry.ts` | `readRegistry()` — folds `AgentRegistered`/`AgentIdentityClaimed` per agentId, verifies identity signatures |
 | `services/hedera/hcsAudit.ts` | Real `TopicMessageSubmitTransaction` writer + event builders for the audit topic |
 | `services/hedera/mirrorNode.ts` | Shared Mirror Node base-URL + paginated topic-message reader |
 | `services/db/supabase.ts` | Server-only Supabase client (service-role key) — the DB entry point for every store below |
@@ -320,7 +387,7 @@ Currently empty (no contract deployed).
 | `services/x402/client.ts` | Browser x402 client (`payAndFetch`), HashPack — unused by planner today |
 | `services/x402/walletSigner.ts` | HashPack partial-sign signer |
 | `services/autovoyage/mandate.ts` | Pure, synchronous `checkMandate()`; everything else (create/get/reserve/commit spend) is Postgres-backed |
-| `services/autovoyage/supplierClient.ts` | Agent-card fetch + quote/pay wrapper for the supplier |
+| `services/autovoyage/supplierClient.ts` | Agent-card fetch + quote/pay wrapper for the supplier; resolves the supplier endpoint via HCS registry discovery first, `SUPPLIER_BASE_URL` as fallback |
 | `services/autovoyage/buildOptions.ts` | Real `SearchResult[]` → ranked `FlightOption[]` |
 | `services/autovoyage/consentSessions.ts` | Postgres-backed booking-confirm session store |
 | `services/autovoyage/dossierStore.ts` | Postgres-backed `TripDossier` store between an autonomous run finishing and "Book everything" |
@@ -333,6 +400,8 @@ Currently empty (no contract deployed).
 | `supabase/schema.sql` | Postgres schema for mandates/spend/reservations/consent/dossiers/chat threads — apply via the Supabase SQL editor |
 | `scripts/x402-buy.ts` | CLI/agent buyer reference (`npm run x402:buy`) |
 | `scripts/hcs-create-audit-topic.ts` | One-time setup: creates the HCS audit topic (`npm run audit:create-topic`) |
+| `scripts/hcs-create-registry-topic.ts` | One-time setup: creates the HCS agent registry topic (`npm run registry:create-topic`) |
+| `scripts/hcs-register-supplier.ts` | Fetches the supplier's live agent card and submits `AgentRegistered` + a pre-signed `AgentIdentityClaimed` (`npm run registry:register-supplier`) |
 | `scripts/allowance-probe*.ts` | Testnet evidence for the HAPI allowance rules — keep, they justify the design |
 | `scripts/allowance-*e2e.ts` | Full-stack allowance checks (search, round-trip plan, revoke) |
 | `scripts/allowance-refusals.ts` | Offline checks that the mandate's brakes work — exercises `checkMandate()` directly, no DB needed |
@@ -345,6 +414,7 @@ Currently empty (no contract deployed).
 | `src/routes/{flights,booking,wellKnown,health}.ts` | The four real routes |
 | `src/lib/{quotes,inventory,signing,tinybar}.ts` | Quote cache, flight data, Ed25519 signing, tinybar math |
 | `src/config.ts` | Env loading + pricing math, fail-fast on missing `PAY_TO`/`SUPPLIER_SIGNING_KEY` |
+| `scripts/sign-identity-claim.ts` | Signs the `AgentIdentityClaimed` registry claim in-package, since `SUPPLIER_SIGNING_KEY` never leaves this package (`npm run sign-identity-claim`) |
 
 ### Root
 

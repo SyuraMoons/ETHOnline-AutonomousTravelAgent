@@ -12,6 +12,8 @@
     "start": "next dev",
     "x402:buy": "tsx scripts/x402-buy.ts",
     "audit:create-topic": "tsx scripts/hcs-create-audit-topic.ts",
+    "registry:create-topic": "tsx scripts/hcs-create-registry-topic.ts",
+    "registry:register-supplier": "tsx scripts/hcs-register-supplier.ts",
     "allowance:probe": "tsx scripts/allowance-probe.ts",
     "allowance:probe-d": "tsx scripts/allowance-probe-d.ts",
     "allowance:refusals": "tsx scripts/allowance-refusals.ts",
