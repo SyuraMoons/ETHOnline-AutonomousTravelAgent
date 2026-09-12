@@ -13,7 +13,8 @@
     "stays:generate": "tsx scripts/generate-stays.ts",
     "activities:generate": "tsx scripts/generate-activities.ts",
     "data:generate": "npm run flights:generate && npm run stays:generate && npm run activities:generate",
-    "gen-signing-key": "tsx scripts/gen-signing-key.ts"
+    "gen-signing-key": "tsx scripts/gen-signing-key.ts",
+    "data:inspect": "tsx scripts/inspect-data.ts"
   },
   "dependencies": {
     "@sh/contracts": "*",

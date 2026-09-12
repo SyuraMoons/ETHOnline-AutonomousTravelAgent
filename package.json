@@ -61,7 +61,8 @@
     "allowance:e2e": "npm run allowance:e2e -w @sh/nextjs --",
     "allowance:plan-e2e": "npm run allowance:plan-e2e -w @sh/nextjs --",
     "allowance:revoke-e2e": "npm run allowance:revoke-e2e -w @sh/nextjs --",
-    "frontend:test": "npm run test -w @sh/nextjs --"
+    "frontend:test": "npm run test -w @sh/nextjs --",
+    "data:inspect": "npm run data:inspect -w @sh/supplier --"
   },
   "packageManager": "npm@10.0.0",
   "devDependencies": {
