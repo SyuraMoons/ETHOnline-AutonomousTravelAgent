@@ -1,8 +1,8 @@
 // Trip Plan page
-import { BookingConfirmedModal } from "~~/components/autovoyage/plan/BookingConfirmedModal";
 import { ActivityPicker } from "~~/components/autovoyage/plan/ActivityPicker";
 import { AgentPanel } from "~~/components/autovoyage/plan/AgentPanel";
 import { AgentSteps } from "~~/components/autovoyage/plan/AgentSteps";
+import { BookingConfirmedModal } from "~~/components/autovoyage/plan/BookingConfirmedModal";
 import { FlightRow } from "~~/components/autovoyage/plan/FlightRow";
 import { PlanSection } from "~~/components/autovoyage/plan/PlanSection";
 import { StayCard } from "~~/components/autovoyage/plan/StayCard";

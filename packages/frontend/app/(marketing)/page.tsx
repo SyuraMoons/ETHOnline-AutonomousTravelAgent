@@ -6,7 +6,6 @@ import { HowItWorks } from "~~/components/autovoyage/marketing/HowItWorks";
 import { ScreenshotSection } from "~~/components/autovoyage/marketing/ScreenshotSection";
 import { SponsorBand } from "~~/components/autovoyage/marketing/SponsorBand";
 import { AgentActivityCard } from "~~/components/autovoyage/marketing/visuals/AgentActivityCard";
-import { ApprovalCard } from "~~/components/autovoyage/marketing/visuals/ApprovalCard";
 import { BudgetCard } from "~~/components/autovoyage/marketing/visuals/BudgetCard";
 import { Reveal } from "~~/components/autovoyage/ui/Reveal";
 
