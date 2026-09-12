@@ -1,8 +1,8 @@
 // Chat thread
-import { ChatBudgetCard } from "./ChatBudgetCard";
 import { ChatDossierCard } from "./ChatDossierCard";
 import { ChatFlightCard } from "./ChatFlightCard";
 import { ChatRunSteps } from "./ChatRunSteps";
+import { budgetNudgeText } from "./budgetNudge";
 import type { ChatMessage } from "~~/types/autovoyage/plan";
 
 export function ChatThread({ messages }: { messages: ChatMessage[] }) {
@@ -37,7 +37,11 @@ export function ChatThread({ messages }: { messages: ChatMessage[] }) {
               </div>
             ) : null}
             {m.dossier && m.id ? <ChatDossierCard messageId={m.id} dossier={m.dossier} booking={m.booking} /> : null}
-            {m.budgetRequest ? <ChatBudgetCard reasonNote={m.budgetRequest.reasonNote} /> : null}
+            {m.budgetRequest ? (
+              <div className="max-w-[85%] rounded-lg rounded-tl-sm bg-av-bg px-4 py-2.5 text-[14px] leading-relaxed text-av-text">
+                {budgetNudgeText(m.budgetRequest.reasonNote)}
+              </div>
+            ) : null}
           </div>
         ),
       )}

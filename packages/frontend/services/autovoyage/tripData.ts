@@ -4,7 +4,6 @@ import type { ApprovalState, AuditTrail, Booking, ChatThread, TripContext, TripP
 export async function getCurrentTripContext(): Promise<TripContext> {
   return {
     trip: { destination: "Tokyo", dates: "Nov 12-15", travelers: 2 },
-    budget: { totalMinor: 120000, spentMinor: 46000, autoApproveMinor: 20000 },
   };
 }
 

@@ -204,7 +204,7 @@ export function AuthorizationProvider({ children }: { children: ReactNode }) {
     if (!res.ok) {
       // A 404 means the server genuinely no longer knows this mandateId (e.g. its in-memory
       // store was reset) — clearing only `mandate` and leaving `mandateId`/`stage: "authorized"`
-      // set left the UI in a half-authorized dead end: ChatBudgetCard shows "Agent authorized"
+      // set left the UI in a half-authorized dead end: BudgetCard shows "Agent authorized"
       // and disables its own "Set budget" button off `Boolean(mandateId)`, with no way out.
       // A transient network/5xx error is different — that's not proof the mandate is gone, so
       // leave state alone rather than destroying a live authorization on a blip.

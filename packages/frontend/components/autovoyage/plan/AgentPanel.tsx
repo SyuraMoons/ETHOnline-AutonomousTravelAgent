@@ -11,12 +11,12 @@ import Link from "next/link";
 import { CollapseIcon, ExpandIcon, PopoutIcon, SendIcon } from "../ui/icons";
 import { usePlan } from "./PlanProvider";
 import { SuggestionChips } from "./SuggestionChips";
-import { ChatBudgetCard } from "~~/components/autovoyage/chat/ChatBudgetCard";
 import { ChatDossierCard } from "~~/components/autovoyage/chat/ChatDossierCard";
 import { ChatFlightCard } from "~~/components/autovoyage/chat/ChatFlightCard";
 import { ChatRunSteps } from "~~/components/autovoyage/chat/ChatRunSteps";
 import { ChatScroller } from "~~/components/autovoyage/chat/ChatScroller";
 import { HistoryMenu } from "~~/components/autovoyage/chat/HistoryMenu";
+import { budgetNudgeText } from "~~/components/autovoyage/chat/budgetNudge";
 import { useAutoBrief } from "~~/components/autovoyage/chat/useAutoBrief";
 import type { AgentMessage } from "~~/types/autovoyage/plan";
 
@@ -42,7 +42,11 @@ function Bubble({ message }: { message: AgentMessage }) {
       {message.dossier && message.id ? (
         <ChatDossierCard messageId={message.id} dossier={message.dossier} booking={message.booking} />
       ) : null}
-      {message.budgetRequest ? <ChatBudgetCard reasonNote={message.budgetRequest.reasonNote} /> : null}
+      {message.budgetRequest ? (
+        <div className="rounded-lg rounded-tl-sm bg-av-bg px-3 py-2 text-[13px] leading-relaxed text-av-text">
+          {budgetNudgeText(message.budgetRequest.reasonNote)}
+        </div>
+      ) : null}
     </div>
   );
 }

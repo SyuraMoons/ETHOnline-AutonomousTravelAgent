@@ -1,18 +1,17 @@
 "use client";
 
-// Inline chat budget card — the chat-embedded replacement for the old sidebar
-// AuthorizeAgentCard. Connect wallet -> set a spending budget -> one HashPack allowance
-// approval. After that the agent searches and pays on its own.
+// Sidebar budget card — the single place to set the agent's HBAR spending budget: connect
+// wallet -> set a spending budget -> one HashPack allowance approval. After that the agent
+// searches and pays on its own.
 //
-// This card is a live view of AuthorizationContext, not a snapshot: once rendered inside a
-// chat message it keeps reflecting the current stage/mandate, so revoking here simply flips
-// the same card back to its form view rather than requiring a freshly pushed message.
+// This card is a live view of AuthorizationContext, not a snapshot: it keeps reflecting the
+// current stage/mandate, so revoking here simply flips the same card back to its form view.
 import { useEffect, useMemo, useState } from "react";
 import type { MandateTerms } from "@sh/contracts";
 import { useAuthorization } from "~~/services/autovoyage/authorizationContext";
 import { useHederaWalletConnect } from "~~/services/web3/hederaWalletConnect";
 
-export function ChatBudgetCard({ reasonNote }: { reasonNote?: string }) {
+export function BudgetCard({ reasonNote }: { reasonNote?: string }) {
   const { accountId, isConnected } = useHederaWalletConnect();
   const {
     agent,
@@ -79,7 +78,7 @@ export function ChatBudgetCard({ reasonNote }: { reasonNote?: string }) {
 
   if (stage === "resuming") {
     return (
-      <div className="w-full max-w-[420px] rounded border border-av-border bg-av-card p-4">
+      <div className="rounded border border-av-border p-3">
         <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-av-muted">Trip budget</span>
         <p className="m-0 mt-1 text-[13px] text-av-muted">Checking for an existing authorization…</p>
       </div>
@@ -88,7 +87,7 @@ export function ChatBudgetCard({ reasonNote }: { reasonNote?: string }) {
 
   if (stage === "orphaned") {
     return (
-      <div className="w-full max-w-[420px] rounded border border-av-border bg-av-card p-4">
+      <div className="rounded border border-av-border p-3">
         <div className="flex items-center justify-between">
           <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-av-muted">Trip budget</span>
           <span className="text-[11px] font-semibold text-av-amber">Allowance still active</span>
@@ -126,7 +125,7 @@ export function ChatBudgetCard({ reasonNote }: { reasonNote?: string }) {
     const pct =
       mandate && mandate.totalCeilingHbar > 0 ? Math.round((mandate.spentHbar / mandate.totalCeilingHbar) * 100) : 0;
     return (
-      <div className="w-full max-w-[420px] rounded border border-av-border bg-av-card p-4">
+      <div className="rounded border border-av-border p-3">
         <div className="flex items-center justify-between">
           <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-av-muted">Trip budget</span>
           <span className="text-[11px] font-semibold text-av-green">Agent authorized</span>
@@ -171,7 +170,7 @@ export function ChatBudgetCard({ reasonNote }: { reasonNote?: string }) {
   }
 
   return (
-    <div className="w-full max-w-[420px] rounded border border-av-border bg-av-card p-4">
+    <div className="rounded border border-av-border p-3">
       <p className="m-0 text-[14px] font-semibold text-av-text">Trip budget</p>
       <p className="m-0 mt-1.5 text-[13px] text-av-muted">
         {reasonNote ?? "Set a budget, approve one allowance, and I'll buy flight data on my own from there."}

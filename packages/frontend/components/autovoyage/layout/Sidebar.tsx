@@ -5,12 +5,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Wordmark } from "../brand/Wordmark";
 import { CompassIcon, PulseIcon, ShieldIcon, UserIcon, WalletIcon } from "../ui/icons";
+import { BudgetCard } from "./BudgetCard";
 import { hederaNamespace } from "@hashgraph/hedera-wallet-connect";
 import { useAppKit } from "@reown/appkit/react";
 import { useHbarBalance } from "~~/hooks/autovoyage/useHbarBalance";
 import { useHederaWalletConnect } from "~~/services/web3/hederaWalletConnect";
 import type { TripContext } from "~~/types/autovoyage/plan";
-import { formatUsd } from "~~/services/autovoyage/currency";
 import { getParsedError, notification } from "~~/utils/scaffold-hbar";
 
 const NAV = [
@@ -22,9 +22,7 @@ const NAV = [
 
 export function Sidebar({ context }: { context: TripContext }) {
   const pathname = usePathname();
-  const { trip, budget } = context;
-  const spentPct =
-    budget.totalMinor > 0 ? Math.min(100, Math.round((budget.spentMinor / budget.totalMinor) * 100)) : 0;
+  const { trip } = context;
   const { open } = useAppKit();
   const { accountId, isConnected, isBusy, disconnectWallet } = useHederaWalletConnect();
   const shortAccount = accountId ? `${accountId.slice(0, 6)}...${accountId.slice(-4)}` : null;
@@ -56,24 +54,7 @@ export function Sidebar({ context }: { context: TripContext }) {
 
       <div className="flex-1" />
 
-      <div className="rounded border border-av-border p-3">
-        <div className="flex items-baseline justify-between">
-          <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-av-muted">Trip budget</span>
-          <span className="text-[13px] font-semibold text-av-blue">
-            {formatUsd(budget.totalMinor - budget.spentMinor)} left
-          </span>
-        </div>
-        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-av-blue-tint">
-          <div className="h-full rounded-full bg-av-blue" style={{ width: `${spentPct}%` }} />
-        </div>
-        <p className="m-0 mt-2 text-[12px] text-av-muted">
-          {formatUsd(budget.spentMinor)} of {formatUsd(budget.totalMinor)} spent
-        </p>
-        <div className="mt-2.5 flex items-center justify-between border-t border-av-border pt-2.5">
-          <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-av-muted">Auto-approve</span>
-          <span className="text-[12px] font-semibold text-av-text">≤ {formatUsd(budget.autoApproveMinor)}</span>
-        </div>
-      </div>
+      <BudgetCard />
 
       <div className="rounded border border-av-border p-3">
         <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-av-muted">Current trip</span>

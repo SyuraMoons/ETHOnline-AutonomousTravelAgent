@@ -45,11 +45,7 @@ export type TripPlan = {
 };
 
 export type CurrentTrip = { destination: string; dates: string; travelers: number };
-// Trip budget is USD (the user's own spend on flights/hotels/activities), distinct from the
-// agent's HBAR x402 allowance. autoApproveMinor is the ceiling below which the agent books
-// without asking; above it, a booking pauses for a plain confirm.
-export type TripBudget = { totalMinor: number; spentMinor: number; autoApproveMinor: number };
-export type TripContext = { trip: CurrentTrip; budget: TripBudget };
+export type TripContext = { trip: CurrentTrip };
 
 export type ApprovalBooking = { name: string; nights: number; priceMinor: number; note: string };
 export type ApprovalState = { booking: ApprovalBooking; agent: AgentMessage[]; statusNote?: string };
@@ -82,8 +78,9 @@ export type AuditCategory = "payment" | "approval";
 export type AuditRow = { title: string; ref: string; amount?: string; time: string; category: AuditCategory };
 export type AuditTrail = { group: string; rows: AuditRow[] };
 
-/** Rendered as an inline chat card (see ChatBudgetCard) prompting the user to set a budget
- * and approve the HBAR allowance — reasonNote explains why, when triggered by a refusal. */
+/** Rendered as a short chat nudge pointing at the sidebar's BudgetCard, where the user actually
+ * sets a budget and approves the HBAR allowance — reasonNote explains why, when triggered by a
+ * refusal. */
 export type BudgetRequestCard = { reasonNote?: string };
 
 export type BookingResult = {
