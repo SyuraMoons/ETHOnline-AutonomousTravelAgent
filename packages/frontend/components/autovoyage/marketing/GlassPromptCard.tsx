@@ -8,8 +8,11 @@ import { UploadIcon } from "../ui/icons";
 import { useHederaWalletConnect } from "~~/services/web3/hederaWalletConnect";
 import { notification } from "~~/utils/scaffold-hbar";
 
+// Pinned to a route/date pair present in the supplier's static inventory (see
+// components/autovoyage/prompts.ts) so a tester who types close to this placeholder
+// still lands on a bookable itinerary.
 const EXAMPLE_PROMPT =
-  "I'm planning a 7-day trip to Tokyo in October. I love food, hidden cafes, scenic hikes, and want to avoid crowds....";
+  "Plan a round trip from Jakarta to Bali (Denpasar), departing September 20 2026 and returning September 24 2026, for 2 travellers....";
 
 export function GlassPromptCard() {
   const [brief, setBrief] = useState("");

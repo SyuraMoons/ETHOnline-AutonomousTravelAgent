@@ -4,7 +4,7 @@
 // x402 data), an agent-authored day plan (free, explicitly NOT bookable), and one button to
 // book every flight leg at once via /api/execute. Booking itself costs no HBAR:
 // the searches bought the data, and the fare goes to the traveller's card.
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { TripDossier } from "@sh/contracts";
 import { usePlan } from "~~/components/autovoyage/plan/PlanProvider";
 import { formatUsd } from "~~/services/autovoyage/currency";
@@ -27,6 +27,19 @@ export function ChatDossierCard({
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const pendingThis = bookingPendingId === messageId;
+
+  // Pre-fill from the saved profile so the passenger name/email required by /api/execute
+  // doesn't have to be retyped for every booking — still editable per booking below.
+  useEffect(() => {
+    fetch("/api/profile")
+      .then(res => (res.ok ? res.json() : null))
+      .then(data => {
+        if (!data) return;
+        if (data.fullName) setName(current => current || data.fullName);
+        if (data.email) setEmail(current => current || data.email);
+      })
+      .catch(() => {});
+  }, []);
 
   const legsLabel = dossier.option.legs
     .map(l => `${l.airline} ${l.flightNumber} · ${l.origin} → ${l.destination}`)

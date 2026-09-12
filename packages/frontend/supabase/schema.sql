@@ -82,6 +82,24 @@ create table if not exists used_execution_tokens (
   used_at  timestamptz not null default now()
 );
 
+-- One profile per signed-in email (see auth.ts — Google/GitHub OAuth). Lets the passenger
+-- name/email required by ExecuteRequest (contracts/dossier.ts) be pre-filled instead of
+-- retyped on every booking. Wallet fields are public account metadata only — never store a
+-- private key here.
+create table if not exists profiles (
+  email              text primary key,
+  full_name          text not null default '',
+  phone              text not null default '',
+  date_of_birth      date,
+  nationality        text not null default '',
+  passport_number    text not null default '',
+  passport_expiry    date,
+  home_address       jsonb not null default '{}'::jsonb,
+  wallet_account_id  text not null default '',
+  wallet_network     text not null default 'hedera:testnet',
+  updated_at         timestamptz not null default now()
+);
+
 -- Atomic settle: delete the reservation, log the spend (idempotent on `transaction`), and
 -- increment spent_hbar in one statement — never a read-modify-write, so two concurrent legs
 -- of a round trip cannot clobber each other's spend total.
