@@ -71,7 +71,9 @@ function envCheck(
   }
   const missing = required.filter((name) => {
     const value = env[name];
-    return !value || value.includes("xxxx") || value === "";
+    // Case-insensitive: the example ships 0.0.xxxxxx, but a hand-edited file
+    // often ends up as 0.0.XXXXX, which sailed through as a real account id.
+    return !value || value === "" || /x{3,}/i.test(value);
   });
   if (missing.length > 0) {
     return {
@@ -301,10 +303,32 @@ const CHECKS: Check[] = [
               fix: ["check the route is registered in src/index.ts"],
             };
           }
-          const body = (await response.json()) as {
-            accepts?: { maxAmountRequired?: string }[];
+          // The challenge rides in the PAYMENT-REQUIRED header, base64-encoded;
+          // the body is empty. Reading the body reported every route as free,
+          // which looked like a broken supplier rather than a broken check.
+          const header = response.headers.get("payment-required");
+          if (!header) {
+            return {
+              ok: false,
+              problem: `${name} returned 402 with no PAYMENT-REQUIRED header`,
+              fix: [
+                "check the x402 server wiring in src/services/x402/server.ts",
+              ],
+            };
+          }
+          const challenge = JSON.parse(
+            Buffer.from(header, "base64").toString("utf-8"),
+          ) as {
+            accepts?: { amount?: string; payTo?: string }[];
           };
-          const tinybars = Number(body.accepts?.[0]?.maxAmountRequired ?? 0);
+          const tinybars = Number(challenge.accepts?.[0]?.amount ?? 0);
+          if (!Number.isFinite(tinybars) || tinybars <= 0) {
+            return {
+              ok: false,
+              problem: `${name} quoted ${challenge.accepts?.[0]?.amount ?? "nothing"}`,
+              fix: ["a priced route should never quote zero"],
+            };
+          }
           priced.push(`${name} ${(tinybars / 1e8).toFixed(2)}`);
         } catch (error) {
           return {

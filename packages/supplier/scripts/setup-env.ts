@@ -34,7 +34,9 @@ function setValue(contents: string, key: string, value: string): string {
 function currentValue(contents: string, key: string): string | null {
   const match = new RegExp(`^${key}=(.*)$`, "m").exec(contents);
   const value = match?.[1]?.trim() ?? "";
-  if (!value || value.includes("xxxx")) return null;
+  // Case-insensitive: the example ships 0.0.xxxxxx, but a hand-edited file often
+  // ends up as 0.0.XXXXX, which would otherwise be accepted as a real account.
+  if (!value || /x{3,}/i.test(value)) return null;
   return value;
 }
 
