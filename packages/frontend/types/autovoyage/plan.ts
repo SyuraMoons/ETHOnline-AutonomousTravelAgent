@@ -49,7 +49,15 @@ export type CurrentTrip = { destination: string; dates: string; travelers: numbe
 // agent's HBAR x402 allowance. autoApproveMinor is the ceiling below which the agent books
 // without asking; above it, a booking pauses for a plain confirm.
 export type TripBudget = { totalMinor: number; spentMinor: number; autoApproveMinor: number };
-export type TripContext = { trip: CurrentTrip; budget: TripBudget };
+// A booked trip the user has paid for — one entry in the Activity page's order history.
+export type TripOrder = {
+  id: string;
+  destination: string;
+  dates: string;
+  totalMinor: number;
+  reference: string;
+};
+export type TripContext = { trip: CurrentTrip; budget: TripBudget; orders: TripOrder[] };
 
 export type ApprovalBooking = { name: string; nights: number; priceMinor: number; note: string };
 export type ApprovalState = { booking: ApprovalBooking; agent: AgentMessage[]; statusNote?: string };

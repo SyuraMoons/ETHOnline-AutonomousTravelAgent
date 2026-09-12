@@ -22,9 +22,10 @@ const NAV = [
 
 export function Sidebar({ context }: { context: TripContext }) {
   const pathname = usePathname();
-  const { trip, budget } = context;
+  const { trip, budget, orders } = context;
   const spentPct =
     budget.totalMinor > 0 ? Math.min(100, Math.round((budget.spentMinor / budget.totalMinor) * 100)) : 0;
+  const onActivity = pathname === "/activity";
   const { open } = useAppKit();
   const { accountId, isConnected, isBusy, disconnectWallet } = useHederaWalletConnect();
   const shortAccount = accountId ? `${accountId.slice(0, 6)}...${accountId.slice(-4)}` : null;
@@ -55,6 +56,32 @@ export function Sidebar({ context }: { context: TripContext }) {
       </nav>
 
       <div className="flex-1" />
+
+      {onActivity ? (
+        <div className="rounded border border-av-border p-3">
+          <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-av-muted">Order history</span>
+          {orders.length === 0 ? (
+            <p className="m-0 mt-2 text-[12px] text-av-muted">No trips booked yet.</p>
+          ) : (
+            <div className="mt-2 flex flex-col gap-2">
+              {orders.map(order => (
+                <Link
+                  key={order.id}
+                  href="/itinerary"
+                  className="block rounded border border-av-border p-2.5 no-underline transition-colors hover:bg-av-bg"
+                >
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className="text-[13px] font-semibold text-av-text">{order.destination}</span>
+                    <span className="text-[12px] font-semibold text-av-blue">{formatUsd(order.totalMinor)}</span>
+                  </div>
+                  <p className="m-0 mt-0.5 text-[11px] text-av-muted">{order.dates}</p>
+                  <p className="m-0 mt-1 font-mono text-[10px] tracking-[0.04em] text-av-muted">{order.reference}</p>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : null}
 
       <div className="rounded border border-av-border p-3">
         <div className="flex items-baseline justify-between">

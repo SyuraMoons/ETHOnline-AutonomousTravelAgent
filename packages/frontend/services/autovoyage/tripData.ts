@@ -5,6 +5,11 @@ export async function getCurrentTripContext(): Promise<TripContext> {
   return {
     trip: { destination: "Tokyo", dates: "Nov 12-15", travelers: 2 },
     budget: { totalMinor: 120000, spentMinor: 46000, autoApproveMinor: 20000 },
+    orders: [
+      { id: "AVY-7F3C-9021", destination: "Tokyo", dates: "Nov 12-15", totalMinor: 173200, reference: "AVY-7F3C-9021" },
+      { id: "AVY-5A18-3345", destination: "Singapore", dates: "Sep 3-6", totalMinor: 128400, reference: "AVY-5A18-3345" },
+      { id: "AVY-2C90-7761", destination: "Seoul", dates: "Jul 21-25", totalMinor: 201050, reference: "AVY-2C90-7761" },
+    ],
   };
 }
 
