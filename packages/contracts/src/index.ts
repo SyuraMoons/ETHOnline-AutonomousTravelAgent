@@ -1,5 +1,6 @@
 export * from "./mandate.js";
 export * from "./x402.js";
+export * from "./registry.js";
 export * from "./flights.js";
 export * from "./stay.js";
 export * from "./activity.js";
