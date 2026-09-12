@@ -5,6 +5,7 @@
 // book every flight leg at once via /api/execute. Booking itself costs no HBAR:
 // the searches bought the data, and the fare goes to the traveller's card.
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import type { TripDossier } from "@sh/contracts";
 import { usePlan } from "~~/components/autovoyage/plan/PlanProvider";
 import { formatUsd } from "~~/services/autovoyage/currency";
@@ -24,21 +25,17 @@ export function ChatDossierCard({
   booking?: BookingResult;
 }) {
   const { bookAll, bookingPendingId } = usePlan();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  // Booking asks for nothing: /api/execute takes the passenger from the signed-in profile.
+  // This read only decides whether that profile can name one yet — null while unknown, so
+  // the button isn't blocked on a request that hasn't answered.
+  const [profileReady, setProfileReady] = useState<boolean | null>(null);
   const pendingThis = bookingPendingId === messageId;
 
-  // Pre-fill from the saved profile so the passenger name/email required by /api/execute
-  // doesn't have to be retyped for every booking — still editable per booking below.
   useEffect(() => {
     fetch("/api/profile")
       .then(res => (res.ok ? res.json() : null))
-      .then(data => {
-        if (!data) return;
-        if (data.fullName) setName(current => current || data.fullName);
-        if (data.email) setEmail(current => current || data.email);
-      })
-      .catch(() => {});
+      .then(data => setProfileReady(Boolean(data?.fullName?.trim())))
+      .catch(() => setProfileReady(null));
   }, []);
 
   const legsLabel = dossier.option.legs
@@ -162,30 +159,22 @@ export function ChatDossierCard({
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-2">
-            <input
-              placeholder="Full name"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              disabled={!dossier.bookable}
-              className="rounded border border-av-border bg-av-bg px-2.5 py-1.5 text-[13px] text-av-text disabled:opacity-60"
-            />
-            <input
-              placeholder="Email"
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              disabled={!dossier.bookable}
-              className="rounded border border-av-border bg-av-bg px-2.5 py-1.5 text-[13px] text-av-text disabled:opacity-60"
-            />
-          </div>
+          {profileReady === false ? (
+            <p className="m-0 text-[12px] text-av-amber">
+              Add your full name to your{" "}
+              <Link href="/profile" className="text-av-blue">
+                profile
+              </Link>{" "}
+              — the agent books under it.
+            </p>
+          ) : null}
           {booking?.status === "refused" && booking.message ? (
             <p className="m-0 text-[12px] text-av-amber">{booking.message}</p>
           ) : null}
           <button
             type="button"
-            disabled={!dossier.bookable || pendingThis || !name.trim() || !email.trim()}
-            onClick={() => void bookAll(messageId, dossier, { name: name.trim(), email: email.trim() })}
+            disabled={!dossier.bookable || pendingThis || profileReady === false}
+            onClick={() => void bookAll(messageId, dossier)}
             className="rounded bg-av-blue py-2.5 text-[14px] font-medium text-av-paper transition-colors hover:bg-av-blue-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
             {pendingThis

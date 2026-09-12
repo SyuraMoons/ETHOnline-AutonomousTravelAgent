@@ -9,6 +9,7 @@ import type {
 } from "@sh/contracts";
 import { itineraryHash } from "@sh/contracts";
 import { randomUUID } from "node:crypto";
+import type { Traveler } from "~~/services/ai/travelAgent";
 import { TripAgentError, type TripAgentMessage, runTripAgentStep } from "~~/services/ai/tripAgent";
 import { buildOptionsFromLegs } from "~~/services/autovoyage/buildOptions";
 import { type MandateFailureDetail } from "~~/services/autovoyage/mandate";
@@ -166,9 +167,11 @@ function buildDossier(params: {
 export async function runAutonomous(params: {
   brief: string;
   mandateId: string;
+  /** Who the run is planning for, read from the session's profile by the caller. */
+  traveler?: Traveler;
   onEvent: (event: RunEvent) => void;
 }): Promise<void> {
-  const { brief, mandateId, onEvent } = params;
+  const { brief, mandateId, traveler, onEvent } = params;
 
   const messages: TripAgentMessage[] = [{ role: "user", content: brief }];
   const searches: SearchRecord[] = [];
@@ -189,7 +192,7 @@ export async function runAutonomous(params: {
   for (let turn = 0; turn < MAX_MODEL_TURNS; turn++) {
     let message;
     try {
-      message = await runTripAgentStep(messages);
+      message = await runTripAgentStep(messages, traveler);
     } catch (err) {
       const detail = err instanceof TripAgentError ? err.message : "the travel agent is unavailable";
       onEvent({ type: "error", message: detail });

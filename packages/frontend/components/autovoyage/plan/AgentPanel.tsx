@@ -6,7 +6,7 @@
 // search bar and this composer must produce the same trip, so both go through
 // PlanProvider. All that is local here is the draft and the collapsed/expanded
 // preference.
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, useRef, useState } from "react";
 import Link from "next/link";
 import { CollapseIcon, ExpandIcon, PopoutIcon, SendIcon } from "../ui/icons";
 import { usePlan } from "./PlanProvider";
@@ -52,19 +52,20 @@ function Bubble({ message }: { message: AgentMessage }) {
 }
 
 export function AgentPanel({ statusNote }: { statusNote?: string }) {
-  useAutoBrief();
+  const hasFreshBrief = useAutoBrief();
   const { messages, pending, sendBrief } = usePlan();
   const [draft, setDraft] = useState("");
-  const [open, setOpen] = useState(true);
-
-  useEffect(() => {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [open, setOpen] = useState(() => {
+    if (typeof window === "undefined") return true;
+    if (hasFreshBrief) return true;
     try {
       const stored = localStorage.getItem(OPEN_STORAGE_KEY);
-      if (stored !== null) setOpen(stored === "true");
+      return stored === null ? true : stored === "true";
     } catch {
-      // ignore (e.g. private browsing)
+      return true;
     }
-  }, []);
+  });
 
   function setPanelOpen(next: boolean) {
     setOpen(next);
@@ -83,9 +84,19 @@ export function AgentPanel({ statusNote }: { statusNote?: string }) {
     void sendBrief(brief);
   }
 
-  if (!open) {
-    return (
-      <aside className="sticky top-0 flex h-svh w-12 flex-shrink-0 flex-col items-center border-l border-av-border bg-av-card py-3">
+  return (
+    <aside
+      className={`sticky top-0 flex h-svh flex-shrink-0 flex-col overflow-hidden border-l border-av-border bg-av-card transition-[width] duration-300 ease-in-out motion-reduce:transition-none ${
+        open ? "w-[340px]" : "w-12"
+      }`}
+    >
+      <div
+        className={`flex h-svh w-12 flex-shrink-0 flex-col items-center py-3 transition-opacity duration-200 motion-reduce:transition-none ${
+          open ? "pointer-events-none absolute inset-y-0 left-0 opacity-0" : "opacity-100"
+        }`}
+        aria-hidden={open}
+        inert={open || undefined}
+      >
         <button
           type="button"
           onClick={() => setPanelOpen(true)}
@@ -95,74 +106,84 @@ export function AgentPanel({ statusNote }: { statusNote?: string }) {
         >
           <ExpandIcon size={16} />
         </button>
-      </aside>
-    );
-  }
-
-  return (
-    <aside className="sticky top-0 flex h-svh w-[340px] flex-shrink-0 flex-col overflow-hidden border-l border-av-border bg-av-card">
-      <div className="flex items-center justify-between border-b border-av-border px-4 py-3">
-        <span className="text-[14px] font-semibold text-av-text">Agent</span>
-        <div className="flex items-center gap-3">
-          <HistoryMenu />
-          <Link
-            href="/chat"
-            aria-label="Open full-screen chat"
-            title="Open full-screen chat"
-            className="text-av-muted transition-opacity hover:opacity-70"
-          >
-            <PopoutIcon size={16} />
-          </Link>
-          <button
-            type="button"
-            onClick={() => setPanelOpen(false)}
-            aria-label="Close agent panel"
-            title="Close agent panel"
-            className="text-av-muted transition-opacity hover:opacity-70"
-          >
-            <CollapseIcon size={16} />
-          </button>
-        </div>
       </div>
 
-      <ChatScroller count={messages.length}>
-        <div className="flex flex-col gap-3 p-4">
-          {messages.map((m, i) => (
-            <Bubble key={m.id ?? i} message={m} />
-          ))}
-          {pending ? (
-            <div className="rounded bg-av-bg px-3 py-2 text-[12px] font-medium text-av-muted">Thinking...</div>
-          ) : statusNote ? (
-            <div className="rounded bg-av-amber/10 px-3 py-2 text-[12px] font-medium text-av-amber">{statusNote}</div>
-          ) : null}
+      <div
+        className={`flex h-svh w-[340px] flex-shrink-0 flex-col transition-opacity duration-200 motion-reduce:transition-none ${
+          open ? "opacity-100" : "pointer-events-none absolute inset-y-0 left-0 opacity-0"
+        }`}
+        aria-hidden={!open}
+        inert={!open || undefined}
+      >
+        <div className="flex items-center justify-between border-b border-av-border px-4 py-3">
+          <span className="text-[14px] font-semibold text-av-text">Agent</span>
+          <div className="flex items-center gap-3">
+            <HistoryMenu />
+            <Link
+              href="/chat"
+              aria-label="Open full-screen chat"
+              title="Open full-screen chat"
+              className="text-av-muted transition-opacity hover:opacity-70"
+            >
+              <PopoutIcon size={16} />
+            </Link>
+            <button
+              type="button"
+              onClick={() => setPanelOpen(false)}
+              aria-label="Close agent panel"
+              title="Close agent panel"
+              className="text-av-muted transition-opacity hover:opacity-70"
+            >
+              <CollapseIcon size={16} />
+            </button>
+          </div>
         </div>
-      </ChatScroller>
 
-      {messages.length === 0 && !pending ? (
-        <div className="border-t border-av-border p-3">
-          <SuggestionChips />
-        </div>
-      ) : null}
+        <ChatScroller count={messages.length}>
+          <div className="flex flex-col gap-3 p-4">
+            {messages.map((m, i) => (
+              <Bubble key={m.id ?? i} message={m} />
+            ))}
+            {pending ? (
+              <div className="rounded bg-av-bg px-3 py-2 text-[12px] font-medium text-av-muted">Thinking...</div>
+            ) : statusNote ? (
+              <div className="rounded bg-av-amber/10 px-3 py-2 text-[12px] font-medium text-av-amber">{statusNote}</div>
+            ) : null}
+          </div>
+        </ChatScroller>
 
-      <form className="border-t border-av-border p-3" onSubmit={handleSubmit}>
-        <div className="flex items-center gap-2 rounded border border-av-border px-3 py-1.5">
-          <input
-            value={draft}
-            onChange={e => setDraft(e.target.value)}
-            placeholder="Ask anything about your trip..."
-            disabled={pending}
-            className="w-full bg-transparent py-1 text-[13px] text-av-text outline-none placeholder:text-av-muted"
-          />
-          <button
-            type="submit"
-            aria-label="Send"
-            disabled={pending}
-            className="rounded bg-av-blue p-1.5 text-av-paper transition-colors hover:bg-av-blue-hover disabled:opacity-50"
-          >
-            <SendIcon size={15} />
-          </button>
-        </div>
-      </form>
+        {messages.length === 0 && !pending ? (
+          <div className="border-t border-av-border p-3">
+            <SuggestionChips
+              onSelect={brief => {
+                setDraft(brief);
+                inputRef.current?.focus();
+              }}
+            />
+          </div>
+        ) : null}
+
+        <form className="border-t border-av-border p-3" onSubmit={handleSubmit}>
+          <div className="flex items-center gap-2 rounded border border-av-border px-3 py-1.5">
+            <input
+              ref={inputRef}
+              value={draft}
+              onChange={e => setDraft(e.target.value)}
+              placeholder="Ask anything about your trip..."
+              disabled={pending}
+              className="w-full bg-transparent py-1 text-[13px] text-av-text outline-none placeholder:text-av-muted"
+            />
+            <button
+              type="submit"
+              aria-label="Send"
+              disabled={pending}
+              className="rounded bg-av-blue p-1.5 text-av-paper transition-colors hover:bg-av-blue-hover disabled:opacity-50"
+            >
+              <SendIcon size={15} />
+            </button>
+          </div>
+        </form>
+      </div>
     </aside>
   );
 }

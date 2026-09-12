@@ -9,6 +9,7 @@
 // pair is the one judgment call this run asks it to make. Never surface an HBAR figure to it.
 import OpenAI from "openai";
 import type { ChatCompletionMessageParam, ChatCompletionTool } from "openai/resources/chat/completions";
+import type { Traveler } from "~~/services/ai/travelAgent";
 
 export type TripAgentMessage = ChatCompletionMessageParam;
 
@@ -152,13 +153,18 @@ const TOOLS: ChatCompletionTool[] = [
   },
 ];
 
-function systemPrompt(): string {
+function systemPrompt(traveler?: Traveler): string {
   const today = new Date().toISOString().slice(0, 10);
   return (
     `You are the AutoVoyage autonomous travel agent. Today is ${today}; resolve relative ` +
     "dates against it and never ask the user for the year. Work through the user's brief on " +
     "your own using the tools available — do not ask the user follow-up questions, make " +
     "reasonable assumptions instead. " +
+    (traveler
+      ? `You are planning for ${traveler.fullName} (${traveler.email}). Refer to them by ` +
+        "their first name, and never ask for their name or email — you already have both, " +
+        "and bookings are made with them automatically. "
+      : "") +
     "Call search_flights for the outbound leg, and again for the return leg only if the trip " +
     "is a round trip — at most twice total, ever. If the brief wants somewhere to stay, call " +
     "search_stays once; if it wants things to do, call search_activities once. Both cost real " +
@@ -175,10 +181,10 @@ function systemPrompt(): string {
 /** One model turn: returns the assistant message (content and/or tool_calls). The caller
  * appends it to the transcript and, for each tool call, a role:"tool" result before calling
  * this again — standard OpenAI tool-calling loop. */
-export async function runTripAgentStep(messages: TripAgentMessage[]) {
+export async function runTripAgentStep(messages: TripAgentMessage[], traveler?: Traveler) {
   const completion = await client().chat.completions.create({
     model: process.env.OPENROUTER_MODEL ?? "openai/gpt-5.6-luna",
-    messages: [{ role: "system", content: systemPrompt() }, ...messages],
+    messages: [{ role: "system", content: systemPrompt(traveler) }, ...messages],
     tools: TOOLS,
     tool_choice: "auto",
   });

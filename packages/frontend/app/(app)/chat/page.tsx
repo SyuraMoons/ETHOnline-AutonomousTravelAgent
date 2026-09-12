@@ -3,7 +3,18 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { ChatPageBody } from "~~/components/autovoyage/chat/ChatPageBody";
 import { HistoryMenu } from "~~/components/autovoyage/chat/HistoryMenu";
+import { SkeletonBlock } from "~~/components/autovoyage/ui/Skeleton";
 import { CollapseIcon } from "~~/components/autovoyage/ui/icons";
+
+function ChatBodyFallback() {
+  return (
+    <div className="mx-auto flex w-full max-w-[720px] flex-1 flex-col gap-3 px-6 py-6">
+      <SkeletonBlock className="ml-auto h-10 w-2/5" />
+      <SkeletonBlock className="h-16 w-3/5" />
+      <SkeletonBlock className="ml-auto h-10 w-1/3" />
+    </div>
+  );
+}
 
 export default function ChatPage() {
   return (
@@ -25,7 +36,7 @@ export default function ChatPage() {
       </header>
       {/* useAutoBrief (inside ChatPageBody) reads useSearchParams, which requires a Suspense
           boundary in the app router. */}
-      <Suspense fallback={null}>
+      <Suspense fallback={<ChatBodyFallback />}>
         <ChatPageBody />
       </Suspense>
     </div>

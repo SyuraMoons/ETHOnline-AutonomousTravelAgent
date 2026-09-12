@@ -124,7 +124,7 @@ type PlanContextValue = {
   selectOption: (optionId: string) => void;
   backToResults: () => void;
   clearSelection: () => void;
-  bookAll: (messageId: string, dossier: TripDossier, passenger: { name: string; email: string }) => Promise<void>;
+  bookAll: (messageId: string, dossier: TripDossier) => Promise<void>;
   threadId: string | null;
   switchThread: (id: string) => Promise<void>;
   startNewThread: () => void;
@@ -551,7 +551,9 @@ export function PlanProvider({ initialMessages, children }: { initialMessages: C
   }, [options.length]);
 
   const bookAll = useCallback(
-    async (messageId: string, dossier: TripDossier, passenger: { name: string; email: string }) => {
+    // No passenger argument: /api/execute resolves the traveller from the signed-in
+    // session's own profile, so nothing here can name someone else.
+    async (messageId: string, dossier: TripDossier) => {
       if (!mandateId) return;
       setBookingPendingId(messageId);
       try {
@@ -560,9 +562,13 @@ export function PlanProvider({ initialMessages, children }: { initialMessages: C
         const res = await fetch("/api/execute", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ dossierId: dossier.dossierId, executionToken, mandateId, passenger }),
+          body: JSON.stringify({ dossierId: dossier.dossierId, executionToken, mandateId }),
         });
-        if (!res.ok) throw new Error("Booking request was rejected — check the passenger details.");
+        if (!res.ok) {
+          const body = (await res.json().catch(() => null)) as { error?: unknown } | null;
+          const detail = typeof body?.error === "string" ? body.error : null;
+          throw new Error(detail ?? "Booking request was rejected.");
+        }
         const data = (await res.json()) as ExecuteResponse;
         setMessages(prev => prev.map(m => (m.id === messageId ? { ...m, booking: toBookingResult(data) } : m)));
         void refreshMandate();

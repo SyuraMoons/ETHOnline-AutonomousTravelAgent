@@ -44,9 +44,6 @@ export type TripPlan = {
   agent: AgentMessage[];
 };
 
-export type CurrentTrip = { destination: string; dates: string; travelers: number };
-export type TripContext = { trip: CurrentTrip };
-
 export type ApprovalBooking = { name: string; nights: number; priceMinor: number; note: string };
 export type ApprovalState = { booking: ApprovalBooking; agent: AgentMessage[]; statusNote?: string };
 

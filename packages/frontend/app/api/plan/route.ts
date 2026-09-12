@@ -5,6 +5,7 @@ import { buildOptionsFromLegs } from "~~/services/autovoyage/buildOptions";
 import { type OptionsTrip, toAirportCode } from "~~/services/autovoyage/flightOptions";
 import { getOrCreateDefaultMandate } from "~~/services/autovoyage/mandate";
 import { getSupplierCard, hbarFromTinybars, paySupplierLeg, refusalReply } from "~~/services/autovoyage/paidSearch";
+import { getSessionTraveler } from "~~/services/autovoyage/profile";
 import { actionRefusedEvent, dataPaymentEvent, submitAuditEvent } from "~~/services/hedera/hcsAudit";
 
 // Accepts the full turn history ({ messages }) so the agent's follow-up
@@ -79,7 +80,7 @@ export async function POST(req: NextRequest) {
 
     let turn;
     try {
-      turn = await runAgentTurn(messages);
+      turn = await runAgentTurn(messages, await getSessionTraveler());
     } catch (err) {
       if (err instanceof AgentTurnError) {
         return NextResponse.json({ status: "error", message: err.message }, { status: 400 });

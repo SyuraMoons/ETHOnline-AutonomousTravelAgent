@@ -3,6 +3,7 @@ import { type RunEvent, runAutonomous } from "~~/services/autovoyage/autonomousR
 import { saveDossier } from "~~/services/autovoyage/dossierStore";
 import { getOrCreateDefaultMandate } from "~~/services/autovoyage/mandate";
 import { refusalReply } from "~~/services/autovoyage/paidSearch";
+import { getSessionTraveler } from "~~/services/autovoyage/profile";
 
 // Node runtime: the Hedera SDK and node:crypto used deep in the payment path aren't
 // edge-compatible.
@@ -25,6 +26,10 @@ export async function POST(req: NextRequest) {
   const mandateId =
     requestedMandateId ??
     (process.env.ALLOW_UNAUTHORIZED_MANDATE === "true" ? (await getOrCreateDefaultMandate()).mandateId : null);
+
+  // Read in the request scope, not inside the stream: `start` runs after the response has
+  // begun, where the session cookie is no longer in scope.
+  const traveler = await getSessionTraveler();
 
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
@@ -49,7 +54,7 @@ export async function POST(req: NextRequest) {
       }
 
       try {
-        await runAutonomous({ brief, mandateId, onEvent: send });
+        await runAutonomous({ brief, mandateId, traveler, onEvent: send });
         await dossierSaved;
       } catch (err) {
         send({ type: "error", message: err instanceof Error ? err.message : "the run failed" });

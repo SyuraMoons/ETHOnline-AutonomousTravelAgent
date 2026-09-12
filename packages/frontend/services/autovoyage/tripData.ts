@@ -1,11 +1,5 @@
 // Trip data layer — swap this file for the real API/dataset
-import type { ApprovalState, AuditTrail, Booking, ChatThread, TripContext, TripPlan } from "~~/types/autovoyage/plan";
-
-export async function getCurrentTripContext(): Promise<TripContext> {
-  return {
-    trip: { destination: "Tokyo", dates: "Nov 12-15", travelers: 2 },
-  };
-}
+import type { ApprovalState, AuditTrail, Booking, ChatThread, TripPlan } from "~~/types/autovoyage/plan";
 
 export async function getTripPlan(): Promise<TripPlan> {
   return {

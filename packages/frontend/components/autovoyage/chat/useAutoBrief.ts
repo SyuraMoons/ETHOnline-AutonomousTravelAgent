@@ -12,8 +12,11 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { usePlan } from "~~/components/autovoyage/plan/PlanProvider";
 
 /** Mounted on both /plan (the default landing destination) and /chat (the full-screen
- * expand), so the URL it strips back to is whichever page it's actually running on. */
-export function useAutoBrief() {
+ * expand), so the URL it strips back to is whichever page it's actually running on.
+ *
+ * Returns whether a `?brief=` is present on this render — true only until the effect
+ * below strips it, so callers can use it to detect "just arrived with a fresh brief". */
+export function useAutoBrief(): boolean {
   const params = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
@@ -28,4 +31,6 @@ export function useAutoBrief() {
     void sendBrief(brief);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params]);
+
+  return Boolean(params.get("brief"));
 }

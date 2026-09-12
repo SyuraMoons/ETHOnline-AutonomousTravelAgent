@@ -7,6 +7,7 @@ import { usePlan } from "./PlanProvider";
 import { SearchBar } from "./SearchBar";
 import { SearchLanding } from "./SearchLanding";
 import { TripPlanView } from "./TripPlanView";
+import { Reveal } from "~~/components/autovoyage/ui/Reveal";
 import type { TripPlan } from "~~/types/autovoyage/plan";
 
 function StageHeader() {
@@ -22,10 +23,16 @@ function StageHeader() {
 export function PlanWorkspace({ fixture }: { fixture: TripPlan }) {
   const { stage, trip } = usePlan();
 
-  if (stage === "search") return <SearchLanding />;
+  if (stage === "search") {
+    return (
+      <Reveal>
+        <SearchLanding />
+      </Reveal>
+    );
+  }
 
   return (
-    <>
+    <Reveal>
       <StageHeader />
       {stage === "results" ? (
         <>
@@ -44,6 +51,6 @@ export function PlanWorkspace({ fixture }: { fixture: TripPlan }) {
       ) : (
         <TripPlanView fixture={fixture} />
       )}
-    </>
+    </Reveal>
   );
 }

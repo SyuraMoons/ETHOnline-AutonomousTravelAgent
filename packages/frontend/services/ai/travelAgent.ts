@@ -8,6 +8,10 @@ import OpenAI from "openai";
 
 export type AgentTurnMessage = { role: "user" | "assistant"; content: string };
 
+/** Identity context only — who the agent is planning for. Never carries price, budget or
+ * payment data: the model still touches no money (see AGENTS.md "Target Build"). */
+export type Traveler = { fullName: string; email: string };
+
 export type Trip = {
   origin: string;
   destination: string;
@@ -24,11 +28,16 @@ export type AgentTurn = {
 
 export class AgentTurnError extends Error {}
 
-function systemPrompt(): string {
+function systemPrompt(traveler?: Traveler): string {
   const today = new Date().toISOString().slice(0, 10);
   return (
     `You are the AutoVoyage travel planning agent. Today is ${today}; resolve ` +
     "relative dates against it and never ask the user for the year. " +
+    (traveler
+      ? `You are planning for ${traveler.fullName} (${traveler.email}). Address them by ` +
+        "their first name, and never ask for their name or email — you already have both, " +
+        "and bookings are made with them automatically. "
+      : "") +
     "Set intent=plan only when you have origin, destination, departure date and " +
     "passenger count — then fill trip with ISO 8601 dates. Otherwise set " +
     "intent=chat with trip=null, and use reply to answer the user or ask for the " +
@@ -69,12 +78,12 @@ function client(): OpenAI {
   return new OpenAI({ apiKey, baseURL: process.env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1" });
 }
 
-export async function runAgentTurn(messages: AgentTurnMessage[]): Promise<AgentTurn> {
+export async function runAgentTurn(messages: AgentTurnMessage[], traveler?: Traveler): Promise<AgentTurn> {
   if (messages.length === 0) throw new AgentTurnError("no messages to respond to");
 
   const completion = await client().chat.completions.create({
     model: process.env.OPENROUTER_MODEL ?? "openai/gpt-5.6-luna",
-    messages: [{ role: "system", content: systemPrompt() }, ...messages],
+    messages: [{ role: "system", content: systemPrompt(traveler) }, ...messages],
     response_format: {
       type: "json_schema",
       json_schema: { name: "agent_turn", strict: true, schema: TURN_SCHEMA },

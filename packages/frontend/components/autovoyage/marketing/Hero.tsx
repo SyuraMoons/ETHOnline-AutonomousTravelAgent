@@ -1,7 +1,7 @@
 // Hero
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { GlassPromptCard } from "./GlassPromptCard";
 import { MarketingNav } from "./MarketingNav";
 import { PromptTemplates } from "./PromptTemplates";
@@ -15,6 +15,8 @@ const HERO_VIDEO_SRC =
 
 export function Hero() {
   const contentRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [brief, setBrief] = useState("");
   useBeat(contentRef, (gsap, el) =>
     gsap.from(el.children, { y: 16, opacity: 0, duration: 0.6, stagger: 0.08, ease: "power3.out" }),
   );
@@ -48,8 +50,13 @@ export function Hero() {
           <p className="mb-10 max-w-[540px] text-xl font-medium leading-relaxed text-av-muted">
             Tell AutoVoyage where you are going and what you love. It plans, pays as it goes.
           </p>
-          <GlassPromptCard />
-          <PromptTemplates />
+          <GlassPromptCard brief={brief} onBriefChange={setBrief} textareaRef={textareaRef} />
+          <PromptTemplates
+            onSelect={text => {
+              setBrief(text);
+              textareaRef.current?.focus();
+            }}
+          />
           <TrustStrip />
         </div>
       </div>

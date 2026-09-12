@@ -1,7 +1,7 @@
 "use client";
 
 // Glass prompt card
-import { type ChangeEvent, useRef, useState } from "react";
+import { type ChangeEvent, type KeyboardEvent, type RefObject, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { startBrief } from "../prompts";
 import { UploadIcon } from "../ui/icons";
@@ -14,8 +14,15 @@ import { notification } from "~~/utils/scaffold-hbar";
 const EXAMPLE_PROMPT =
   "Plan a round trip from Jakarta to Bali (Denpasar), departing September 20 2026 and returning September 24 2026, for 2 travellers....";
 
-export function GlassPromptCard() {
-  const [brief, setBrief] = useState("");
+export function GlassPromptCard({
+  brief,
+  onBriefChange,
+  textareaRef,
+}: {
+  brief: string;
+  onBriefChange: (value: string) => void;
+  textareaRef: RefObject<HTMLTextAreaElement | null>;
+}) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const { isConnected } = useHederaWalletConnect();
@@ -24,6 +31,13 @@ export function GlassPromptCard() {
     if (!brief.trim()) return;
     if (!isConnected) notification.error("Please log in / connect your wallet first.");
     startBrief(router, brief, isConnected);
+  };
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit();
+    }
   };
 
   const handleFiles = (e: ChangeEvent<HTMLInputElement>) => {
@@ -38,8 +52,10 @@ export function GlassPromptCard() {
         </label>
         <textarea
           id="trip-brief"
+          ref={textareaRef}
           value={brief}
-          onChange={e => setBrief(e.target.value)}
+          onChange={e => onBriefChange(e.target.value)}
+          onKeyDown={handleKeyDown}
           placeholder={EXAMPLE_PROMPT}
           rows={2}
           className="w-full flex-1 resize-none border-none bg-transparent text-[17px] font-medium leading-relaxed text-av-blue outline-none placeholder:text-av-blue/70 md:text-xl"
