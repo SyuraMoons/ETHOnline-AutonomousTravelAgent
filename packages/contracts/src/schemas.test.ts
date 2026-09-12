@@ -285,24 +285,27 @@ describe("execute — what a booking run reports back", () => {
   });
 
   it("requires a token and a mandate to execute", () => {
-    const req = {
-      dossierId: "d",
-      executionToken: "t",
-      mandateId: "m",
-      passenger: { name: "A", email: "a@b.com" },
-    };
+    const req = { dossierId: "d", executionToken: "t", mandateId: "m" };
     assert.ok(ExecuteRequest.safeParse(req).success);
     assert.equal(
       ExecuteRequest.safeParse({ ...req, executionToken: undefined }).success,
       false,
     );
     assert.equal(
-      ExecuteRequest.safeParse({
-        ...req,
-        passenger: { name: "A", email: "not-an-email" },
-      }).success,
+      ExecuteRequest.safeParse({ ...req, mandateId: undefined }).success,
       false,
     );
+  });
+
+  it("ignores a client-sent passenger — the route resolves it from the session profile", () => {
+    const parsed = ExecuteRequest.safeParse({
+      dossierId: "d",
+      executionToken: "t",
+      mandateId: "m",
+      passenger: { name: "Someone Else", email: "attacker@example.com" },
+    });
+    assert.ok(parsed.success);
+    assert.equal("passenger" in parsed.data, false);
   });
 
   it("carries a refusal reason from the closed set when it refuses", () => {

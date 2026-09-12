@@ -9,6 +9,7 @@ import {
 import { getDossier } from "~~/services/autovoyage/dossierStore";
 import { claimExecutionToken, verifyExecutionToken } from "~~/services/autovoyage/executionToken";
 import { type OperationalReason, hbarFromTinybars, payBooking, refusalReply } from "~~/services/autovoyage/paidSearch";
+import { bookingContact, getSessionProfile } from "~~/services/autovoyage/profile";
 import { actionRefusedEvent, bookingExecutedEvent, submitAuditEvent } from "~~/services/hedera/hcsAudit";
 
 function hashscanUrl(transaction: string): string {
@@ -54,7 +55,17 @@ export async function POST(request: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
-  const { dossierId, executionToken, mandateId, passenger, payment } = parsed.data;
+  const { dossierId, executionToken, mandateId, payment } = parsed.data;
+
+  // The traveller comes from the signed-in session's own profile, never from the request.
+  // A plain 400 rather than refused(): an incomplete profile is not a mandate or consent
+  // decision, so it must not write an ActionRefused event or borrow a protocol reason code
+  // (see AGENTS.md, "Refusal reason codes").
+  const profile = await getSessionProfile();
+  const passenger = profile && bookingContact(profile);
+  if (!passenger) {
+    return NextResponse.json({ error: "Add your full name to your profile before booking." }, { status: 400 });
+  }
 
   let claims;
   try {

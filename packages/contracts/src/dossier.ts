@@ -88,11 +88,14 @@ export type TripDossier = z.infer<typeof TripDossier>;
 // POST /api/execute — spends the execution token minted at consent-verify to actually book
 // every leg of a saved dossier. Never carries a client-sent itineraryHash: the route re-derives
 // it from the stored dossier's legs and rejects a mismatch as itinerary_mismatch.
+//
+// It carries no passenger either, for the same reason: the route resolves the traveller from
+// the signed-in session's own profile, so a caller cannot book a stranger's name onto someone
+// else's confirmed itinerary.
 export const ExecuteRequest = z.object({
   dossierId: z.string(),
   executionToken: z.string(),
   mandateId: z.string(),
-  passenger: z.object({ name: z.string(), email: z.string().email() }),
   /**
    * How the fare settles. Optional only because this is a simulation: when a
    * caller sends nothing, the planner uses a built-in test card so a demo does

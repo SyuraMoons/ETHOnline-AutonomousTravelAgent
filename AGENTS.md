@@ -164,6 +164,7 @@ itinerary_mismatch`, never trusting a client-sent hash.
 | `GET /api/health` (planner) | **done** | Probes the supplier's own `/health` |
 | `POST /api/consent/initiate` / `/verify` (planner) | **done** | Booking confirm session, signal = itinerary hash, writes `HumanApproval` |
 | `POST /api/execute` (planner) | **done** | Re-derive hash, spend execution token, book, write `BookingExecuted`/`ActionRefused` |
+| `GET` / `PATCH /api/profile` (planner) | **done** | The traveller's name, email and phone — the passenger `/api/execute` books with |
 | `GET /api/audit/:planId` (planner) | **done** | Live audit read via Mirror Node |
 | `GET /api/registry` (planner) | **done** | HCS agent registry read via Mirror Node — discovery + self-attested identity |
 
@@ -259,6 +260,11 @@ as the pattern: build the request URL, `quote()` it, check the mandate, `pay()` 
   agent's HBAR was spent on searches, which are charged and audited where they happen.
 - **No real card number may reach this system.** `assertNoPan()` runs before validation on
   `POST /v1/booking`, and `PaymentInstrument.token` must match `tok_test_…`. Both guards stay.
+- **The passenger is never client-sent.** `ExecuteRequest` carries no `passenger` field;
+  `/api/execute` resolves it from the signed-in session's profile via `bookingContact()`, for
+  the same reason it re-derives the itinerary hash server-side — a client that can name the
+  traveller can book a stranger onto someone else's approved itinerary. An incomplete profile
+  is a plain 400, **not** a refusal: it writes no `ActionRefused` and borrows no reason code.
 - Prices and x402 amounts are **tinybars** (1 HBAR = 1e8); asset id is `HBAR_ASSET` = `"0.0.0"`.
 - A `payTo` account id is a Hedera account id string (e.g. `0.0.1234`), not an EVM address.
 - The planner's `AGENT_ACCOUNT_ID` (buyer), the supplier's `PAY_TO` (seller), and the
@@ -395,6 +401,7 @@ Currently empty (no contract deployed).
 | `app/api/threads/route.ts`, `app/api/threads/[threadId]/route.ts` | Chat/plan session persistence — find-or-create a thread per wallet, whole-snapshot save |
 | `app/api/consent/{initiate,verify}/route.ts` | Booking confirm session + verify, signal = itinerary hash, writes `HumanApproval` |
 | `app/api/execute/route.ts` | Spends the execution token, books every leg, writes `BookingExecuted`/`ActionRefused` |
+| `app/api/profile/route.ts`, `services/autovoyage/profile.ts` | The traveller's name/email/phone, keyed by sign-in email. `bookingContact()` is the passenger on every booking; `getSessionTraveler()` is the identity context both LLM prompts get |
 | `app/api/audit/[planId]/route.ts` | Live HCS audit read via Mirror Node — no local cache |
 | `app/api/registry/route.ts` | Live HCS agent registry read via Mirror Node — discovery + self-attested identity |
 | `services/hedera/registry.ts` | `readRegistry()` — folds `AgentRegistered`/`AgentIdentityClaimed` per agentId, verifies identity signatures |
