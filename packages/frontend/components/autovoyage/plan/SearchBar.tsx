@@ -9,6 +9,8 @@
 // actually flips the stage.
 import { type FormEvent, useEffect, useState } from "react";
 import { CalendarIcon, ChevronDownIcon, SearchIcon, SwapIcon, UsersIcon } from "../ui/icons";
+import { CityField } from "./CityField";
+import { DateRangeField } from "./DateRangeField";
 import { usePlan } from "./PlanProvider";
 import type { CabinClass, SearchQuery } from "~~/types/autovoyage/plan";
 
@@ -235,29 +237,71 @@ export function SearchBar({ variant = "hero" }: { variant?: "hero" | "compact" }
         </>
       ) : (
         <>
-          <div className="flex items-center gap-1 self-start rounded border border-av-border bg-av-card px-3 py-1.5">
-            <Select
-              label="Trip type"
-              value={q.tripType}
-              onChange={v => set("tripType", v)}
-              options={TRIP_TYPE_OPTIONS}
-              className="w-[84px]"
-            />
+          {/* Trip type as a small segmented control. */}
+          <div className="flex gap-1">
+            {TRIP_TYPE_OPTIONS.map(o => (
+              <button
+                key={o.value}
+                type="button"
+                onClick={() => set("tripType", o.value)}
+                className={`rounded px-3 py-1.5 text-[13px] font-medium transition-colors ${
+                  q.tripType === o.value ? "bg-av-blue-tint text-av-blue" : "text-av-muted hover:text-av-text"
+                }`}
+              >
+                {o.label}
+              </button>
+            ))}
           </div>
-          {/* Each field group is its own wrap item with a floor width, so a narrow
-              column wraps them onto a second row instead of letting one group
-              overflow and sit under the Search button. */}
-          <div className="flex flex-wrap items-center gap-2 rounded border border-av-border bg-av-card p-2">
-            <div className="flex min-w-[240px] flex-1 basis-[260px] items-center divide-x divide-av-border rounded border border-av-border">
-              {places}
+
+          {/* One connected bar with labelled fields; stacks on narrow columns. */}
+          <div className="flex w-full flex-col rounded border border-av-border bg-av-card md:flex-row md:items-stretch">
+            <div className="flex flex-1 items-center border-b border-av-border md:border-b-0 md:border-r">
+              <CityField fieldLabel="From" value={q.origin} onChange={v => set("origin", v)} />
+              <button
+                type="button"
+                onClick={swap}
+                aria-label="Swap origin and destination"
+                title="Swap origin and destination"
+                className="flex-shrink-0 px-2 text-av-muted transition-colors hover:text-av-blue"
+              >
+                <SwapIcon size={16} />
+              </button>
+              <CityField fieldLabel="To" value={q.destination} onChange={v => set("destination", v)} />
             </div>
-            <div className="flex min-w-[230px] flex-1 basis-[240px] items-center rounded border border-av-border">
-              {dates}
+
+            <DateRangeField
+              tripType={q.tripType}
+              departDate={q.departDate}
+              returnDate={q.returnDate}
+              onDepartChange={v => set("departDate", v)}
+              onReturnChange={v => set("returnDate", v)}
+            />
+
+            <div className="flex flex-col gap-0.5 border-b border-av-border px-4 py-2.5 md:border-b-0 md:border-r">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-av-muted">Who</span>
+              <div className="flex items-center gap-2">
+                <UsersIcon size={15} className="flex-shrink-0 text-av-muted" />
+                <Select
+                  label="Travellers"
+                  value={String(q.paxCount)}
+                  onChange={v => set("paxCount", Number(v))}
+                  options={PAX_OPTIONS}
+                  className="w-[104px]"
+                />
+                <span className="text-av-border">·</span>
+                <Select label="Cabin" value={q.cabin} onChange={v => set("cabin", v)} options={CABIN_OPTIONS} className="w-[84px]" />
+              </div>
             </div>
-            <div className="flex min-w-[220px] flex-1 basis-[230px] items-center rounded border border-av-border">
-              {travellers}
-            </div>
-            {submit}
+
+            <button
+              type="submit"
+              disabled={!ready || pending}
+              aria-label="Search flights"
+              className="flex flex-shrink-0 items-center justify-center gap-2 bg-av-blue px-6 py-3 text-[14px] font-medium text-av-paper transition-colors hover:bg-av-blue-hover disabled:opacity-40"
+            >
+              <SearchIcon size={17} />
+              <span>{pending ? "Searching..." : "Search"}</span>
+            </button>
           </div>
         </>
       )}
