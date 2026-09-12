@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Wordmark } from "../brand/Wordmark";
-import { CompassIcon, PulseIcon, ShieldIcon, WalletIcon } from "../ui/icons";
+import { CompassIcon, PulseIcon, ShieldIcon, UserIcon, WalletIcon } from "../ui/icons";
 import { hederaNamespace } from "@hashgraph/hedera-wallet-connect";
 import { useAppKit } from "@reown/appkit/react";
 import { useHbarBalance } from "~~/hooks/autovoyage/useHbarBalance";
@@ -17,6 +17,7 @@ const NAV = [
   { href: "/plan", label: "Plan trip", icon: CompassIcon },
   { href: "/activity", label: "Activity", icon: PulseIcon },
   { href: "/audit", label: "Audit", icon: ShieldIcon },
+  { href: "/profile", label: "Profile", icon: UserIcon },
 ];
 
 export function Sidebar({ context }: { context: TripContext }) {
