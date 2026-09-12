@@ -7,6 +7,7 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
+    "start:prod": "tsx src/index.ts",
     "check-types": "tsc --noEmit --incremental && tsc -p tsconfig.scripts.json",
     "flights:generate": "tsx scripts/scrape-flights.ts",
     "test": "node --import tsx --test src/**/*.test.ts src/**/**/*.test.ts",
@@ -19,18 +20,19 @@
     "preflight": "tsx scripts/preflight.ts",
     "setup-env": "tsx scripts/setup-env.ts"
   },
+  "//tsx": "A RUNTIME dependency, not a dev one: production runs `tsx src/index.ts` (see start:prod and the Dockerfile). @sh/contracts' main is raw TypeScript, so `node dist/index.js` cannot load it.",
   "dependencies": {
     "@sh/contracts": "*",
     "@x402/core": "^2.14.0",
     "@x402/hedera": "^2.13.2",
     "dotenv": "^16.6.1",
     "express": "^4.21.1",
+    "tsx": "^4.19.1",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/node": "^20.16.11",
-    "tsx": "^4.19.1",
     "typescript": "^5.8.2"
   },
   "packageManager": "npm@10.0.0"

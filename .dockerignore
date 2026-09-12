@@ -1,0 +1,29 @@
+# Build context for packages/supplier/Dockerfile (context = this directory).
+# Railway uploads the whole context, so keep it small.
+**/node_modules
+**/dist
+**/.next
+**/.git
+**/*.tsbuildinfo
+**/*.log
+
+# Secrets never enter an image; Railway supplies env vars at runtime.
+**/.env
+**/.env.*
+!**/.env.example
+
+# Hardhat build output. NOTE: `cache` here is packages/hardhat/cache — the
+# supplier's data/cache is a separate path and is deliberately NOT matched.
+packages/hardhat
+packages/frontend
+**/artifacts
+**/typechain-types
+
+# ...except their manifests: npm validates package-lock.json against the root
+# `workspaces` array, so all four workspace package.json files must be present
+# even though only contracts + supplier are installed.
+!packages/hardhat/package.json
+!packages/frontend/package.json
+
+# The facilitator builds from its own context with its own .dockerignore.
+facilitator
