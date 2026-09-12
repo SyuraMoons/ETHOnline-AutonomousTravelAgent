@@ -107,8 +107,18 @@ export async function createThread(payerAccountId: string): Promise<ThreadSnapsh
   return fromRow(data as ThreadRow);
 }
 
-export async function saveThreadSnapshot(threadId: string, snapshot: Omit<ThreadSnapshot, "threadId">): Promise<void> {
-  const { error } = await db()
+/**
+ * Scoped by payerAccountId, same as getThread — a write with no owner check would let anyone
+ * holding a thread UUID overwrite another wallet's saved session. `.select()` lets the caller
+ * tell "updated" from "no such thread for this wallet" (Supabase's plain `.update()` doesn't
+ * error on a zero-row match).
+ */
+export async function saveThreadSnapshot(
+  threadId: string,
+  payerAccountId: string,
+  snapshot: Omit<ThreadSnapshot, "threadId">,
+): Promise<boolean> {
+  const { data, error } = await db()
     .from("chat_threads")
     .update({
       messages: snapshot.messages,
@@ -119,6 +129,9 @@ export async function saveThreadSnapshot(threadId: string, snapshot: Omit<Thread
       payment: snapshot.payment,
       updated_at: new Date().toISOString(),
     })
-    .eq("thread_id", threadId);
+    .eq("thread_id", threadId)
+    .eq("payer_account_id", payerAccountId)
+    .select("thread_id");
   if (error) throw new Error(`saveThreadSnapshot: ${error.message}`);
+  return (data?.length ?? 0) > 0;
 }

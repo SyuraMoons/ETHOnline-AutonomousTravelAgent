@@ -17,10 +17,13 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ thre
 }
 
 // Whole-snapshot write — see services/autovoyage/chatThreads.ts for why this isn't an
-// append-only message log.
+// append-only message log. payerAccountId is required and the write is scoped to it: without
+// this, any caller holding a thread UUID (a copy-pasted URL, a leaked id) could overwrite
+// another wallet's entire saved session.
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ threadId: string }> }) {
   const { threadId } = await params;
   const body = (await req.json().catch(() => null)) as {
+    payerAccountId?: string;
     messages?: unknown[];
     stage?: string | null;
     trip?: unknown;
@@ -28,11 +31,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ thre
     selected?: unknown;
     payment?: unknown;
   } | null;
-  if (!body || !Array.isArray(body.messages)) {
-    return NextResponse.json({ error: "messages array is required" }, { status: 400 });
+  if (!body || !body.payerAccountId || !Array.isArray(body.messages)) {
+    return NextResponse.json({ error: "payerAccountId and messages array are required" }, { status: 400 });
   }
 
-  await saveThreadSnapshot(threadId, {
+  const ok = await saveThreadSnapshot(threadId, body.payerAccountId, {
     messages: body.messages,
     stage: body.stage ?? null,
     trip: body.trip ?? null,
@@ -40,5 +43,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ thre
     selected: body.selected ?? null,
     payment: body.payment ?? null,
   });
+  if (!ok) {
+    return NextResponse.json({ error: "no thread found for this wallet" }, { status: 404 });
+  }
   return NextResponse.json({ ok: true });
 }
