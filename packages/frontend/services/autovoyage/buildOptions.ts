@@ -53,8 +53,11 @@ export function buildOptionsFromLegs(params: {
   const cheapestId = raw.reduce((a, b) => (b.totalMinor < a.totalMinor ? b : a)).optionId;
   const fastestId = raw.reduce((a, b) => (b.durationMinutes < a.durationMinutes ? b : a)).optionId;
 
-  const minFare = Math.min(...raw.map(o => o.totalMinor));
-  const minTime = Math.min(...raw.map(o => o.durationMinutes));
+  // Guarded against a zero-priced or zero-duration supplier row (e.g. departUtc === arriveUtc):
+  // dividing by an actual 0 here would make every score Infinity/NaN, so the "best" ranking
+  // would become arbitrary rather than reflecting real cost/time.
+  const minFare = Math.max(Math.min(...raw.map(o => o.totalMinor)), 1);
+  const minTime = Math.max(Math.min(...raw.map(o => o.durationMinutes)), 1);
   const score = (o: RawOption) => o.totalMinor / minFare + o.durationMinutes / minTime;
   const bestId = raw.reduce((a, b) => (score(b) < score(a) ? b : a)).optionId;
 

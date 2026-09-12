@@ -139,8 +139,20 @@ export async function POST(req: NextRequest) {
       trip,
     });
   }
+  // Logged the moment settlement is confirmed, not after buildOptionsFromLegs() below — that
+  // way a real, settled payment is never left off the public audit trail just because the
+  // search that followed it turned out to have no usable results.
+  const outboundHbar = hbarFromTinybars(outboundOutcome.result.amountTinybars);
+  await submitAuditEvent(
+    dataPaymentEvent(planId, {
+      amountHbar: outboundHbar,
+      payTo: outboundOutcome.result.payTo,
+      txId: outboundOutcome.result.transaction,
+    }),
+  );
 
   let inboundOutcome: Awaited<ReturnType<typeof paySupplierLeg>> | null = null;
+  let inboundHbar = 0;
   if (trip.returnDate) {
     inboundOutcome = await paySupplierLeg(mandateId, {
       origin: destination,
@@ -158,6 +170,14 @@ export async function POST(req: NextRequest) {
         trip,
       });
     }
+    inboundHbar = hbarFromTinybars(inboundOutcome.result.amountTinybars);
+    await submitAuditEvent(
+      dataPaymentEvent(planId, {
+        amountHbar: inboundHbar,
+        payTo: inboundOutcome.result.payTo,
+        txId: inboundOutcome.result.transaction,
+      }),
+    );
   }
 
   const outboundLegs = outboundOutcome.result.body.results;
@@ -171,12 +191,21 @@ export async function POST(req: NextRequest) {
   });
 
   if (options.length === 0) {
+    // Both legs above already settled and were already audited as DataPayment — this refusal
+    // must say so, never imply nothing was spent.
     await submitAuditEvent(actionRefusedEvent(planId, "quote_expired"));
     return NextResponse.json({
       kind: "refusal",
-      reply: "The supplier returned no flights for that route and date.",
+      reply: `I paid for the search (${(outboundHbar + inboundHbar).toFixed(4)} HBAR) but the supplier returned no usable flight pairings for that route and date.`,
       reason: "quote_expired",
       trip,
+      payment: {
+        amountHbar: (outboundHbar + inboundHbar).toFixed(4),
+        outbound: { amountHbar: outboundHbar.toFixed(4), transaction: outboundOutcome.result.transaction },
+        inbound: inboundOutcome?.ok
+          ? { amountHbar: inboundHbar.toFixed(4), transaction: inboundOutcome.result.transaction }
+          : undefined,
+      },
     });
   }
 
@@ -194,18 +223,7 @@ export async function POST(req: NextRequest) {
   };
 
   const card = await getSupplierCard().catch(() => null);
-  const outboundHbar = hbarFromTinybars(outboundOutcome.result.amountTinybars);
-  const inboundHbar = inboundOutcome?.ok ? hbarFromTinybars(inboundOutcome.result.amountTinybars) : 0;
-  const payTo = card?.payTo ?? outboundOutcome.result.payer;
-
-  await submitAuditEvent(
-    dataPaymentEvent(planId, { amountHbar: outboundHbar, payTo, txId: outboundOutcome.result.transaction }),
-  );
-  if (inboundOutcome?.ok) {
-    await submitAuditEvent(
-      dataPaymentEvent(planId, { amountHbar: inboundHbar, payTo, txId: inboundOutcome.result.transaction }),
-    );
-  }
+  const payTo = outboundOutcome.result.payTo;
 
   return NextResponse.json({
     kind: "plan",

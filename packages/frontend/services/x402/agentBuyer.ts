@@ -32,7 +32,12 @@ export type Quote = {
 export type PaidResult<T> = {
   body: T;
   transaction: string;
+  /** The debited account — the user's own account in allowance mode, the agent's in treasury
+   * mode. NOT the recipient; do not use this as a "paid to" value. */
   payer: string;
+  /** The recipient named in the 402 challenge itself (`accepts[0].payTo`) — the supplier's
+   * PAY_TO, straight from the payment requirements this payment was actually made against. */
+  payTo: string;
   amountTinybars: bigint;
 };
 
@@ -153,6 +158,7 @@ export async function pay<T = unknown>(opts: { url: string; quote: Quote }): Pro
     body: result.body as T,
     transaction: settlement.transaction,
     payer: settlement.payer ?? "",
+    payTo: opts.quote.paymentRequired.accepts[0]?.payTo ?? "",
     amountTinybars: opts.quote.amountTinybars,
   };
 }

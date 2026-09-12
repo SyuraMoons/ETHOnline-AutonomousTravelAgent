@@ -263,7 +263,7 @@ export function PlanProvider({ initialMessages, children }: { initialMessages: C
           await fetch(`/api/threads/${id}`, {
             method: "PUT",
             headers: { "content-type": "application/json" },
-            body: JSON.stringify({ messages, stage, trip, options, selected, payment }),
+            body: JSON.stringify({ payerAccountId: accountId, messages, stage, trip, options, selected, payment }),
           });
         } catch {
           // Best-effort — a failed save just means the next refresh replays from the last
@@ -555,7 +555,7 @@ export function PlanProvider({ initialMessages, children }: { initialMessages: C
       if (!mandateId) return;
       setBookingPendingId(messageId);
       try {
-        const { sessionId, itineraryHash } = await initiateConsent(dossier.itineraryHash, dossier.dossierId);
+        const { sessionId, itineraryHash } = await initiateConsent(dossier.itineraryHash, mandateId, dossier.dossierId);
         const executionToken = await verifyConsent({ sessionId, itineraryHash, mandateId, planId: dossier.dossierId });
         const res = await fetch("/api/execute", {
           method: "POST",

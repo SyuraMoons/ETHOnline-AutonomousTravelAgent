@@ -16,7 +16,13 @@ export { checkMandate, type MandateFailureDetail };
  * no Date.now() of its own) so it stays trivially testable and synchronous.
  */
 
-const RESERVATION_TTL_MS = 120_000;
+// Must stay comfortably above the supplier's advertised x402 maxTimeoutSeconds (180s, see
+// packages/supplier/src/config.ts MAX_TIMEOUT_SECONDS) — a payment that is still legitimately
+// in flight when the sweep in reservedFor() below fires has its headroom reclaimed out from
+// under it, and commitSpend() then updates a mandate whose reservation row is already gone
+// (commit_spend() in schema.sql no-ops on an unknown reservation_id), so the settled amount is
+// never added to spent_hbar and the total ceiling silently over-grants by that much.
+const RESERVATION_TTL_MS = 300_000;
 
 type MandateRow = {
   mandate_id: string;
@@ -165,12 +171,23 @@ export async function commitSpend(
   reservationId: string,
   settlement: { transaction: string; payerAccountId: string },
 ): Promise<void> {
-  const { error } = await db().rpc("commit_spend", {
+  const { data, error } = await db().rpc("commit_spend", {
     p_reservation_id: reservationId,
     p_transaction: settlement.transaction,
     p_payer_account_id: settlement.payerAccountId,
   });
   if (error) throw new Error(`commitSpend: ${error.message}`);
+  if (data === false) {
+    // The reservation was gone by the time settlement finished — most likely reclaimed by
+    // RESERVATION_TTL_MS. The HBAR already moved (this only runs after a successful
+    // settlement) but the mandate's spent_hbar was NOT credited for it, so the total ceiling
+    // is now silently over-granting by this amount. Loud on purpose: this needs a human to
+    // reconcile, not a swallowed error.
+    console.error(
+      `commitSpend: reservation ${reservationId} was already reclaimed — settled payment ` +
+        `${settlement.transaction} was NOT recorded against any mandate's spent_hbar`,
+    );
+  }
 }
 
 /** Frees headroom when a payment never settled, so a failure costs the user nothing. */
