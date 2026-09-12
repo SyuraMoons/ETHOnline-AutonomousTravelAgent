@@ -12,14 +12,20 @@ export const bookingRouter = Router();
 // Flat BOOKING_FEE_HBAR (default 1.00 HBAR) regardless of offer — the fee is
 // for the booking action, not the fare itself (fares are quoted in USD minor
 // units via the flight search, a separate concern from the HBAR service fee).
-registerRoute("POST /v1/booking", () => ({ asset: HBAR_ASSET, amount: bookingFeeTinybars().toString() }));
+registerRoute("POST /v1/booking", () => ({
+  asset: HBAR_ASSET,
+  amount: bookingFeeTinybars().toString(),
+}));
 
 bookingRouter.post(
   "/v1/booking",
-  withPayment(async req => {
+  withPayment(async (req) => {
     const parsed = BookingRequest.safeParse(req.body);
     if (!parsed.success) {
-      return { error: parsed.error.issues.map(i => i.message).join("; "), status: 400 };
+      return {
+        error: parsed.error.issues.map((i) => i.message).join("; "),
+        status: 400,
+      };
     }
 
     const offer = findOfferById(parsed.data.offerId);
@@ -33,7 +39,13 @@ bookingRouter.post(
 
     // ALWAYS "CONFIRMED_SIMULATED" — never a real reservation. See
     // packages/contracts/src/booking.ts.
-    const signature = signPayload({ bookingId, offerId: offer.offerId, confirmationCode, status: "CONFIRMED_SIMULATED", issuedAt });
+    const signature = signPayload({
+      bookingId,
+      offerId: offer.offerId,
+      confirmationCode,
+      status: "CONFIRMED_SIMULATED",
+      issuedAt,
+    });
 
     const body: BookingResponse = {
       bookingId,

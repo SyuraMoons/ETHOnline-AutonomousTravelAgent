@@ -9,7 +9,7 @@
     "start": "node dist/index.js",
     "check-types": "tsc --noEmit --incremental && tsc -p tsconfig.scripts.json",
     "flights:generate": "tsx scripts/scrape-flights.ts",
-    "test": "node --import tsx --test src/**/*.test.ts",
+    "test": "node --import tsx --test src/**/*.test.ts src/**/**/*.test.ts",
     "stays:generate": "tsx scripts/generate-stays.ts",
     "activities:generate": "tsx scripts/generate-activities.ts",
     "data:generate": "npm run flights:generate && npm run stays:generate && npm run activities:generate",
