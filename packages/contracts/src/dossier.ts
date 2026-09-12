@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PaymentInstrument } from "./booking.js";
 import { FlightOption } from "./flights.js";
 import { RefusalReason } from "./refusal.js";
 
@@ -44,7 +45,6 @@ export const TripDossier = z.object({
       hashscanUrl: z.string(),
     }),
   ),
-  bookingFeeHbarEstimate: z.string(),
 });
 export type TripDossier = z.infer<typeof TripDossier>;
 
@@ -56,6 +56,13 @@ export const ExecuteRequest = z.object({
   executionToken: z.string(),
   mandateId: z.string(),
   passenger: z.object({ name: z.string(), email: z.string().email() }),
+  /**
+   * How the fare settles. Optional only because this is a simulation: when a
+   * caller sends nothing, the planner uses a built-in test card so a demo does
+   * not need one wired up. A real deployment would make this required and take
+   * it from the traveller's stored instrument.
+   */
+  payment: PaymentInstrument.optional(),
 });
 export type ExecuteRequest = z.infer<typeof ExecuteRequest>;
 
@@ -63,9 +70,19 @@ export const ExecutedBooking = z.object({
   offerId: z.string(),
   bookingId: z.string(),
   confirmationCode: z.string().optional(),
-  amountHbar: z.string(),
-  transaction: z.string(),
-  hashscanUrl: z.string(),
+  /** What the card was charged for the whole itinerary, in minor units. */
+  fareChargedMinor: z.number().int().nonnegative(),
+  currency: z.string().length(3),
+  cardLast4: z.string().regex(/^\d{4}$/),
+  /**
+   * On-chain fields, now optional: booking settles against a card, not HBAR,
+   * so a booking has no transaction to point at. The HBAR an agent spent on
+   * this trip was spent on SEARCHES, and those are audited separately.
+   * Kept so UI that renders a HashScan link keeps compiling.
+   */
+  amountHbar: z.string().optional(),
+  transaction: z.string().optional(),
+  hashscanUrl: z.string().optional(),
 });
 export type ExecutedBooking = z.infer<typeof ExecutedBooking>;
 

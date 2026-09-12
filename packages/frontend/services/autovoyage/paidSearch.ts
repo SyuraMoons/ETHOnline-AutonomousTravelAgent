@@ -1,3 +1,4 @@
+import type { PaymentInstrument } from "@sh/contracts";
 import type { BookingResponse, RefusalReason } from "@sh/contracts";
 import {
   type MandateFailureDetail,
@@ -134,56 +135,66 @@ function bookingUrl(): string {
  * anything, so the call either returns one signed confirmation covering the lot or changes
  * nothing. The fee is flat regardless of what the itinerary contains.
  */
+/**
+ * Books an itinerary. NOT an x402 payment.
+ *
+ * HBAR buys data, and the searches already charged for that. The fare is a
+ * different amount owed to a different party, and it settles against the
+ * traveller's card — so this is a plain POST, there is no quote to reserve
+ * against, and the mandate is not consulted. The mandate governs HBAR, and no
+ * HBAR moves here.
+ *
+ * The card is simulated end to end. `DEMO_CARD` exists so a demo runs without
+ * one wired up; a real deployment would require the caller to supply one.
+ */
+const DEMO_CARD: PaymentInstrument = {
+  method: "card",
+  token: "tok_test_demo0001",
+  brand: "visa",
+  last4: "4242",
+  holderName: "AutoVoyage Demo",
+};
+
+export type BookingOutcome =
+  { ok: true; body: BookingResponse } | { ok: false; reason: OperationalReason; detail?: string };
+
 export async function payBooking(
-  mandateId: string,
   itinerary: {
     legs: { offerId: string }[];
     stay?: { hotelId: string; checkIn: string; checkOut: string };
     activities?: { activityId: string; startUtc: string }[];
   },
   passenger: { name: string; email: string },
-): Promise<PaidOutcome<BookingLegResult>> {
-  const mandate = await getMandate(mandateId);
-  if (!mandate) return { ok: false, reason: "mandate_expired", detail: "not_found" };
-
-  const payFrom = mandate.payerAccountId;
-  const url = bookingUrl();
+  payment: PaymentInstrument = DEMO_CARD,
+): Promise<BookingOutcome> {
   const body = {
     legs: itinerary.legs,
     ...(itinerary.stay ? { stay: itinerary.stay } : {}),
     activities: itinerary.activities ?? [],
     passengerName: passenger.name,
     passengerEmail: passenger.email,
+    payment,
   };
 
-  let quoted;
+  let response: Response;
   try {
-    quoted = await quote({ url, method: "POST", body, payFrom });
-  } catch (err) {
-    const reason = operationalReason(err);
-    if (reason) return { ok: false, reason };
-    throw err;
+    response = await fetch(bookingUrl(), {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+    });
+  } catch {
+    return { ok: false, reason: "supplier_unreachable" };
   }
 
-  const amountHbar = hbarFromTinybars(quoted.amountTinybars);
-  const reservation = await reserveSpend(mandateId, amountHbar, new Date());
-  if (!reservation.ok) return { ok: false, reason: reservation.reason, detail: reservation.detail };
-
-  let result: BookingLegResult;
-  try {
-    result = await pay<BookingResponse>({ url, quote: quoted });
-  } catch (err) {
-    await releaseSpend(reservation.reservationId);
-    const reason = operationalReason(err);
-    if (reason) return { ok: false, reason };
-    throw err;
+  if (!response.ok) {
+    const detail = await response.text().catch(() => "");
+    // The supplier refuses a booking it cannot resolve — an unknown offer, an
+    // activity slot it does not run, a card number where a token belongs.
+    return { ok: false, reason: "payment_rejected", detail: detail.slice(0, 200) };
   }
 
-  await commitSpend(reservation.reservationId, {
-    transaction: result.transaction,
-    payerAccountId: result.payer,
-  });
-  return { ok: true, result };
+  return { ok: true, body: (await response.json()) as BookingResponse };
 }
 
 export { getSupplierCard };

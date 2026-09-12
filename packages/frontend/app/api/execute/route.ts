@@ -54,7 +54,7 @@ export async function POST(request: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
-  const { dossierId, executionToken, mandateId, passenger } = parsed.data;
+  const { dossierId, executionToken, mandateId, passenger, payment } = parsed.data;
 
   let claims;
   try {
@@ -126,14 +126,17 @@ export async function POST(request: Request) {
   // ONE booking call for the whole itinerary. It used to be one per leg, which
   // meant a single approval authorising several payments that could fail
   // independently — a two-leg trip could end up half-booked with the user
-  // already charged for the part that went through. The supplier now resolves
-  // and validates every component before confirming anything, so this either
-  // returns one signed confirmation covering the lot or changes nothing, and
-  // "partial" is no longer reachable.
+  // already charged for the part that went through. The supplier resolves and
+  // validates every component before confirming anything, so this either
+  // returns one signed confirmation covering the lot or changes nothing.
+  //
+  // No HBAR moves here. The fare settles against the traveller's card, so the
+  // mandate is not consulted: it governs the agent's HBAR, and the agent's HBAR
+  // was spent on searches, which were charged and audited as they happened.
   const outcome = await payBooking(
-    mandateId,
     { legs: dossier.option.legs.map(leg => ({ offerId: leg.offerId })) },
     passenger,
+    payment,
   );
 
   if (!outcome.ok) {
@@ -144,38 +147,50 @@ export async function POST(request: Request) {
       totalHbarPaid: "0.0000",
       refusal: {
         reason: toRefusalReason(outcome.reason),
-        message: refusalReply(outcome.reason, outcome.detail),
+        message: refusalReply(outcome.reason),
       },
     };
     return NextResponse.json(refusedResponse);
   }
 
-  const totalHbar = hbarFromTinybars(outcome.result.amountTinybars);
+  const confirmed = outcome.body.confirmed;
+  if (!confirmed) {
+    // A 200 with no confirmation is the supplier contradicting itself.
+    await submitAuditEvent(actionRefusedEvent(dossierId, "quote_expired"));
+    return NextResponse.json({
+      status: "refused",
+      bookings: [],
+      totalHbarPaid: "0.0000",
+      refusal: { reason: "quote_expired", message: refusalReply("quote_expired") },
+    } satisfies ExecuteResponse);
+  }
 
-  // One confirmation covers every leg, so each row carries the same booking id —
-  // these are parts of one reservation, not separate ones. The fee is flat and
-  // charged once, so it is reported on the itinerary rather than per leg.
+  // One confirmation covers every leg, so each row carries the same booking id
+  // and the same charge — these are parts of one reservation, and the card was
+  // charged once for the lot, not per leg.
   const bookings: ExecutedBooking[] = dossier.option.legs.map(leg => ({
     offerId: leg.offerId,
-    bookingId: outcome.result.body.bookingId,
-    confirmationCode: outcome.result.body.confirmationCode,
-    amountHbar: totalHbar.toFixed(4),
-    transaction: outcome.result.transaction,
-    hashscanUrl: hashscanUrl(outcome.result.transaction),
+    bookingId: outcome.body.bookingId,
+    confirmationCode: outcome.body.confirmationCode,
+    fareChargedMinor: confirmed.fareCharged.amountMinor,
+    currency: confirmed.fareCharged.currency,
+    cardLast4: confirmed.fareCharged.last4,
   }));
 
   await submitAuditEvent(
     bookingExecutedEvent(dossierId, {
-      bookingId: outcome.result.body.bookingId,
-      fareTotalMinor: dossier.fareTotalMinor,
-      currency: dossier.currency,
+      bookingId: outcome.body.bookingId,
+      fareTotalMinor: confirmed.totalMinor,
+      currency: confirmed.currency,
     }),
   );
 
   const response: ExecuteResponse = {
     status: "booked",
     bookings,
-    totalHbarPaid: totalHbar.toFixed(4),
+    // The agent spent no HBAR booking. What it spent on searches is audited
+    // per payment as those happened, not summed here.
+    totalHbarPaid: "0.0000",
   };
   return NextResponse.json(response);
 }

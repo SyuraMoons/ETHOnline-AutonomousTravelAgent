@@ -92,8 +92,17 @@ export type BookingResult = {
     offerId: string;
     bookingId: string;
     confirmationCode?: string;
-    amountHbar: string;
-    hashscanUrl: string;
+    /** What the card was charged for the whole itinerary. */
+    fareChargedMinor?: number;
+    currency?: string;
+    cardLast4?: string;
+    /**
+     * Optional now: booking settles against a card, so there is no transaction
+     * to link to. The HBAR an agent spent went on SEARCHES, which are audited
+     * where they happen.
+     */
+    amountHbar?: string;
+    hashscanUrl?: string;
   }[];
   totalHbarPaid: string;
   message?: string;

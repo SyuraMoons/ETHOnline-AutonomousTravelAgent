@@ -20,10 +20,10 @@ import {
 
 const MAX_MODEL_TURNS = 6;
 const MAX_PAID_SEARCHES = 2;
-// The supplier's flat POST /v1/booking fee (packages/supplier/.env BOOKING_FEE_HBAR default).
-// Not read from an env var here — this is a display estimate only; the amount actually charged
-// at /api/execute is whatever the supplier quotes at that moment.
-const BOOKING_FEE_HBAR_ESTIMATE = 1.0;
+// Booking costs no HBAR. HBAR bought the DATA — the searches above — and the
+// fare settles against the traveller's card, which is a different amount owed to
+// a different party. The button shows the fare, because that is what the person
+// pressing it is agreeing to pay.
 
 export type RunStepStatus = "active" | "done" | "error";
 export type RunStep = { id: string; label: string; status: RunStepStatus; note?: string };
@@ -108,7 +108,6 @@ function buildDossier(params: {
       transaction: s.transaction,
       hashscanUrl: s.hashscanUrl,
     })),
-    bookingFeeHbarEstimate: (option.legs.length * BOOKING_FEE_HBAR_ESTIMATE).toFixed(2),
   };
 }
 

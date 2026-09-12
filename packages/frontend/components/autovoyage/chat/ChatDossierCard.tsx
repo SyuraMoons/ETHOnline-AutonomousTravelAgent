@@ -2,10 +2,12 @@
 
 // Chat dossier card — the autonomous run's final report: the flight pair it chose (real, paid
 // x402 data), an agent-authored day plan (free, explicitly NOT bookable), and one button to
-// book every flight leg at once via /api/execute.
+// book every flight leg at once via /api/execute. Booking itself costs no HBAR:
+// the searches bought the data, and the fare goes to the traveller's card.
 import { useState } from "react";
 import type { TripDossier } from "@sh/contracts";
 import { usePlan } from "~~/components/autovoyage/plan/PlanProvider";
+import { formatUsd } from "~~/services/autovoyage/currency";
 import type { BookingResult } from "~~/types/autovoyage/plan";
 
 function formatUsdMinor(minor: number, currency: string): string {
@@ -133,7 +135,7 @@ export function ChatDossierCard({
           >
             {pendingThis
               ? "Booking…"
-              : `Book everything · ${legCount} leg${legCount === 1 ? "" : "s"} · ~${dossier.bookingFeeHbarEstimate} HBAR`}
+              : `Book everything · ${legCount} leg${legCount === 1 ? "" : "s"} · ${formatUsd(dossier.fareTotalMinor)} to your card`}
           </button>
         </>
       )}
