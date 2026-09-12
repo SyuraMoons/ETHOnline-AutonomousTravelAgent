@@ -28,14 +28,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "payerAccountId is required" }, { status: 400 });
   }
 
-  const mandate = await createMandate({
-    totalCeilingHbar: body.totalCeilingHbar ?? Number(process.env.AGENT_MANDATE_TOTAL_HBAR ?? 5),
-    perTxCeilingHbar: body.perTxCeilingHbar ?? Number(process.env.AGENT_MANDATE_PER_TX_HBAR ?? 2.5),
-    ttlMinutes: Math.max(body.ttlMinutes ?? Number(process.env.AGENT_MANDATE_TTL_MINUTES ?? 180), MIN_TTL_MINUTES),
-    payerAccountId: body.payerAccountId,
-  });
-
-  return NextResponse.json(mandate);
+  try {
+    const mandate = await createMandate({
+      totalCeilingHbar: body.totalCeilingHbar ?? Number(process.env.AGENT_MANDATE_TOTAL_HBAR ?? 5),
+      perTxCeilingHbar: body.perTxCeilingHbar ?? Number(process.env.AGENT_MANDATE_PER_TX_HBAR ?? 2.5),
+      ttlMinutes: Math.max(body.ttlMinutes ?? Number(process.env.AGENT_MANDATE_TTL_MINUTES ?? 180), MIN_TTL_MINUTES),
+      payerAccountId: body.payerAccountId,
+    });
+    return NextResponse.json(mandate);
+  } catch (err) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Could not create the mandate" },
+      { status: 500 },
+    );
+  }
 }
 
 export async function PATCH(req: NextRequest) {
@@ -43,8 +49,15 @@ export async function PATCH(req: NextRequest) {
   if (!body.mandateId || !body.allowanceTxId) {
     return NextResponse.json({ error: "mandateId and allowanceTxId are required" }, { status: 400 });
   }
-  await setAllowanceTx(body.mandateId, body.allowanceTxId);
-  return NextResponse.json({ ok: true });
+  try {
+    await setAllowanceTx(body.mandateId, body.allowanceTxId);
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Could not record the allowance" },
+      { status: 500 },
+    );
+  }
 }
 
 export async function DELETE(req: NextRequest) {
@@ -52,8 +65,15 @@ export async function DELETE(req: NextRequest) {
   if (!mandateId) {
     return NextResponse.json({ error: "mandateId query param is required" }, { status: 400 });
   }
-  await revokeMandate(mandateId);
-  return NextResponse.json({ ok: true });
+  try {
+    await revokeMandate(mandateId);
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Could not revoke the mandate" },
+      { status: 500 },
+    );
+  }
 }
 
 export async function GET(req: NextRequest) {
@@ -64,12 +84,19 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "mandateId or payerAccountId query param is required" }, { status: 400 });
   }
 
-  // payerAccountId mode: how a refreshed client relocates its own mandate without holding the id.
-  const mandate = mandateId ? await getMandate(mandateId) : await getMandateForPayer(payerAccountId as string);
-  if (!mandate) {
-    return NextResponse.json({ error: "mandate not found" }, { status: 404 });
+  try {
+    // payerAccountId mode: how a refreshed client relocates its own mandate without holding the id.
+    const mandate = mandateId ? await getMandate(mandateId) : await getMandateForPayer(payerAccountId as string);
+    if (!mandate) {
+      return NextResponse.json({ error: "mandate not found" }, { status: 404 });
+    }
+    // Spend log included so the UI can show what the agent actually spent, per transaction,
+    // without a second round trip.
+    return NextResponse.json({ ...mandate, spend: await getSpendLog(mandate.mandateId) });
+  } catch (err) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Could not read the mandate" },
+      { status: 500 },
+    );
   }
-  // Spend log included so the UI can show what the agent actually spent, per transaction,
-  // without a second round trip.
-  return NextResponse.json({ ...mandate, spend: await getSpendLog(mandate.mandateId) });
 }

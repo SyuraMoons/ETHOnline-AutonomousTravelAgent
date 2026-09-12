@@ -8,25 +8,48 @@ import { GithubGlyph, GoogleGlyph } from "../ui/brandGlyphs";
 import { MailIcon, WalletIcon } from "../ui/icons";
 import { hederaNamespace } from "@hashgraph/hedera-wallet-connect";
 import { useAppKit } from "@reown/appkit/react";
+import { signIn } from "next-auth/react";
 import { useHbarBalance } from "~~/hooks/autovoyage/useHbarBalance";
 import { useHederaWalletConnect } from "~~/services/web3/hederaWalletConnect";
 import { getParsedError, notification } from "~~/utils/scaffold-hbar";
 
-function OAuthButton({ icon, label, onClick }: { icon: ReactNode; label: string; onClick: () => void }) {
+type OAuthProvider = "google" | "github";
+
+function OAuthButton({
+  icon,
+  label,
+  provider,
+  loading,
+  onClick,
+}: {
+  icon: ReactNode;
+  label: string;
+  provider: OAuthProvider;
+  loading: OAuthProvider | null;
+  onClick: (provider: OAuthProvider) => void;
+}) {
+  const isBusy = loading === provider;
   return (
     <button
+      id={`oauth-${provider}`}
       type="button"
-      onClick={onClick}
-      className="flex items-center justify-center gap-2 rounded-lg border border-av-paper/15 bg-av-paper/5 py-3 text-[14px] font-medium text-av-paper transition-colors hover:bg-av-paper/10"
+      onClick={() => onClick(provider)}
+      disabled={loading !== null}
+      className="flex items-center justify-center gap-2 rounded-lg border border-av-paper/15 bg-av-paper/5 py-3 text-[14px] font-medium text-av-paper transition-colors hover:bg-av-paper/10 disabled:cursor-not-allowed disabled:opacity-60"
     >
-      {icon}
-      {label}
+      {isBusy ? (
+        <span className="h-4 w-4 animate-spin rounded-full border-2 border-av-paper/30 border-t-av-paper" />
+      ) : (
+        icon
+      )}
+      {isBusy ? "Signing in…" : label}
     </button>
   );
 }
 
 export function SignInCard() {
   const [email, setEmail] = useState("");
+  const [oauthLoading, setOauthLoading] = useState<OAuthProvider | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const rawNext = searchParams.get("next");
@@ -44,6 +67,14 @@ export function SignInCard() {
 
   const connectWallet = () => {
     void open({ view: "Connect", namespace: hederaNamespace }).catch(e => notification.error(getParsedError(e)));
+  };
+
+  const handleOAuth = (provider: OAuthProvider) => {
+    setOauthLoading(provider);
+    void signIn(provider, { redirectTo: next }).catch(e => {
+      notification.error(getParsedError(e));
+      setOauthLoading(null);
+    });
   };
 
   return (
@@ -92,8 +123,20 @@ export function SignInCard() {
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <OAuthButton icon={<GoogleGlyph size={16} />} label="Google" onClick={enterApp} />
-        <OAuthButton icon={<GithubGlyph size={15} className="text-av-paper" />} label="Github" onClick={enterApp} />
+        <OAuthButton
+          icon={<GoogleGlyph size={16} />}
+          label="Google"
+          provider="google"
+          loading={oauthLoading}
+          onClick={handleOAuth}
+        />
+        <OAuthButton
+          icon={<GithubGlyph size={15} className="text-av-paper" />}
+          label="Github"
+          provider="github"
+          loading={oauthLoading}
+          onClick={handleOAuth}
+        />
       </div>
 
       {isConnected ? (
