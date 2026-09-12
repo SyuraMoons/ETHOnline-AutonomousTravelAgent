@@ -2,6 +2,7 @@
 
 // Audit list
 import { useState } from "react";
+import { Pagination, usePagination } from "~~/components/autovoyage/ui/Pagination";
 import type { AuditCategory, AuditTrail } from "~~/types/autovoyage/plan";
 
 const TABS: { key: "all" | AuditCategory; label: string }[] = [
@@ -12,7 +13,8 @@ const TABS: { key: "all" | AuditCategory; label: string }[] = [
 
 export function AuditList({ trail }: { trail: AuditTrail }) {
   const [tab, setTab] = useState<"all" | AuditCategory>("all");
-  const rows = tab === "all" ? trail.rows : trail.rows.filter(r => r.category === tab);
+  const filtered = tab === "all" ? trail.rows : trail.rows.filter(r => r.category === tab);
+  const { page, pageCount, slice, setPage, total, pageSize } = usePagination(filtered);
 
   return (
     <>
@@ -21,7 +23,10 @@ export function AuditList({ trail }: { trail: AuditTrail }) {
           <button
             key={t.key}
             type="button"
-            onClick={() => setTab(t.key)}
+            onClick={() => {
+              setTab(t.key);
+              setPage(1);
+            }}
             className={`rounded px-4 py-1.5 text-[13px] font-medium transition-colors ${
               tab === t.key ? "bg-av-blue-tint text-av-blue" : "text-av-muted hover:text-av-text"
             }`}
@@ -34,7 +39,7 @@ export function AuditList({ trail }: { trail: AuditTrail }) {
       <div className="mt-5">
         <p className="mb-2 font-mono text-[11px] uppercase tracking-[0.1em] text-av-muted">{trail.group}</p>
         <div className="flex flex-col gap-2">
-          {rows.map((row, i) => (
+          {slice.map((row, i) => (
             <div
               key={i}
               className="flex items-center justify-between gap-4 rounded border border-av-border bg-av-card px-4 py-3"
@@ -52,6 +57,7 @@ export function AuditList({ trail }: { trail: AuditTrail }) {
             </div>
           ))}
         </div>
+        <Pagination page={page} pageCount={pageCount} total={total} pageSize={pageSize} onPage={setPage} />
       </div>
     </>
   );
