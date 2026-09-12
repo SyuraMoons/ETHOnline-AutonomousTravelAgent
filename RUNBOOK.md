@@ -4,9 +4,11 @@ A step-by-step guide to verifying the pieces that remain after stripping the fil
 scaffolding: wallet connect, the self-hosted facilitator, and the generic x402 payment client.
 Run commands from the repository root unless stated otherwise.
 
-> Status: `packages/supplier` (`Meridian Flight Data`) is the first live paid resource —
-> `GET /v1/flights/search` and `POST /v1/booking` genuinely 402-gate through the self-hosted
-> facilitator. See [Testing the supplier](#testing-the-supplier) below.
+> Status: `packages/supplier` (`Meridian Flight Data`) is the live paid resource. Its three
+> search routes — `GET /v1/flights/search`, `/v1/stays/search`, `/v1/activities/search` —
+> genuinely 402-gate through the self-hosted facilitator. `POST /v1/booking` is **not**
+> 402-gated: HBAR buys the data, and the fare settles against the traveller's card. See
+> [Testing the supplier](#testing-the-supplier) below.
 
 ## Prerequisites
 
@@ -160,14 +162,42 @@ a self-payment cancel out). A successful run prints a settlement transaction id:
 [HashScan testnet](https://hashscan.io/testnet) and confirm the buyer's balance dropped and
 `PAY_TO`'s rose by exactly the tinybar amount from step 3.
 
-For the booking route (flat fee, requires a real `offerId` from a search response):
+### 5. Book the itinerary — no HBAR, a simulated card
+
+`POST /v1/booking` takes no payment header and moves no HBAR. It books one whole itinerary at
+once (flights, optionally a stay and activities), resolves every price from the supplier's own
+inventory, and returns one Ed25519-signed `CONFIRMED_SIMULATED` confirmation. Use real ids from
+a paid search response:
 
 ```bash
-METHOD=POST BODY='{"offerId":"flt_001","passengerName":"Ada Lovelace","passengerEmail":"ada@example.com"}' \
-  RESOURCE_URL="http://localhost:4100/v1/booking" \
-  BUYER_ACCOUNT_ID=0.0.xxxx BUYER_PRIVATE_KEY=0x... \
-  npm run x402:buy
+curl -s -X POST localhost:4100/v1/booking -H 'content-type: application/json' -d '{
+  "legs": [{ "offerId": "flt_001" }],
+  "passengerName": "Ada Lovelace",
+  "passengerEmail": "ada@example.com",
+  "payment": {
+    "method": "card",
+    "token": "tok_test_visa4242",
+    "brand": "visa",
+    "last4": "4242",
+    "holderName": "Ada Lovelace"
+  }
+}'
 ```
+
+Expected `200` with `confirmed.fareCharged` naming the amount, the brand, the last four digits,
+a `SIM-…` authorisation code, and `simulated: true`.
+
+**The card path cannot be used with a real card number.** `assertNoPan()` runs before validation
+and refuses any Luhn-valid 13–19 digit run anywhere in the body, and `token` must match
+`tok_test_…`. Check it:
+
+```bash
+curl -s -X POST localhost:4100/v1/booking -H 'content-type: application/json' \
+  -d '{"legs":[{"offerId":"flt_001"}],"passengerName":"4242 4242 4242 4242","passengerEmail":"a@b.c","payment":{"method":"card","token":"tok_test_visa4242","brand":"visa","last4":"4242","holderName":"Ada"}}'
+```
+
+Expected `400` refusing the value outright. Wiring this to a real processor means deleting those
+guards on purpose — that is the point of them.
 
 ### Building your own paid route (Next.js side)
 
@@ -269,9 +299,10 @@ Copy each `.env.example` before running the stack.
 | `PUBLIC_BASE_URL` | Public URL for this service, used in the `/.well-known/x402` agent card |
 | `PAY_TO` | Hedera account id that receives buyer payments — no key required |
 | `SEARCH_PRICE_PER_RESULT_HBAR` / `SEARCH_PRICE_MIN_HBAR` / `SEARCH_PRICE_MAX_HBAR` | `GET /v1/flights/search` pricing: `clamp(resultCount × PER_RESULT, MIN, MAX)` |
-| `BOOKING_FEE_HBAR` | Flat fee for `POST /v1/booking` |
+| `STAY_PRICE_*` / `ACTIVITY_PRICE_*` | Same clamp, one band per domain — the rows aren't worth the same (a flight row is a whole leg; an activity row is one start time) |
 | `QUOTE_TTL_UNPAID_SECONDS` / `QUOTE_TTL_PAID_SECONDS` | How long a search quote (price ↔ results binding) stays valid before/after payment |
 | `SUPPLIER_SIGNING_KEY` | Base64 PKCS8 Ed25519 key signing `CONFIRMED_SIMULATED` booking confirmations — generate with `npm run supplier:gen-signing-key` |
+| `FACILITATOR_TIMEOUT_MS` | Verify/settle timeout, default `120000`. The library's 30s default is not enough for settle on testnet — a completed payment then reads as a failure, and a retry charges the buyer twice |
 
 ### `facilitator/.env` (standalone facilitator, optional)
 

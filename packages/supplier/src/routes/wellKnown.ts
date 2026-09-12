@@ -54,7 +54,7 @@ wellKnownRouter.get("/.well-known/x402", (_req, res) => {
         id: "flight-booking",
         name: "Flight Booking",
         description:
-          "Book a searched offer. Returns a simulated confirmation, never a real reservation.",
+          "Book a whole itinerary. The fare is charged to the buyer's card; this call costs no HBAR. Returns a simulated confirmation, never a real reservation.",
         endpoint: `${PUBLIC_BASE_URL}/v1/booking`,
         method: "POST",
         network: X402_NETWORK,

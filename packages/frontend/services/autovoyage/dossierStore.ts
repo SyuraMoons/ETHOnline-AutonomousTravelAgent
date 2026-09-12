@@ -1,4 +1,4 @@
-import type { TripDossier } from "@sh/contracts";
+import { TripDossier } from "@sh/contracts";
 import "server-only";
 import { db } from "~~/services/db/supabase";
 
@@ -25,5 +25,15 @@ export async function getDossier(dossierId: string): Promise<TripDossier | undef
   if (error) throw new Error(`getDossier: ${error.message}`);
   if (!data) return undefined;
   if (Date.now() - new Date(data.created_at).getTime() > DOSSIER_TTL_MS) return undefined;
-  return data.data as TripDossier;
+
+  // Parsed, not cast. A row written before `activities` existed has no such field, and
+  // /api/execute maps over it — the schema's default([]) is what makes an older dossier
+  // readable instead of a crash. A row that genuinely will not parse is a row we cannot book
+  // from, so it reads as absent and the caller refuses the way it would for an expired one.
+  const parsed = TripDossier.safeParse(data.data);
+  if (!parsed.success) {
+    console.error(`getDossier: stored dossier ${dossierId} does not parse`, parsed.error.flatten());
+    return undefined;
+  }
+  return parsed.data;
 }

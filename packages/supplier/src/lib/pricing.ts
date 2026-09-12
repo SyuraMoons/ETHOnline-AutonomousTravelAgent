@@ -75,11 +75,12 @@ export const QUOTE_TTL_PAID_SECONDS = process.env["QUOTE_TTL_PAID_SECONDS"]
   ? Number(process.env["QUOTE_TTL_PAID_SECONDS"])
   : 900;
 
-const BOOKING_FEE_HBAR = process.env["BOOKING_FEE_HBAR"] ?? "1.00";
-
-/** Flat booking fee, in tinybars. */
-export function bookingFeeTinybars(): bigint {
-  return hbarToTinybar(BOOKING_FEE_HBAR);
-}
-
-export const bookingPricingLabel = `flat ${BOOKING_FEE_HBAR} HBAR`;
+/**
+ * Booking carries no HBAR charge.
+ *
+ * HBAR buys data; the fare settles against the traveller's card, to a different
+ * party. The label says so plainly rather than leaving a reader to wonder what
+ * a "free" endpoint costs.
+ */
+export const bookingPricingLabel =
+  "no HBAR charge - fare is charged to the buyer's card";

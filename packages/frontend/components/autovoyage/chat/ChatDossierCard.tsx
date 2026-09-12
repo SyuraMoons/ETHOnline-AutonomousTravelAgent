@@ -2,10 +2,12 @@
 
 // Chat dossier card — the autonomous run's final report: the flight pair it chose (real, paid
 // x402 data), an agent-authored day plan (free, explicitly NOT bookable), and one button to
-// book every flight leg at once via /api/execute.
+// book every flight leg at once via /api/execute. Booking itself costs no HBAR:
+// the searches bought the data, and the fare goes to the traveller's card.
 import { useEffect, useState } from "react";
 import type { TripDossier } from "@sh/contracts";
 import { usePlan } from "~~/components/autovoyage/plan/PlanProvider";
+import { formatUsd } from "~~/services/autovoyage/currency";
 import type { BookingResult } from "~~/types/autovoyage/plan";
 
 function formatUsdMinor(minor: number, currency: string): string {
@@ -45,6 +47,17 @@ export function ChatDossierCard({
   const legCount = dossier.option.legs.length;
   const alreadyBooked = booking && booking.status !== "refused";
 
+  // What the button actually covers. dossier.fareTotalMinor includes the stay and any
+  // activities, so the label has to name them — charging a card for a hotel the card's owner
+  // was never shown is the failure this whole consent chain exists to prevent.
+  const covers = [
+    `${legCount} leg${legCount === 1 ? "" : "s"}`,
+    ...(dossier.stay ? ["1 stay"] : []),
+    ...(dossier.activities.length > 0
+      ? [`${dossier.activities.length} activit${dossier.activities.length === 1 ? "y" : "ies"}`]
+      : []),
+  ].join(" · ");
+
   return (
     <div className="flex w-full max-w-[560px] flex-col gap-3 rounded border border-av-border bg-av-card px-4 py-4">
       <div>
@@ -64,6 +77,37 @@ export function ChatDossierCard({
               <a key={i} href={s.hashscanUrl} target="_blank" rel="noreferrer" className="text-[12px] text-av-blue">
                 {s.amountHbar} HBAR ↗
               </a>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {dossier.stay || dossier.activities.length > 0 ? (
+        <div>
+          <p className="m-0 text-[11px] font-medium text-av-muted">Also on this booking</p>
+          <div className="mt-1.5 flex flex-col gap-1">
+            {dossier.stay ? (
+              <div className="flex items-baseline justify-between gap-3 rounded bg-av-bg px-3 py-2">
+                <span className="text-[13px] text-av-text">
+                  Hotel {dossier.stay.hotelId} · {dossier.stay.checkIn} → {dossier.stay.checkOut}
+                </span>
+                <span className="shrink-0 text-[12px] text-av-muted">
+                  {formatUsdMinor(dossier.stay.priceMinor, dossier.stay.currency)}
+                </span>
+              </div>
+            ) : null}
+            {dossier.activities.map(activity => (
+              <div
+                key={`${activity.activityId}-${activity.startUtc}`}
+                className="flex items-baseline justify-between gap-3 rounded bg-av-bg px-3 py-2"
+              >
+                <span className="text-[13px] text-av-text">
+                  {activity.activityId} · {new Date(activity.startUtc).toISOString().slice(0, 16).replace("T", " ")} UTC
+                </span>
+                <span className="shrink-0 text-[12px] text-av-muted">
+                  {formatUsdMinor(activity.priceMinor, activity.currency)}
+                </span>
+              </div>
             ))}
           </div>
         </div>
@@ -146,7 +190,7 @@ export function ChatDossierCard({
           >
             {pendingThis
               ? "Booking…"
-              : `Book everything · ${legCount} leg${legCount === 1 ? "" : "s"} · ~${dossier.bookingFeeHbarEstimate} HBAR`}
+              : `Book everything · ${covers} · ${formatUsd(dossier.fareTotalMinor)} to your card`}
           </button>
         </>
       )}

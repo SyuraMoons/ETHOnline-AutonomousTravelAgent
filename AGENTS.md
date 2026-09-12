@@ -44,13 +44,29 @@ A real, live x402 service. Verified end-to-end with settled Hedera testnet trans
 
 - `GET /.well-known/x402` — agent card (`payTo`, pricing labels, `bookingPublicKey`). See
   `routes/wellKnown.ts`.
-- `GET /v1/flights/search` — 402-gated, priced `clamp(resultCount × 0.05, 0.10, 2.50)` HBAR.
-  Quote cache (`lib/quotes.ts`, keyed by `sha256(canonicalJson(query))`, 300s unpaid / 900s
-  paid) guarantees the unpaid 402 price and the paid response agree. See `routes/flights.ts`.
-- `POST /v1/booking` — flat 1.00 HBAR, returns an Ed25519-signed `CONFIRMED_SIMULATED`
-  confirmation (`lib/signing.ts`) — no real reservation, never dress this up. Only offers
-  present in `data/cache/flights.json` are bookable (`lib/inventory.ts`'s
-  `findOfferById`); generated fallback rows 404 on booking. See `routes/booking.ts`.
+- `GET /v1/flights/search`, `GET /v1/stays/search`, `GET /v1/activities/search` — all
+  402-gated and metered `clamp(resultCount × perResult, min, max)` HBAR, one price band per
+  domain (`lib/pricing.ts`'s `PRICE_BANDS`: flights 0.05/0.10/2.50, stays 0.04/0.10/2.00,
+  activities 0.02/0.05/1.00). All three are one `createPaidSearchRoute()`
+  (`routes/paidSearch.ts`) over a shared quote cache (`lib/quotes.ts`, keyed by
+  `namespace + sha256(canonicalJson(query))`, 300s unpaid / 900s paid), which guarantees the
+  unpaid 402 price and the paid response agree.
+- `POST /v1/booking` — **not 402-gated, deliberately.** HBAR buys the *data*; the fare is a
+  different amount owed to a different party, and it settles against the traveller's card.
+  Charging HBAR here too would charge twice for one action, in two currencies, to two
+  recipients. Takes one whole itinerary (flights + optional stay + optional activities),
+  resolves every price from the supplier's own inventory (never from the request), and returns
+  one Ed25519-signed `CONFIRMED_SIMULATED` confirmation (`lib/signing.ts`) covering the lot —
+  no real reservation, and the card authorisation is simulated too. Never dress either up.
+  Only offers the caches actually know about are bookable; unknown ids 404. See
+  `routes/booking.ts`.
+
+  **The card path cannot take a real card number, by construction.** `PaymentInstrument`
+  (`packages/contracts/src/booking.ts`) requires `token` to match `tok_test_…` and `last4` to
+  be exactly four digits, and `assertNoPan()` runs *before* validation — so a Luhn-valid
+  13–19 digit run anywhere in the body is refused before it can reach a log line. Wiring this
+  to a real processor means deleting those guards on purpose. Do not weaken them to make a
+  test fixture pass.
 - `GET /health` — reports `payTo`, `facilitatorReachable`, `inventoryRows`.
 - Wiring: `services/x402/server.ts` (`registerRoute`/`withPayment` — the seller side of
   `x402HTTPResourceServer`).
@@ -139,7 +155,8 @@ itinerary_mismatch`, never trusting a client-sent hash.
 | --- | --- | --- |
 | `GET /.well-known/x402` (supplier) | **done** | Agent card: pricing model, `payTo`, services |
 | `GET /v1/flights/search` (supplier) | **done** | 402-gated, per-result metered, quote cache (300s unpaid / 900s paid) |
-| `POST /v1/booking` (supplier) | **done** | Flat-fee 402, Ed25519-signed simulated confirmation |
+| `GET /v1/stays/search` / `/v1/activities/search` (supplier) | **done** | 402-gated, per-result metered, own price band each |
+| `POST /v1/booking` (supplier) | **done** | No HBAR — whole itinerary, simulated card, Ed25519-signed confirmation |
 | `GET /health` (supplier) | **done** | Facilitator reachability + inventory count |
 | `POST /api/plan` (planner) | **done** | Brief → mandate check → pay → real flight data, or refusal |
 | `POST /api/mandate` (planner) | **done** | Create/read a spending mandate (GET also returns its spend log) |
@@ -236,6 +253,12 @@ as the pattern: build the request URL, `quote()` it, check the mandate, `pay()` 
 ### Critical invariants
 
 - The Next.js app **never** holds `FACILITATOR_PRIVATE_KEY`.
+- **HBAR buys data; a card buys the ticket.** Searches are metered and settle over x402;
+  `POST /v1/booking` takes no payment header and moves no HBAR. Don't 402-gate booking, and
+  don't route a fare through the mandate — the mandate governs the agent's HBAR, and the
+  agent's HBAR was spent on searches, which are charged and audited where they happen.
+- **No real card number may reach this system.** `assertNoPan()` runs before validation on
+  `POST /v1/booking`, and `PaymentInstrument.token` must match `tok_test_…`. Both guards stay.
 - Prices and x402 amounts are **tinybars** (1 HBAR = 1e8); asset id is `HBAR_ASSET` = `"0.0.0"`.
 - A `payTo` account id is a Hedera account id string (e.g. `0.0.1234`), not an EVM address.
 - The planner's `AGENT_ACCOUNT_ID` (buyer), the supplier's `PAY_TO` (seller), and the
@@ -448,8 +471,8 @@ Currently empty (no contract deployed).
 | `FACILITATOR_URL` / `X402_NETWORK` | Same facilitator as the planner |
 | `PORT` / `PUBLIC_BASE_URL` | Default `4100` / `http://localhost:4100` |
 | `PAY_TO` | Hedera account id that receives buyer payments — **not** a key |
-| `SEARCH_PRICE_PER_RESULT_HBAR` / `SEARCH_PRICE_MIN_HBAR` / `SEARCH_PRICE_MAX_HBAR` | Search pricing clamp |
-| `BOOKING_FEE_HBAR` | Flat booking fee |
+| `SEARCH_PRICE_*` / `STAY_PRICE_*` / `ACTIVITY_PRICE_*` | Per-domain search pricing clamp (`PER_RESULT_HBAR` / `MIN_HBAR` / `MAX_HBAR` each) |
+| `FACILITATOR_TIMEOUT_MS` | Verify/settle timeout, default `120000` — the library's 30s default is not enough for settle on testnet |
 | `QUOTE_TTL_UNPAID_SECONDS` / `QUOTE_TTL_PAID_SECONDS` | Quote cache lifetime (300s / 900s default) |
 | `SUPPLIER_SIGNING_KEY` | Ed25519 PKCS8 base64 — generate with `npm run supplier:gen-signing-key` |
 

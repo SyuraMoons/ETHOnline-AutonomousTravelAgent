@@ -1,5 +1,7 @@
 import { z } from "zod";
+import { PaymentInstrument } from "./booking.js";
 import { FlightOption } from "./flights.js";
+import { PlanActivity, PlanStay } from "./plan.js";
 import { RefusalReason } from "./refusal.js";
 
 // One day of the agent's own free-text suggestions — never a bookable item. `source` is a
@@ -13,6 +15,30 @@ export const ItineraryDay = z.object({
   source: z.literal("agent_suggestion"),
 });
 export type ItineraryDay = z.infer<typeof ItineraryDay>;
+
+/**
+ * The stay as the dossier holds it: the hashed fields, plus the LOCAL calendar
+ * dates the booking call needs.
+ *
+ * Both are stored because neither derives from the other safely. itineraryHash()
+ * takes instants, since two check-ins on the same local date are not the same
+ * booking. But POST /v1/booking takes `YYYY-MM-DD` in the property's own
+ * timezone, and slicing a date off the UTC instant is wrong wherever 15:00 local
+ * falls on the next UTC day — the same class of bug that already made the paid
+ * flight route filter dates in the wrong timezone.
+ *
+ * itineraryHash() reads a fixed key set, so the two extra fields here do not
+ * enter the hash.
+ */
+export const DossierStay = PlanStay.extend({
+  checkIn: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "checkIn must be YYYY-MM-DD"),
+  checkOut: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "checkOut must be YYYY-MM-DD"),
+});
+export type DossierStay = z.infer<typeof DossierStay>;
 
 // The autonomous run's final report: the flight pair it chose (real, paid-for x402 data) plus
 // a day plan it wrote itself (free, unpaid, not backed by any supplier). `bookable` is the
@@ -31,6 +57,18 @@ export const TripDossier = z.object({
     cabin: z.string(),
   }),
   option: FlightOption,
+  /**
+   * The stay and activities the agent bought, when it bought any. Separate from
+   * `days` above, which is free text the agent wrote itself: everything here was
+   * paid for, came back from the supplier's catalogue, and is bookable by id.
+   *
+   * Both feed itineraryHash(), so an approval covers the whole trip and not just
+   * its flights — swapping the hotel after a human approved invalidates the hash.
+   * A flight-only trip carries `stay: undefined` and `activities: []`, which hash
+   * as `null` and `[]` rather than being omitted.
+   */
+  stay: DossierStay.optional(),
+  activities: z.array(PlanActivity).default([]),
   itineraryHash: z.string(),
   days: z.array(ItineraryDay),
   fareTotalMinor: z.number().int(),
@@ -44,7 +82,6 @@ export const TripDossier = z.object({
       hashscanUrl: z.string(),
     }),
   ),
-  bookingFeeHbarEstimate: z.string(),
 });
 export type TripDossier = z.infer<typeof TripDossier>;
 
@@ -56,6 +93,13 @@ export const ExecuteRequest = z.object({
   executionToken: z.string(),
   mandateId: z.string(),
   passenger: z.object({ name: z.string(), email: z.string().email() }),
+  /**
+   * How the fare settles. Optional only because this is a simulation: when a
+   * caller sends nothing, the planner uses a built-in test card so a demo does
+   * not need one wired up. A real deployment would make this required and take
+   * it from the traveller's stored instrument.
+   */
+  payment: PaymentInstrument.optional(),
 });
 export type ExecuteRequest = z.infer<typeof ExecuteRequest>;
 
@@ -63,9 +107,19 @@ export const ExecutedBooking = z.object({
   offerId: z.string(),
   bookingId: z.string(),
   confirmationCode: z.string().optional(),
-  amountHbar: z.string(),
-  transaction: z.string(),
-  hashscanUrl: z.string(),
+  /** What the card was charged for the whole itinerary, in minor units. */
+  fareChargedMinor: z.number().int().nonnegative(),
+  currency: z.string().length(3),
+  cardLast4: z.string().regex(/^\d{4}$/),
+  /**
+   * On-chain fields, now optional: booking settles against a card, not HBAR,
+   * so a booking has no transaction to point at. The HBAR an agent spent on
+   * this trip was spent on SEARCHES, and those are audited separately.
+   * Kept so UI that renders a HashScan link keeps compiling.
+   */
+  amountHbar: z.string().optional(),
+  transaction: z.string().optional(),
+  hashscanUrl: z.string().optional(),
 });
 export type ExecutedBooking = z.infer<typeof ExecutedBooking>;
 
