@@ -4,6 +4,8 @@ import { flightsRouter } from "./routes/flights.js";
 import { bookingRouter } from "./routes/booking.js";
 import { healthRouter } from "./routes/health.js";
 import { loadCachedFlights } from "./lib/flightsCache.js";
+import { getHTTPResourceServer } from "./services/x402/server.js";
+import { PORT, PAY_TO } from "./config.js";
 
 const app = express();
 app.use(express.json());
@@ -13,9 +15,19 @@ app.use(flightsRouter);
 app.use(bookingRouter);
 app.use(healthRouter);
 
-const PORT = process.env.PORT ? Number(process.env.PORT) : 4100;
+async function main() {
+  // Fail fast: validate facilitator support for every registered route
+  // before accepting traffic, rather than discovering a misconfiguration on
+  // the first paid request.
+  await getHTTPResourceServer();
 
-app.listen(PORT, () => {
-  const cachedCount = loadCachedFlights().length;
-  console.log(`[supplier] listening on :${PORT} (phase 0-scaffold, ${cachedCount} cached flights)`);
+  app.listen(PORT, () => {
+    const cachedCount = loadCachedFlights().length;
+    console.log(`[supplier] listening on :${PORT} (payTo=${PAY_TO}, ${cachedCount} cached flights)`);
+  });
+}
+
+main().catch(error => {
+  console.error("[supplier] startup failed:", error instanceof Error ? error.message : error);
+  process.exit(1);
 });

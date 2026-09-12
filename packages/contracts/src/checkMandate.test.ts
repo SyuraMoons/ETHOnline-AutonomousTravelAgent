@@ -12,7 +12,7 @@ const mandate = (over: Partial<Mandate> = {}): Mandate => ({
   spentHbar: 0,
   remainingHbar: 10,
   expiresAt: "2026-09-11T12:00:00.000Z",
-  nullifierHash: "0xnullifier",
+  payerAccountId: "0.0.1234",
   status: "active",
   ...over,
 });

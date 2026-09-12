@@ -31,7 +31,7 @@ git push -u origin feat/supplier-x402-endpoint
 
 Example `feat/*` branch names for this project's first tasks:
 `feat/monorepo-scaffold`, `feat/supplier-x402-endpoint`,
-`feat/web-mandate-engine`, `feat/world-id-consent`,
+`feat/web-mandate-engine`, `feat/hbar-allowance-consent`,
 `feat/hcs-audit-writer`, `feat/flight-data-scraper`.
 
 `development` → `main` only happens at the three checkpoints defined in the

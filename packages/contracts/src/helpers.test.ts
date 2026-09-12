@@ -50,12 +50,15 @@ describe("canonicalJson", () => {
     assert.notEqual(canonicalJson([1, 2]), canonicalJson([2, 1]));
   });
 
-  it("drops undefined object values, as JSON.stringify does", () => {
-    assert.equal(canonicalJson({ a: 1, b: undefined }), '{"a":1}');
+  // JSON.stringify would drop the key, making {a:1} and {a:1,b:undefined} hash
+  // identically. A hash anchor cannot afford that ambiguity, so undefined is
+  // rejected wherever it appears.
+  it("refuses undefined as an object value", () => {
+    assert.throws(() => canonicalJson({ a: 1, b: undefined }), TypeError);
   });
 
-  it("writes undefined array holes as null, as JSON.stringify does", () => {
-    assert.equal(canonicalJson([1, undefined, 2]), "[1,null,2]");
+  it("refuses undefined inside an array", () => {
+    assert.throws(() => canonicalJson([1, undefined, 2]), TypeError);
   });
 
   it("escapes strings correctly", () => {

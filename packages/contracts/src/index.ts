@@ -10,3 +10,4 @@ export * from "./audit.js";
 export * from "./refusal.js";
 export * from "./helpers.js";
 export * from "./checkMandate.js";
+export * from "./dossier.js";

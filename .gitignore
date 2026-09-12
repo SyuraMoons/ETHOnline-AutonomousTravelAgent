@@ -56,3 +56,4 @@ Rayban-Build-Spec.pdf
 !/data/cache/flights.meta.json
 !/data/cache/hotels.meta.json
 !/data/cache/activities.meta.json
+.mcp.json

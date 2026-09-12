@@ -14,5 +14,9 @@ services:
       X402_NETWORK: ${X402_NETWORK:-hedera:testnet}
       FACILITATOR_ACCOUNT_ID: ${FACILITATOR_ACCOUNT_ID}
       FACILITATOR_PRIVATE_KEY: ${FACILITATOR_PRIVATE_KEY}
+      # Set to the planner's AGENT_ACCOUNT_ID for allowance mode (the agent owns the
+      # transaction id and spends the user's allowance); leave unset for treasury mode.
+      # See the ADVERTISED_FEE_PAYER comment in facilitator/src/server.ts.
+      FACILITATOR_ADVERTISED_FEE_PAYER: ${FACILITATOR_ADVERTISED_FEE_PAYER:-}
       HEDERA_NODE_URL: ${HEDERA_NODE_URL:-}
     restart: unless-stopped

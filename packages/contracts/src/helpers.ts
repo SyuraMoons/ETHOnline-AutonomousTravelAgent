@@ -28,6 +28,9 @@ export function canonicalJson(obj: unknown): string {
 }
 
 function write(value: unknown): string {
+  if (value === undefined) {
+    throw new TypeError("canonicalJson: cannot serialize undefined");
+  }
   if (value === null) return "null";
 
   switch (typeof value) {
@@ -50,9 +53,8 @@ function write(value: unknown): string {
   }
 
   if (Array.isArray(value)) {
-    // Array order is meaningful, so it is preserved. `undefined` holes become
-    // null, matching JSON.stringify.
-    return `[${value.map((item) => (item === undefined ? "null" : write(item))).join(",")}]`;
+    // Array order is meaningful, so it is preserved.
+    return `[${value.map(write).join(",")}]`;
   }
 
   const proto: unknown = Object.getPrototypeOf(value);
@@ -62,9 +64,9 @@ function write(value: unknown): string {
     );
   }
 
-  const entries = Object.entries(value as Record<string, unknown>)
-    .filter(([, v]) => v !== undefined)
-    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
+  const entries = Object.entries(value as Record<string, unknown>).sort(
+    ([a], [b]) => (a < b ? -1 : a > b ? 1 : 0),
+  );
 
   return `{${entries.map(([k, v]) => `${JSON.stringify(k)}:${write(v)}`).join(",")}}`;
 }
