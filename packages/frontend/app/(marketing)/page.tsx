@@ -47,20 +47,6 @@ export default function LandingPage() {
           reverse
         />
       </Reveal>
-      <Reveal>
-        <FeatureRow
-          eyebrow="Human control"
-          heading="A face check before anything that costs."
-          body="When a purchase crosses your limit, AutoVoyage pauses for an on-device liveness check. It proceeds only with proof that a real human, you, approved."
-          bullets={[
-            "On-device and privacy-preserving",
-            "Proves the request came from you",
-            "Every approval recorded on-chain",
-          ]}
-          visual={<ApprovalCard />}
-          band
-        />
-      </Reveal>
 
       <Reveal>
         <HowItWorks />
