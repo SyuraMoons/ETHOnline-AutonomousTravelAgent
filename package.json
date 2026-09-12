@@ -60,7 +60,8 @@
     "allowance:refusals": "npm run allowance:refusals -w @sh/nextjs --",
     "allowance:e2e": "npm run allowance:e2e -w @sh/nextjs --",
     "allowance:plan-e2e": "npm run allowance:plan-e2e -w @sh/nextjs --",
-    "allowance:revoke-e2e": "npm run allowance:revoke-e2e -w @sh/nextjs --"
+    "allowance:revoke-e2e": "npm run allowance:revoke-e2e -w @sh/nextjs --",
+    "frontend:test": "npm run test -w @sh/nextjs --"
   },
   "packageManager": "npm@10.0.0",
   "devDependencies": {

@@ -17,7 +17,8 @@
     "allowance:refusals": "tsx scripts/allowance-refusals.ts",
     "allowance:e2e": "tsx scripts/allowance-e2e.ts",
     "allowance:plan-e2e": "tsx scripts/allowance-plan-e2e.ts",
-    "allowance:revoke-e2e": "tsx scripts/allowance-revoke-e2e.ts"
+    "allowance:revoke-e2e": "tsx scripts/allowance-revoke-e2e.ts",
+    "test": "node --import tsx --test services/**/*.test.ts"
   },
   "dependencies": {
     "@hashgraph/hedera-wallet-connect": "^2.1.3",
