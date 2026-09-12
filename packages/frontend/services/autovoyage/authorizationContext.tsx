@@ -184,7 +184,8 @@ export function AuthorizationProvider({ children }: { children: ReactNode }) {
       });
       // POST returns the complete mandate record, not just an id — keep it, so the UI has
       // something to render the moment the allowance lands instead of waiting for a refresh.
-      const data = (await res.json()) as Partial<MandateState> & { error?: string };
+      // A non-JSON body (e.g. an unhandled 500) must not throw an opaque parse error here.
+      const data = (await res.json().catch(() => ({}))) as Partial<MandateState> & { error?: string };
       if (!res.ok || !data.mandateId) {
         throw new Error(data.error ?? "Could not create the mandate");
       }
@@ -317,7 +318,7 @@ export function AuthorizationProvider({ children }: { children: ReactNode }) {
           ttlMinutes: agent.defaults.ttlMinutes,
         }),
       });
-      const data = (await res.json()) as Partial<MandateState> & { error?: string };
+      const data = (await res.json().catch(() => ({}))) as Partial<MandateState> & { error?: string };
       if (!res.ok || !data.mandateId) {
         throw new Error(data.error ?? "Could not resume the mandate");
       }
