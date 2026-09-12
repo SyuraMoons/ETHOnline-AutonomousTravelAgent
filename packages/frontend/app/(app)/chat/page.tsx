@@ -1,33 +1,41 @@
 // Chat page
-import { Suspense } from "react";
 import Link from "next/link";
-import { ChatPageBody } from "~~/components/autovoyage/chat/ChatPageBody";
-import { HistoryMenu } from "~~/components/autovoyage/chat/HistoryMenu";
+import { ApprovalFocus } from "~~/components/autovoyage/approval/ApprovalFocus";
+import { ChatThread } from "~~/components/autovoyage/chat/ChatThread";
+import { Composer } from "~~/components/autovoyage/chat/Composer";
 import { CollapseIcon } from "~~/components/autovoyage/ui/icons";
+import { getChat } from "~~/services/autovoyage/tripData";
 
-export default function ChatPage() {
+export default async function ChatPage({ searchParams }: { searchParams: Promise<{ approve?: string }> }) {
+  const { approve } = await searchParams;
+  const chat = await getChat();
+
   return (
-    <div className="fixed inset-y-0 left-[236px] right-0 flex flex-col">
-      <header className="flex items-center justify-between border-b border-av-border bg-av-card px-4 py-3 sm:px-6">
+    <div className="flex h-svh min-w-0 flex-1 flex-col">
+      <header className="flex items-center justify-between border-b border-av-border bg-av-card px-6 py-3">
         <span className="text-[14px] font-semibold text-av-text">Agent</span>
-        <div className="flex items-center gap-3">
-          <HistoryMenu />
-          <Link
-            href="/plan"
-            aria-label="Collapse to panel"
-            title="Collapse to panel"
-            className="flex items-center gap-1.5 text-[13px] font-medium text-av-muted no-underline transition-opacity hover:opacity-70"
-          >
-            Collapse
-            <CollapseIcon size={16} />
-          </Link>
-        </div>
+        <Link
+          href="/plan"
+          aria-label="Collapse to panel"
+          title="Collapse to panel"
+          className="flex items-center gap-1.5 text-[13px] font-medium text-av-muted no-underline transition-opacity hover:opacity-70"
+        >
+          Collapse
+          <CollapseIcon size={16} />
+        </Link>
       </header>
-      {/* useAutoBrief (inside ChatPageBody) reads useSearchParams, which requires a Suspense
-          boundary in the app router. */}
-      <Suspense fallback={null}>
-        <ChatPageBody />
-      </Suspense>
+      <div className="flex-1 overflow-y-auto">
+        <ChatThread messages={chat.messages} />
+      </div>
+      <Composer />
+
+      {approve ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-av-ink/40 px-4">
+          <div className="w-full max-w-[520px]">
+            <ApprovalFocus booking={chat.approval} cancelHref="/chat" confirmHref="/plan?booked=1" />
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

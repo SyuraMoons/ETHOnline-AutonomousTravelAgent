@@ -74,6 +74,23 @@ create table if not exists chat_threads (
 );
 create index if not exists chat_threads_payer_idx on chat_threads (payer_account_id, updated_at desc);
 
+-- One profile per authenticated email. Wallet data is public account metadata only;
+-- private keys and signing material must never be stored here.
+create table if not exists profiles (
+  email              text primary key,
+  full_name          text not null default '',
+  phone              text not null default '',
+  date_of_birth      date,
+  nationality        text not null default '',
+  passport_number    text not null default '',
+  passport_expiry    date,
+  home_address       jsonb not null default '{}'::jsonb,
+  wallet_account_id  text not null default '',
+  wallet_network     text not null default 'hedera:testnet',
+  created_at         timestamptz not null default now(),
+  updated_at         timestamptz not null default now()
+);
+
 -- Marks an execution token's jti as spent (see services/autovoyage/executionToken.ts). The
 -- primary key gives the insert-or-conflict in claimExecutionToken() its atomicity: two
 -- concurrent /api/execute calls for the same token can't both win.

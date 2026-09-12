@@ -54,7 +54,7 @@ packages/nextjs/
 │  │  ├─ marketing/              Hero, GlassPromptCard, TrustStrip, MarketingNav, FeatureRow
 │  │  ├─ layout/                 Sidebar, AppShell, TopProgress (agent step card)
 │  │  ├─ plan/                   PlanSection, FlightCard, StayCard, ActivityPicker, PaceToggle
-│  │  ├─ approval/               ApprovalGate, ConfirmCheck, BookingConfirmed (overlay)
+│  │  ├─ approval/               ApprovalGate, WorldIdCheck, BookingConfirmed (overlay)
 │  │  ├─ wallet/                 ConnectWalletButton, WalletModal
 │  │  ├─ activity/               X402ActivityRow, StatTile
 │  │  ├─ audit/                  AuditRow, ProofRow
@@ -87,7 +87,7 @@ packages/nextjs/
 | Landing | `app/(marketing)/page.tsx` | `marketing/Hero`, `GlassPromptCard`, `TrustStrip`, `MarketingNav` |
 | Login | `app/(marketing)/login/page.tsx` | `wallet/ConnectWalletButton`, `WalletModal` |
 | Trip Plan | `app/(app)/plan/page.tsx` | `layout/AppShell`, `TopProgress`, `plan/PlanSection`, `FlightCard`, `StayCard`, `ActivityPicker` |
-| Approval + Booking Confirmed | overlay in `(app)` (or `plan` with state) | `approval/ApprovalGate`, `ConfirmCheck`, `BookingConfirmed` |
+| Approval + Booking Confirmed | overlay in `(app)` (or `plan` with state) | `approval/ApprovalGate`, `WorldIdCheck`, `BookingConfirmed` |
 | Itinerary | `app/(app)/itinerary/page.tsx` | `plan/PlanSection` (read-only), `audit/ProofRow` |
 | x402 Activity Feed | `app/(app)/activity/page.tsx` | `activity/X402ActivityRow`, `StatTile` |
 | Audit Trail | `app/(app)/audit/page.tsx` | `audit/AuditRow` |

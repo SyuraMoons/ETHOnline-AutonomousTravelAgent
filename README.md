@@ -6,9 +6,9 @@
 > `main` and **not part of this review**.
 
 **AutoVoyage** is a risk-aware autonomous travel agent: it plans a trip, pays for data on its own
-via **Hedera x402** under a single on-chain HBAR allowance you approve once, and **pauses for a
-plain confirm** before booking — with every action written to an on-chain audit trail. This
-branch is the **frontend only**; the payment/verification backend is a separate, later effort.
+via **Hedera x402**, and **pauses for a World ID face check** before anything over your spending
+limit — with every action written to an on-chain audit trail. This branch is the **frontend only**;
+the payment/verification backend is a separate, later effort.
 
 ---
 
@@ -38,7 +38,7 @@ Booking Confirmed → View itinerary.**
 | Landing | `/` |
 | Login | `/login` |
 | Trip Plan (main dashboard) | `/plan` |
-| Approval (booking confirm gate) | `/approve` |
+| Approval (World ID face-check gate) | `/approve` |
 | Booking Confirmed (modal) | `/plan?booked=1` |
 | Itinerary | `/itinerary` |
 | x402 Activity Feed | `/activity` |
@@ -76,9 +76,8 @@ don't change. Money is stored in **minor units (USD cents)** and formatted only 
 
 These buttons render but are **intentional stubs** — the real wiring is documented, not done:
 
-- **Auth** (Google / GitHub / email) — via Auth.js — see [`FRONTEND/AUTH-SETUP.md`](FRONTEND/AUTH-SETUP.md)
 - **Connect wallet** (HashPack via Reown AppKit) — the essential one for x402 payments
-- The **Hedera x402** payment/audit backend
+- **World ID** face check, and the **Hedera x402** payment/audit backend (NOT IMPLEMENTED -- FINAL)
 
 Full map of every integration point: [`FRONTEND/INTEGRATION.md`](FRONTEND/INTEGRATION.md).
 Build status / checklist: [`FRONTEND/PROGRESS.md`](FRONTEND/PROGRESS.md).

@@ -81,6 +81,15 @@ export function WalletIcon({ size = 18, className }: IconProps) {
   );
 }
 
+export function UserIcon({ size = 18, className }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <circle cx="12" cy="8" r="3.5" />
+      <path d="M5 20c.6-3.2 3.1-5 7-5s6.4 1.8 7 5" />
+    </svg>
+  );
+}
+
 export function CompassIcon({ size = 18, className }: IconProps) {
   return (
     <svg {...base(size, className)}>
