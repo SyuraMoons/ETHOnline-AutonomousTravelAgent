@@ -85,9 +85,14 @@ export function ApprovalFocus({
 
   useEffect(() => {
     let cancelled = false;
+    if (!mandateId) {
+      setStatus("error");
+      setErrorMessage("No active spending budget — set one before confirming a booking.");
+      return;
+    }
     (async () => {
       const hash = subject.itineraryHash ?? (await hashBooking(subject));
-      const data = await initiateConsent(hash, subject.planId);
+      const data = await initiateConsent(hash, mandateId, subject.planId);
       if (cancelled) return;
       setItineraryHash(data.itineraryHash);
       setSessionId(data.sessionId);
@@ -105,10 +110,10 @@ export function ApprovalFocus({
   }, []);
 
   async function confirmBooking() {
-    if (status !== "ready" || !sessionId || !itineraryHash) return;
+    if (status !== "ready" || !sessionId || !itineraryHash || !mandateId) return;
     setStatus("confirming");
     try {
-      await verifyConsent({ sessionId, itineraryHash, mandateId: mandateId ?? undefined, planId: subject.planId });
+      await verifyConsent({ sessionId, itineraryHash, mandateId, planId: subject.planId });
       setStatus("verified");
       onConfirmed?.();
     } catch (err) {

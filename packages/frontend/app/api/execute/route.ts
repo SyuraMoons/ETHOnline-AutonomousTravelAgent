@@ -7,7 +7,7 @@ import {
   itineraryHash,
 } from "@sh/contracts";
 import { getDossier } from "~~/services/autovoyage/dossierStore";
-import { verifyExecutionToken } from "~~/services/autovoyage/executionToken";
+import { claimExecutionToken, verifyExecutionToken } from "~~/services/autovoyage/executionToken";
 import { type OperationalReason, hbarFromTinybars, payBooking, refusalReply } from "~~/services/autovoyage/paidSearch";
 import { actionRefusedEvent, bookingExecutedEvent, submitAuditEvent } from "~~/services/hedera/hcsAudit";
 
@@ -67,12 +67,26 @@ export async function POST(request: Request) {
       "Your confirmation has expired — confirm the booking again.",
     );
   }
-  if (claims.mandateId && claims.mandateId !== mandateId) {
+  // Unconditional now — mandateId is a required claim (see executionToken.ts). It used to be
+  // optional, so a token minted without it skipped this check entirely and was redeemable
+  // against ANY mandateId the caller named here.
+  if (claims.mandateId !== mandateId) {
     return await refused(
       dossierId,
       "consent_expired",
       undefined,
       "This confirmation wasn't issued for the current spending budget.",
+    );
+  }
+  // Single-use: burn the token's jti before booking anything. Without this, the same
+  // executionToken could be replayed for the remainder of its TTL, booking (and paying for)
+  // every leg again on each replay.
+  if (!(await claimExecutionToken(claims.jti))) {
+    return await refused(
+      dossierId,
+      "consent_expired",
+      undefined,
+      "This confirmation was already used — confirm the booking again.",
     );
   }
 

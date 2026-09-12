@@ -13,12 +13,13 @@ export class ConsentError extends Error {
 
 export async function initiateConsent(
   itineraryHash: string,
+  mandateId: string,
   planId?: string,
 ): Promise<{ sessionId: string; itineraryHash: string }> {
   const res = await fetch("/api/consent/initiate", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ itineraryHash, planId }),
+    body: JSON.stringify({ itineraryHash, mandateId, planId }),
   });
   if (!res.ok) throw new ConsentError("Could not start confirmation. Try again.");
   return (await res.json()) as { sessionId: string; itineraryHash: string };
@@ -27,7 +28,7 @@ export async function initiateConsent(
 export async function verifyConsent(params: {
   sessionId: string;
   itineraryHash: string;
-  mandateId?: string;
+  mandateId: string;
   planId?: string;
 }): Promise<string> {
   const res = await fetch("/api/consent/verify", {
