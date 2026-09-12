@@ -82,13 +82,16 @@ create table if not exists used_execution_tokens (
   used_at  timestamptz not null default now()
 );
 
--- One profile per signed-in email (see auth.ts — Google/GitHub OAuth). Lets the passenger
--- name/email required by ExecuteRequest (contracts/dossier.ts) be pre-filled instead of
--- retyped on every booking. Wallet fields are public account metadata only — never store a
--- private key here.
+-- One profile per signed-in email (see auth.ts — Google/GitHub OAuth). `full_name` and
+-- `contact_email` ARE the passenger on every booking — /api/execute reads them server-side
+-- rather than taking a passenger from the client — and the name is also what the agent's
+-- system prompt greets. The remaining columns are legacy: written by an earlier version of
+-- the profile page, read by nothing today. Kept so existing rows don't lose data.
 create table if not exists profiles (
   email              text primary key,
   full_name          text not null default '',
+  -- Where confirmations go; blank falls back to the sign-in `email` above.
+  contact_email      text not null default '',
   phone              text not null default '',
   date_of_birth      date,
   nationality        text not null default '',
@@ -99,6 +102,8 @@ create table if not exists profiles (
   wallet_network     text not null default 'hedera:testnet',
   updated_at         timestamptz not null default now()
 );
+-- Re-run safe: adds contact_email if this schema was applied before that column existed.
+alter table profiles add column if not exists contact_email text not null default '';
 
 -- Atomic settle: delete the reservation, log the spend (idempotent on `transaction`), and
 -- increment spent_hbar in one statement — never a read-modify-write, so two concurrent legs

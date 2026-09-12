@@ -1,35 +1,21 @@
 "use client";
 
-// Profile page
+// Profile page — the three details the agent needs to book for you, and nothing else.
+// Whatever is saved here is what /api/execute sends as the passenger, so booking never
+// asks for a name or an email again.
 import { useEffect, useState } from "react";
-import { MapPinIcon, UserIcon, WalletIcon } from "~~/components/autovoyage/ui/icons";
-import { useHederaWalletConnect } from "~~/services/web3/hederaWalletConnect";
+import Link from "next/link";
+import { SkeletonProfileForm } from "~~/components/autovoyage/ui/Skeleton";
+import { UserIcon } from "~~/components/autovoyage/ui/icons";
 
 type Profile = {
-  email: string;
+  signInEmail: string;
   fullName: string;
+  contactEmail: string;
   phone: string;
-  dateOfBirth: string;
-  nationality: string;
-  passportNumber: string;
-  passportExpiry: string;
-  homeAddress: { line1?: string; line2?: string; city?: string; state?: string; postalCode?: string; country?: string };
-  walletAccountId: string;
-  walletNetwork: string;
 };
 
-const emptyProfile: Profile = {
-  email: "",
-  fullName: "",
-  phone: "",
-  dateOfBirth: "",
-  nationality: "",
-  passportNumber: "",
-  passportExpiry: "",
-  homeAddress: {},
-  walletAccountId: "",
-  walletNetwork: "hedera:testnet",
-};
+const emptyProfile: Profile = { signInEmail: "", fullName: "", contactEmail: "", phone: "" };
 
 function Field({
   label,
@@ -38,7 +24,7 @@ function Field({
   onChange,
   type = "text",
   placeholder,
-  readOnly,
+  hint,
 }: {
   label: string;
   name: string;
@@ -46,7 +32,7 @@ function Field({
   onChange: (value: string) => void;
   type?: string;
   placeholder?: string;
-  readOnly?: boolean;
+  hint?: string;
 }) {
   return (
     <label className="flex flex-col gap-1.5 text-[13px] text-av-muted">
@@ -57,17 +43,17 @@ function Field({
         value={value}
         onChange={event => onChange(event.target.value)}
         placeholder={placeholder}
-        readOnly={readOnly}
-        className={`rounded border border-av-border bg-av-card px-3 py-2.5 text-[14px] text-av-text outline-none transition-colors placeholder:text-av-muted/60 focus:border-av-blue ${readOnly ? "opacity-60" : ""}`}
+        className="rounded border border-av-border bg-av-card px-3 py-2.5 text-[14px] text-av-text outline-none transition-colors placeholder:text-av-muted/60 focus:border-av-blue"
       />
+      {hint ? <span className="text-[12px] text-av-muted/80">{hint}</span> : null}
     </label>
   );
 }
 
 export default function ProfilePage() {
-  const { accountId, isConnected } = useHederaWalletConnect();
   const [profile, setProfile] = useState<Profile>(emptyProfile);
   const [loading, setLoading] = useState(true);
+  const [signedOut, setSignedOut] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -75,28 +61,19 @@ export default function ProfilePage() {
     fetch("/api/profile")
       .then(async response => {
         const data = await response.json();
+        if (response.status === 401) {
+          setSignedOut(true);
+          return;
+        }
         if (!response.ok) throw new Error(data.error ?? "Could not load profile.");
-        setProfile({
-          ...emptyProfile,
-          ...data,
-          homeAddress: { ...emptyProfile.homeAddress, ...(data.homeAddress ?? {}) },
-        });
+        setProfile({ ...emptyProfile, ...data });
       })
       .catch(error => setMessage(error instanceof Error ? error.message : "Could not load profile."))
       .finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => {
-    if (isConnected && accountId) setProfile(current => ({ ...current, walletAccountId: accountId }));
-  }, [accountId, isConnected]);
-
   function update(key: keyof Profile, value: string) {
     setProfile(current => ({ ...current, [key]: value }));
-    setMessage(null);
-  }
-
-  function updateAddress(key: keyof Profile["homeAddress"], value: string) {
-    setProfile(current => ({ ...current, homeAddress: { ...current.homeAddress, [key]: value } }));
     setMessage(null);
   }
 
@@ -107,15 +84,15 @@ export default function ProfilePage() {
       const response = await fetch("/api/profile", {
         method: "PATCH",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify(profile),
+        body: JSON.stringify({
+          fullName: profile.fullName,
+          contactEmail: profile.contactEmail,
+          phone: profile.phone,
+        }),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? "Could not save profile.");
-      setProfile({
-        ...emptyProfile,
-        ...data,
-        homeAddress: { ...emptyProfile.homeAddress, ...(data.homeAddress ?? {}) },
-      });
+      setProfile({ ...emptyProfile, ...data });
       setMessage("Profile saved.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Could not save profile.");
@@ -124,7 +101,21 @@ export default function ProfilePage() {
     }
   }
 
-  if (loading) return <div className="p-8 text-[14px] text-av-muted">Loading profile…</div>;
+  if (loading) return <SkeletonProfileForm />;
+
+  if (signedOut) {
+    return (
+      <main className="mx-auto flex w-full max-w-210 flex-col gap-4 px-6 py-8">
+        <h1 className="m-0 text-[26px] font-semibold text-av-text">Profile</h1>
+        <p className="m-0 text-[14px] text-av-muted">
+          Sign in to edit the details the agent books with.{" "}
+          <Link href="/login" className="text-av-blue">
+            Sign in →
+          </Link>
+        </p>
+      </main>
+    );
+  }
 
   return (
     <main className="mx-auto flex w-full max-w-210 flex-col gap-6 px-6 py-8">
@@ -132,9 +123,7 @@ export default function ProfilePage() {
         <p className="m-0 font-mono text-[10px] uppercase tracking-[0.12em] text-av-blue">Your details</p>
         <h1 className="m-0 mt-2 text-[26px] font-semibold text-av-text">Profile</h1>
         <p className="m-0 mt-1 max-w-155 text-[14px] text-av-muted">
-          Keep the information the agent needs for bookings in one place — it pre-fills the passenger name and email
-          when it books, so you don&apos;t have to retype them. Your wallet connection is public account metadata; never
-          enter a private key here.
+          The agent books with exactly these details — so it never asks you for a name or an email at booking time.
         </p>
       </header>
 
@@ -142,139 +131,36 @@ export default function ProfilePage() {
         <div className="flex items-center gap-3 border-b border-av-border pb-4">
           <UserIcon size={20} className="text-av-blue" />
           <div>
-            <h2 className="m-0 text-[16px] font-semibold text-av-text">Contact and identity</h2>
-            <p className="m-0 mt-0.5 text-[12px] text-av-muted">
-              Used to personalize plans and complete passenger details.
-            </p>
+            <h2 className="m-0 text-[16px] font-semibold text-av-text">Contact</h2>
+            <p className="m-0 mt-0.5 text-[12px] text-av-muted">Used as the passenger on every booking.</p>
           </div>
         </div>
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
-          <Field label="Sign-in email" name="email" value={profile.email} onChange={() => {}} type="email" readOnly />
           <Field
-            label="Full legal name"
+            label="Full name"
             name="fullName"
             value={profile.fullName}
             onChange={value => update("fullName", value)}
             placeholder="As shown on your passport"
           />
           <Field
+            label="Email"
+            name="contactEmail"
+            type="email"
+            value={profile.contactEmail}
+            onChange={value => update("contactEmail", value)}
+            placeholder={profile.signInEmail}
+            hint={`Leave blank to use your sign-in address, ${profile.signInEmail}.`}
+          />
+          <Field
             label="Phone number"
             name="phone"
+            type="tel"
             value={profile.phone}
             onChange={value => update("phone", value)}
             placeholder="+1 555 000 0000"
           />
-          <Field
-            label="Nationality"
-            name="nationality"
-            value={profile.nationality}
-            onChange={value => update("nationality", value)}
-            placeholder="Country of citizenship"
-          />
-          <Field
-            label="Date of birth"
-            name="dateOfBirth"
-            value={profile.dateOfBirth}
-            onChange={value => update("dateOfBirth", value)}
-            type="date"
-          />
-          <Field
-            label="Passport number"
-            name="passportNumber"
-            value={profile.passportNumber}
-            onChange={value => update("passportNumber", value)}
-          />
-          <Field
-            label="Passport expiry"
-            name="passportExpiry"
-            value={profile.passportExpiry}
-            onChange={value => update("passportExpiry", value)}
-            type="date"
-          />
         </div>
-      </section>
-
-      <section className="rounded border border-av-border bg-av-card p-6">
-        <div className="flex items-center gap-3 border-b border-av-border pb-4">
-          <MapPinIcon size={20} className="text-av-blue" />
-          <div>
-            <h2 className="m-0 text-[16px] font-semibold text-av-text">Home address</h2>
-            <p className="m-0 mt-0.5 text-[12px] text-av-muted">
-              Used when a booking or document requires your residential address.
-            </p>
-          </div>
-        </div>
-        <div className="mt-5 grid gap-4 sm:grid-cols-2">
-          <div className="sm:col-span-2">
-            <Field
-              label="Address line 1"
-              name="line1"
-              value={profile.homeAddress.line1 ?? ""}
-              onChange={value => updateAddress("line1", value)}
-            />
-          </div>
-          <div className="sm:col-span-2">
-            <Field
-              label="Address line 2"
-              name="line2"
-              value={profile.homeAddress.line2 ?? ""}
-              onChange={value => updateAddress("line2", value)}
-              placeholder="Apartment, suite, etc. (optional)"
-            />
-          </div>
-          <Field
-            label="City"
-            name="city"
-            value={profile.homeAddress.city ?? ""}
-            onChange={value => updateAddress("city", value)}
-          />
-          <Field
-            label="State / region"
-            name="state"
-            value={profile.homeAddress.state ?? ""}
-            onChange={value => updateAddress("state", value)}
-          />
-          <Field
-            label="Postal code"
-            name="postalCode"
-            value={profile.homeAddress.postalCode ?? ""}
-            onChange={value => updateAddress("postalCode", value)}
-          />
-          <Field
-            label="Country"
-            name="country"
-            value={profile.homeAddress.country ?? ""}
-            onChange={value => updateAddress("country", value)}
-          />
-        </div>
-      </section>
-
-      <section className="rounded border border-av-border bg-av-card p-6">
-        <div className="flex items-center gap-3 border-b border-av-border pb-4">
-          <WalletIcon size={20} className="text-av-blue" />
-          <div>
-            <h2 className="m-0 text-[16px] font-semibold text-av-text">Wallet</h2>
-            <p className="m-0 mt-0.5 text-[12px] text-av-muted">Only your public Hedera account ID is stored.</p>
-          </div>
-        </div>
-        <div className="mt-5 grid gap-4 sm:grid-cols-2">
-          <Field
-            label="Hedera account ID"
-            name="walletAccountId"
-            value={profile.walletAccountId}
-            onChange={value => update("walletAccountId", value)}
-            placeholder="0.0.123456"
-          />
-          <Field
-            label="Network"
-            name="walletNetwork"
-            value={profile.walletNetwork}
-            onChange={value => update("walletNetwork", value)}
-          />
-        </div>
-        {isConnected && (
-          <p className="m-0 mt-3 text-[12px] text-av-green">Connected wallet detected and ready to save.</p>
-        )}
       </section>
 
       <div className="flex items-center justify-end gap-4">
