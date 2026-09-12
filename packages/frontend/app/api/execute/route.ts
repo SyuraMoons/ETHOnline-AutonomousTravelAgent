@@ -101,9 +101,13 @@ export async function POST(request: Request) {
   }
 
   // Re-derive from the legs the SERVER stored at planning time, not anything the client sent.
+  // The whole trip, not just its flights. A hash over legs alone would let the hotel or an
+  // activity be swapped after a human approved the itinerary and still match.
   const recomputedHash = itineraryHash({
     planId: dossier.dossierId,
     legs: dossier.option.legs,
+    stay: dossier.stay,
+    activities: dossier.activities,
     paxCount: dossier.trip.paxCount,
     fareTotalMinor: dossier.fareTotalMinor,
     currency: dossier.currency,
@@ -134,7 +138,19 @@ export async function POST(request: Request) {
   // mandate is not consulted: it governs the agent's HBAR, and the agent's HBAR
   // was spent on searches, which were charged and audited as they happened.
   const outcome = await payBooking(
-    { legs: dossier.option.legs.map(leg => ({ offerId: leg.offerId })) },
+    {
+      legs: dossier.option.legs.map(leg => ({ offerId: leg.offerId })),
+      // Local calendar dates, carried on the dossier rather than sliced off the UTC instant —
+      // see DossierStay. Activities travel as instants, which is what the supplier checks a
+      // slot against.
+      ...(dossier.stay
+        ? { stay: { hotelId: dossier.stay.hotelId, checkIn: dossier.stay.checkIn, checkOut: dossier.stay.checkOut } }
+        : {}),
+      activities: dossier.activities.map(activity => ({
+        activityId: activity.activityId,
+        startUtc: activity.startUtc,
+      })),
+    },
     passenger,
     payment,
   );

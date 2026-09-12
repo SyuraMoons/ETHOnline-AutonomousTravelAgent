@@ -7,8 +7,19 @@ import {
   releaseSpend,
   reserveSpend,
 } from "~~/services/autovoyage/mandate";
-import { type SearchQuery, getSupplierCard, paySearch, quoteSearch } from "~~/services/autovoyage/supplierClient";
-import { PaymentFailedError, SupplierUnreachableError, pay, quote } from "~~/services/x402/agentBuyer";
+import {
+  type ActivitySearchQuery,
+  type SearchQuery,
+  type StaySearchQuery,
+  getSupplierCard,
+  payActivitySearch,
+  paySearch,
+  payStaySearch,
+  quoteActivitySearch,
+  quoteSearch,
+  quoteStaySearch,
+} from "~~/services/autovoyage/supplierClient";
+import { PaymentFailedError, type Quote, SupplierUnreachableError, pay, quote } from "~~/services/x402/agentBuyer";
 
 /**
  * The quote -> check-mandate -> pay -> record cycle, as one paid-tool-call primitive.
@@ -69,17 +80,30 @@ export function hbarFromTinybars(tinybars: bigint): number {
 }
 
 export type LegSearch = Awaited<ReturnType<typeof paySearch>>;
+export type StaySearch = Awaited<ReturnType<typeof payStaySearch>>;
+export type ActivitySearch = Awaited<ReturnType<typeof payActivitySearch>>;
 
 export type PaidOutcome<T> =
   { ok: true; result: T } | { ok: false; reason: OperationalReason; detail?: MandateFailureDetail };
+
+type Quoted = { url: string; quote: Quote };
 
 /**
  * Quote-then-pay: the mandate is checked against the REAL quoted price before any HBAR moves.
  * This ordering is the whole point of checkMandate() being "the only code path where a bug
  * loses money" — paying first and checking after would let an over-ceiling search settle
  * anyway.
+ *
+ * All three domains share this body because all three can lose money the same ways. A stay
+ * search that skipped the reservation, or released headroom after a settled payment, would be
+ * exactly the bug this ordering exists to prevent — so there is one implementation and the
+ * callers below differ only in which endpoint they quote.
  */
-export async function paySupplierLeg(mandateId: string, query: SearchQuery): Promise<PaidOutcome<LegSearch>> {
+async function payQuoted<T extends { transaction: string; payer: string }>(
+  mandateId: string,
+  askPrice: (payFrom?: string) => Promise<Quoted>,
+  settle: (url: string, quote: Quote) => Promise<T>,
+): Promise<PaidOutcome<T>> {
   const mandate = await getMandate(mandateId);
   if (!mandate) return { ok: false, reason: "mandate_expired", detail: "not_found" };
 
@@ -87,9 +111,9 @@ export async function paySupplierLeg(mandateId: string, query: SearchQuery): Pro
   // mandate predates the allowance flow. Bound into the quote so pay() cannot diverge.
   const payFrom = mandate.payerAccountId;
 
-  let quoted: Awaited<ReturnType<typeof quoteSearch>>;
+  let quoted: Quoted;
   try {
-    quoted = await quoteSearch(query, payFrom);
+    quoted = await askPrice(payFrom);
   } catch (err) {
     const reason = operationalReason(err);
     if (reason) return { ok: false, reason };
@@ -100,9 +124,9 @@ export async function paySupplierLeg(mandateId: string, query: SearchQuery): Pro
   const reservation = await reserveSpend(mandateId, amountHbar, new Date());
   if (!reservation.ok) return { ok: false, reason: reservation.reason, detail: reservation.detail };
 
-  let result: LegSearch;
+  let result: T;
   try {
-    result = await paySearch(quoted.url, quoted.quote);
+    result = await settle(quoted.url, quoted.quote);
   } catch (err) {
     // Nothing settled, so the headroom must go back — a failed payment costs nothing.
     await releaseSpend(reservation.reservationId);
@@ -118,6 +142,18 @@ export async function paySupplierLeg(mandateId: string, query: SearchQuery): Pro
   return { ok: true, result };
 }
 
+export function paySupplierLeg(mandateId: string, query: SearchQuery): Promise<PaidOutcome<LegSearch>> {
+  return payQuoted(mandateId, payFrom => quoteSearch(query, payFrom), paySearch);
+}
+
+export function payStays(mandateId: string, query: StaySearchQuery): Promise<PaidOutcome<StaySearch>> {
+  return payQuoted(mandateId, payFrom => quoteStaySearch(query, payFrom), payStaySearch);
+}
+
+export function payActivities(mandateId: string, query: ActivitySearchQuery): Promise<PaidOutcome<ActivitySearch>> {
+  return payQuoted(mandateId, payFrom => quoteActivitySearch(query, payFrom), payActivitySearch);
+}
+
 export type BookingLegResult = Awaited<ReturnType<typeof pay<BookingResponse>>>;
 
 function bookingUrl(): string {
@@ -125,18 +161,13 @@ function bookingUrl(): string {
 }
 
 /**
- * Same reserve/pay/commit shape as paySupplierLeg, but POSTs a BookingRequest against the
- * supplier's flat-fee /v1/booking route instead of the priced search.
- *
- * ONE call for the whole itinerary, not one per leg. A human approves one itineraryHash, so
- * one approval has to close over one booking — booking leg by leg meant a single approval
- * authorising several payments that could fail independently, leaving an approved itinerary
- * half-executed. The supplier now resolves and validates every component before confirming
- * anything, so the call either returns one signed confirmation covering the lot or changes
- * nothing. The fee is flat regardless of what the itinerary contains.
- */
-/**
  * Books an itinerary. NOT an x402 payment.
+ *
+ * ONE call for the whole itinerary, not one per component. A human approves one
+ * itineraryHash, so one approval has to close over one booking — booking piece
+ * by piece meant a single approval authorising several actions that could fail
+ * independently, leaving an approved itinerary in a state no status can
+ * honestly describe.
  *
  * HBAR buys data, and the searches already charged for that. The fare is a
  * different amount owed to a different party, and it settles against the

@@ -45,6 +45,52 @@ const TOOLS: ChatCompletionTool[] = [
   {
     type: "function",
     function: {
+      name: "search_stays",
+      description:
+        "Search real, paid hotel inventory in one city. Costs real money — call it at most once per run, " +
+        "and only if the brief actually wants somewhere to stay. Returns hotelIds bookable by id.",
+      strict: true,
+      parameters: {
+        type: "object",
+        properties: {
+          city: { type: "string", description: "Destination city or airport code" },
+          checkIn: { type: "string", description: "ISO 8601 date, e.g. 2026-11-12" },
+          checkOut: { type: "string", description: "ISO 8601 date, after checkIn" },
+          guests: { type: ["integer", "null"], minimum: 1, description: "Number of guests, or null" },
+          minStars: { type: ["integer", "null"], minimum: 1, description: "Minimum star rating, or null" },
+        },
+        required: ["city", "checkIn", "checkOut", "guests", "minStars"],
+        additionalProperties: false,
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "search_activities",
+      description:
+        "Search real, paid activity inventory for one city and date. Costs real money — call it at most once " +
+        "per run. These are bookable by id, unlike the free suggestions in draft_itinerary.",
+      strict: true,
+      parameters: {
+        type: "object",
+        properties: {
+          city: { type: "string", description: "Destination city or airport code" },
+          date: { type: "string", description: "ISO 8601 date" },
+          pace: {
+            type: ["string", "null"],
+            enum: ["calm", "balanced", "adventurous", null],
+            description: "Preferred pace, or null",
+          },
+        },
+        required: ["city", "date", "pace"],
+        additionalProperties: false,
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
       name: "draft_itinerary",
       description:
         "Record a short day-by-day plan of activity suggestions for the trip. This is free and NOT a real " +
@@ -88,9 +134,18 @@ const TOOLS: ChatCompletionTool[] = [
         properties: {
           outboundOfferId: { type: "string", description: "offerId of the chosen outbound flight" },
           inboundOfferId: { type: ["string", "null"], description: "offerId of the chosen return flight, or null" },
+          stayHotelId: {
+            type: ["string", "null"],
+            description: "hotelId of the chosen stay from search_stays, or null if you did not search stays",
+          },
+          activityIds: {
+            type: "array",
+            items: { type: "string" },
+            description: "activityIds from search_activities to include, or an empty array",
+          },
           summary: { type: "string", description: "One or two sentences explaining the choice" },
         },
-        required: ["outboundOfferId", "inboundOfferId", "summary"],
+        required: ["outboundOfferId", "inboundOfferId", "stayHotelId", "activityIds", "summary"],
         additionalProperties: false,
       },
     },
@@ -105,9 +160,13 @@ function systemPrompt(): string {
     "your own using the tools available — do not ask the user follow-up questions, make " +
     "reasonable assumptions instead. " +
     "Call search_flights for the outbound leg, and again for the return leg only if the trip " +
-    "is a round trip — at most twice total, ever. After searching, call draft_itinerary once " +
-    "with a short suggested day plan (no prices, no booking claims — these are ideas, not " +
-    "reservations). Then call finalize, naming the offerId(s) of the flight(s) you'd book. " +
+    "is a round trip — at most twice total, ever. If the brief wants somewhere to stay, call " +
+    "search_stays once; if it wants things to do, call search_activities once. Both cost real " +
+    "money, so skip them when the brief does not ask for them. After searching, call " +
+    "draft_itinerary once with a short suggested day plan (no prices, no booking claims — " +
+    "these are ideas, not reservations, and they are separate from anything search_activities " +
+    "returned, which IS bookable). Then call finalize, naming the offerId(s) of the flight(s) " +
+    "you'd book and any hotelId or activityIds you want included. " +
     "Never invent or mention HBAR amounts, fares beyond what search_flights returned, or " +
     "booking confirmations — you have no access to payment or booking systems."
   );
