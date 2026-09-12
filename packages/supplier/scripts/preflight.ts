@@ -253,6 +253,31 @@ const CHECKS: Check[] = [
           payTo?: string;
         };
         const ids = (card.services ?? []).map((service) => service.id);
+        // The running supplier reads its config once, at startup. A .env edited
+        // afterwards leaves the file correct and the live card stale — which is
+        // exactly how a payment ends up addressed to 0.0.XXXXX while every other
+        // check reports green.
+        const configured = readEnvFile("packages/supplier/.env")?.["PAY_TO"];
+        if (card.payTo && /x{3,}/i.test(card.payTo)) {
+          return {
+            ok: false,
+            problem: `the running supplier is serving payTo ${card.payTo}, a placeholder`,
+            fix: [
+              "restart it so it picks up packages/supplier/.env",
+              "npm run supplier:dev",
+            ],
+          };
+        }
+        if (configured && card.payTo && configured !== card.payTo) {
+          return {
+            ok: false,
+            problem: `.env says PAY_TO=${configured} but the running supplier serves ${card.payTo}`,
+            fix: [
+              "the supplier is running with stale config — restart it",
+              "npm run supplier:dev",
+            ],
+          };
+        }
         if (ids.length < 4) {
           return {
             ok: false,
