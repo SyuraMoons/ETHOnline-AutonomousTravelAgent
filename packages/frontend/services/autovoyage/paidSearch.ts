@@ -125,12 +125,22 @@ function bookingUrl(): string {
 
 /**
  * Same reserve/pay/commit shape as paySupplierLeg, but POSTs a BookingRequest against the
- * supplier's flat-fee /v1/booking route instead of the priced search. Used by /api/execute,
- * one call per leg.
+ * supplier's flat-fee /v1/booking route instead of the priced search.
+ *
+ * ONE call for the whole itinerary, not one per leg. A human approves one itineraryHash, so
+ * one approval has to close over one booking — booking leg by leg meant a single approval
+ * authorising several payments that could fail independently, leaving an approved itinerary
+ * half-executed. The supplier now resolves and validates every component before confirming
+ * anything, so the call either returns one signed confirmation covering the lot or changes
+ * nothing. The fee is flat regardless of what the itinerary contains.
  */
 export async function payBooking(
   mandateId: string,
-  offerId: string,
+  itinerary: {
+    legs: { offerId: string }[];
+    stay?: { hotelId: string; checkIn: string; checkOut: string };
+    activities?: { activityId: string; startUtc: string }[];
+  },
   passenger: { name: string; email: string },
 ): Promise<PaidOutcome<BookingLegResult>> {
   const mandate = await getMandate(mandateId);
@@ -138,7 +148,13 @@ export async function payBooking(
 
   const payFrom = mandate.payerAccountId;
   const url = bookingUrl();
-  const body = { offerId, passengerName: passenger.name, passengerEmail: passenger.email };
+  const body = {
+    legs: itinerary.legs,
+    ...(itinerary.stay ? { stay: itinerary.stay } : {}),
+    activities: itinerary.activities ?? [],
+    passengerName: passenger.name,
+    passengerEmail: passenger.email,
+  };
 
   let quoted;
   try {

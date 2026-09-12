@@ -196,3 +196,27 @@ export function localTimeToUtc(
     midnight + ((hour ?? 0) - offsetHours) * 3_600_000 + (minute ?? 0) * 60_000,
   ).toISOString();
 }
+
+/** One property by id, or undefined. Booking resolves prices from here, never from the client. */
+export function findStayById(hotelId: string): Stay | undefined {
+  return loadCachedStays().find((stay) => stay.hotelId === hotelId);
+}
+
+/**
+ * Total for one property across a date range, using the same per-night rates a
+ * search would have quoted — so a price a buyer saw is the price they are booked at.
+ */
+export function priceStay(
+  stay: Stay,
+  checkIn: string,
+  checkOut: string,
+): { priceMinor: number; nights: number } {
+  const nights = nightsBetween(checkIn, checkOut);
+  return {
+    priceMinor: nights.reduce(
+      (total, date) => total + nightlyRate(stay, date),
+      0,
+    ),
+    nights: nights.length,
+  };
+}
