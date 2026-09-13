@@ -1,11 +1,17 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { getHederaAccountIdFromSession, getHederaProvider, hasHederaSession, initAppKit } from "./appKitHedera";
 import type { HederaProvider } from "@hashgraph/hedera-wallet-connect";
-import { hederaNamespace } from "@hashgraph/hedera-wallet-connect";
+import type { ChainNamespace } from "@reown/appkit-common";
 import { useAppKitAccount, useDisconnect } from "@reown/appkit/react";
 import { parseHederaAccountId } from "~~/utils/scaffold-hbar/hederaAccountId";
+
+// Hardcoded rather than imported from @hashgraph/hedera-wallet-connect: that package's root
+// barrel re-exports a submodule that statically imports the ESM-only @walletconnect/modal,
+// which crashes Next's server render (`ERR_REQUIRE_ESM`) the moment any file eagerly mounted
+// in the app (like this provider) touches the package at module-eval time. The value is a
+// stable literal (`export const hederaNamespace = 'hedera'` in the package's own source).
+const HEDERA_NAMESPACE = "hedera" as ChainNamespace;
 
 type HederaWalletConnectContextValue = {
   provider: HederaProvider | null;
@@ -24,11 +30,19 @@ type HederaWalletConnectContextValue = {
 const HederaWalletConnectContext = createContext<HederaWalletConnectContextValue | undefined>(undefined);
 
 let initPromise: Promise<HederaProvider> | null = null;
+// Populated once `ensureInit()` resolves. `appKitHedera.ts` is loaded via dynamic import()
+// rather than a top-level one so the real @hashgraph/hedera-wallet-connect package (and its
+// @walletconnect/modal dependency) is only ever required client-side, after mount — never
+// during server-side render. See the HEDERA_NAMESPACE comment above for why.
+let appKitHedera: typeof import("./appKitHedera") | null = null;
 
 /** Initialise AppKit + HederaProvider once for the page lifetime (AppKit is a module singleton). */
 function ensureInit(): Promise<HederaProvider> {
   if (!initPromise) {
-    initPromise = initAppKit().then(() => getHederaProvider());
+    initPromise = import("./appKitHedera").then(mod => {
+      appKitHedera = mod;
+      return mod.initAppKit().then(() => mod.getHederaProvider());
+    });
   }
   return initPromise;
 }
@@ -43,7 +57,7 @@ export const HederaWalletConnectProvider = ({ children }: { children: React.Reac
   /** Local override so disconnect reflects immediately even if the SDK never fires its session events. */
   const [forceDisconnected, setForceDisconnected] = useState(false);
   const { address: appKitHederaAddress, isConnected: appKitHederaConnected } = useAppKitAccount({
-    namespace: hederaNamespace,
+    namespace: HEDERA_NAMESPACE,
   });
 
   useEffect(() => {
@@ -97,7 +111,7 @@ export const HederaWalletConnectProvider = ({ children }: { children: React.Reac
     if (isBusy) return;
     setIsBusy(true);
     try {
-      await disconnect({ namespace: hederaNamespace });
+      await disconnect({ namespace: HEDERA_NAMESPACE });
     } catch (error) {
       console.error("HashPack disconnect failed", error);
     } finally {
@@ -116,10 +130,10 @@ export const HederaWalletConnectProvider = ({ children }: { children: React.Reac
       return { hederaAccountId: null, hederaSessionReady: false, isConnected: false };
     }
 
-    const fromProvider = getHederaAccountIdFromSession(provider);
+    const fromProvider = appKitHedera?.getHederaAccountIdFromSession(provider) ?? null;
     const fromAppKit = appKitHederaConnected && appKitHederaAddress ? parseHederaAccountId(appKitHederaAddress) : null;
     const accountId = fromProvider ?? fromAppKit;
-    const sessionReady = hasHederaSession(provider);
+    const sessionReady = appKitHedera?.hasHederaSession(provider) ?? false;
     const connected = Boolean(accountId);
 
     return {
