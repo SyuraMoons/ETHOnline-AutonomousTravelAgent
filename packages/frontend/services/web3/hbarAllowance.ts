@@ -134,7 +134,11 @@ async function submitAllowance(params: AllowanceParams): Promise<string> {
     // TransactionList, not an SDK object over WalletConnect.
     const result = await provider.hedera_signAndExecuteTransaction({
       signerAccountId: `${network}:${ownerAccountId}`,
-      transactionList: transactionToBase64String(tx),
+      // @x402/hedera is pinned to 2.13.2 (see AGENTS.md), which forces this workspace's own
+      // @hiero-ledger/sdk down to the exact 2.80.0 it requires, while @hashgraph/hedera-wallet-connect
+      // still resolves its own nested 2.87.0 — two structurally identical but nominally distinct
+      // Transaction classes. Runtime-safe (both just serialize to the same protobuf bytes).
+      transactionList: transactionToBase64String(tx as never),
     });
 
     if (!result?.transactionId) {

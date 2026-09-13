@@ -21,10 +21,11 @@
     "setup-env": "tsx scripts/setup-env.ts"
   },
   "//tsx": "A RUNTIME dependency, not a dev one: production runs `tsx src/index.ts` (see start:prod and the Dockerfile). @sh/contracts' main is raw TypeScript, so `node dist/index.js` cannot load it.",
+  "//@x402/hedera": "PINNED, exact, deliberately NOT 2.13.2: this package only builds seller-side payment requirements (ExactHederaScheme from '@x402/hedera/exact/server') and never verifies a payer signature, so it is unaffected by the 2.25+ verifyPayerSignature landmine that forces the facilitator and frontend to stay on 2.13.2 (see facilitator/package.json and AGENTS.md). Pinned to 2.25.0 instead so this package resolves its own @x402/core@2.25.0 (the newer FacilitatorConfig/beforeHandlerSettlement API src/services/x402/server.ts uses) rather than sharing the frontend workspace's 2.14.0.",
   "dependencies": {
     "@sh/contracts": "*",
     "@x402/core": "^2.14.0",
-    "@x402/hedera": "^2.13.2",
+    "@x402/hedera": "2.25.0",
     "dotenv": "^16.6.1",
     "express": "^4.21.1",
     "tsx": "^4.19.1",

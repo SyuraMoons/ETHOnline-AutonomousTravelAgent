@@ -44,12 +44,17 @@ const AIRPORT_CODES: Record<string, string> = {
   amsterdam: "AMS",
 };
 
+// Only these codes are trusted verbatim — anything else that merely looks like a 3-letter
+// code (e.g. a model guessing "DEN" for Denpasar instead of "DPS") falls through to the
+// dictionary/fallback below instead of silently being treated as valid.
+const KNOWN_CODES = new Set(Object.values(AIRPORT_CODES));
+
 export function toAirportCode(place: string): string {
   const trimmed = place.trim();
   // Already a code, or written as "Tokyo (NRT)".
   const parenthesised = trimmed.match(/\(([A-Z]{3})\)/);
-  if (parenthesised) return parenthesised[1];
-  if (/^[A-Za-z]{3}$/.test(trimmed)) return trimmed.toUpperCase();
+  if (parenthesised && KNOWN_CODES.has(parenthesised[1])) return parenthesised[1];
+  if (/^[A-Za-z]{3}$/.test(trimmed) && KNOWN_CODES.has(trimmed.toUpperCase())) return trimmed.toUpperCase();
 
   const key = trimmed.toLowerCase().replace(/\s+/g, " ");
   if (AIRPORT_CODES[key]) return AIRPORT_CODES[key];

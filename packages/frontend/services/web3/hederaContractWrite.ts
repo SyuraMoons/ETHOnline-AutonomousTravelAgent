@@ -93,7 +93,9 @@ export async function writeContractViaNativeProvider(args: {
 
   const result = await args.provider.hedera_signAndExecuteTransaction({
     signerAccountId: `${hederaCaipNetwork(args.chainId)}:${payerAccountId}`,
-    transactionList: transactionToBase64String(tx),
+    // See services/web3/hbarAllowance.ts — same nested @hiero-ledger/sdk version split
+    // caused by pinning @x402/hedera to 2.13.2, runtime-safe cast.
+    transactionList: transactionToBase64String(tx as never),
   });
 
   if (!result?.transactionId) {

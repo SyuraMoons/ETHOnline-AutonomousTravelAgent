@@ -1,4 +1,3 @@
-import type { SettleResponse } from "@x402/core/types";
 import type { ClientHederaSigner } from "@x402/hedera";
 
 /**
@@ -76,26 +75,29 @@ export async function payAndFetch<T = unknown>(params: {
   const paid = await fetch(params.resourceUrl, { headers: paymentHeaders });
   const result = await httpClient.processResponse(paid);
 
-  // x402 v2: result.paymentStatus replaces result.kind;
-  // result.header (SettleResponse | PaymentRequired) replaces result.settleResponse / result.paymentRequired
-  switch (result.paymentStatus) {
-    case "settled": {
-      const settle = result.header as SettleResponse | undefined;
+  // @x402/core is pinned to ~2.14.0 here (see AGENTS.md — @x402/hedera 2.13.2 requires it),
+  // whose x402PaymentResult is a `kind`-discriminated union with a typed `settleResponse`,
+  // not the later `paymentStatus`/`header` shape.
+  switch (result.kind) {
+    case "success": {
       return {
         body: result.body as T,
-        transaction: settle?.transaction,
-        payer: settle?.payer,
+        transaction: result.settleResponse.transaction,
+        payer: result.settleResponse.payer,
       };
     }
     case "settle_failed": {
-      const settle = result.header as SettleResponse | undefined;
-      throw new Error(`Payment settlement failed: ${settle?.errorReason ?? "unknown"}`);
+      throw new Error(
+        `Payment settlement failed: ${result.settleResponse.errorReason ?? result.settleResponse.errorMessage ?? "unknown"}`,
+      );
     }
     case "payment_required": {
-      const reason = (result.header as { error?: string } | undefined)?.error ?? "Payment was rejected by the server";
-      throw new Error(reason);
+      throw new Error("Payment was rejected by the server");
     }
-    case "none":
+    case "passthrough": {
+      return { body: result.body as T };
+    }
+    case "error":
     default: {
       if (result.status >= 200 && result.status < 300) {
         return { body: result.body as T };

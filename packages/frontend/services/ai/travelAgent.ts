@@ -42,6 +42,15 @@ function systemPrompt(traveler?: Traveler): string {
     "passenger count — then fill trip with ISO 8601 dates. Otherwise set " +
     "intent=chat with trip=null, and use reply to answer the user or ask for the " +
     "single most important missing detail. " +
+    "trip.origin and trip.destination must be the plain city or place name the user said " +
+    "(e.g. 'Bali', 'Jakarta', 'Tokyo') — never a guessed IATA/airport code. Only city names " +
+    "are reliably matched to real inventory; a guessed code (e.g. writing 'DEN' for Denpasar) " +
+    "can silently route the search to the wrong airport. " +
+    "Only set returnDate when the user's own words describe a round trip (e.g. " +
+    "'round trip', 'return on', 'come back on'). A trip described as one-way, or " +
+    "with no return mentioned at all, must have returnDate: null — setting a " +
+    "returnDate triggers a second, real payment for a return leg the user never " +
+    "asked for. " +
     "Never invent or mention prices, fares, or booking confirmations — you have " +
     "no access to pricing or booking systems."
   );
