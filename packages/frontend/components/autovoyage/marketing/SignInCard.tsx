@@ -6,8 +6,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { GithubGlyph, GoogleGlyph } from "../ui/brandGlyphs";
 import { MailIcon, WalletIcon } from "../ui/icons";
-import { hederaNamespace } from "@hashgraph/hedera-wallet-connect";
-import { useAppKit } from "@reown/appkit/react";
+import { ConnectWalletButton } from "../wallet/ConnectWalletButton";
 import { signIn } from "next-auth/react";
 import { useHbarBalance } from "~~/hooks/autovoyage/useHbarBalance";
 import { useHederaWalletConnect } from "~~/services/web3/hederaWalletConnect";
@@ -56,18 +55,13 @@ export function SignInCard() {
   const next = rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/plan";
   const enterApp = () => router.push(next);
 
-  const { open } = useAppKit();
-  const { accountId, isConnected, isBusy, disconnectWallet } = useHederaWalletConnect();
+  const { accountId, isConnected, isBusy, isInitializing, disconnectWallet } = useHederaWalletConnect();
   const shortAccount = accountId ? `${accountId.slice(0, 6)}...${accountId.slice(-4)}` : null;
   const { balanceHbar } = useHbarBalance(isConnected ? accountId : null);
 
   useEffect(() => {
     if (isConnected) router.push(next);
   }, [isConnected, router, next]);
-
-  const connectWallet = () => {
-    void open({ view: "Connect", namespace: hederaNamespace }).catch(e => notification.error(getParsedError(e)));
-  };
 
   const handleOAuth = (provider: OAuthProvider) => {
     setOauthLoading(provider);
@@ -156,16 +150,20 @@ export function SignInCard() {
           </div>
           <p className="m-0 mt-1 text-[12px] text-av-paper/50">{balanceHbar ? `${balanceHbar} HBAR` : "…"}</p>
         </div>
-      ) : (
+      ) : isInitializing ? (
         <button
           type="button"
-          onClick={connectWallet}
-          disabled={isBusy}
-          className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-av-paper/15 bg-av-paper/5 py-3 text-[14px] font-medium text-av-paper transition-colors hover:bg-av-paper/10 disabled:opacity-60"
+          disabled
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-av-paper/15 bg-av-paper/5 py-3 text-[14px] font-medium text-av-paper opacity-60"
         >
           <WalletIcon size={16} className="text-av-paper/80" />
-          {isBusy ? "Connecting…" : "Connect wallet"}
+          Connect wallet
         </button>
+      ) : (
+        <ConnectWalletButton
+          isBusy={isBusy}
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-av-paper/15 bg-av-paper/5 py-3 text-[14px] font-medium text-av-paper transition-colors hover:bg-av-paper/10 disabled:opacity-60"
+        />
       )}
       <p className="mt-2 text-center text-[11px] text-av-paper/40">HashPack via WalletConnect</p>
     </div>

@@ -47,6 +47,18 @@ export default function LoginPage() {
           </Link>
         </div>
 
+        <div className="flex flex-col items-center gap-8 px-6 pt-8 text-center lg:hidden">
+          <Wordmark />
+          <div>
+            <h2 className="mx-auto max-w-[420px] text-[26px] font-semibold leading-[1.15] tracking-[-0.02em] text-av-text">
+              Plan and book your whole trip, hands-free.
+            </h2>
+            <p className="mx-auto mt-2 max-w-[380px] text-[14px] leading-relaxed text-av-muted">
+              AutoVoyage acts within the limits you set, and asks for a confirm before anything that costs.
+            </p>
+          </div>
+        </div>
+
         <div className="flex flex-1 items-center justify-center px-6 py-10">
           <SignInCard />
         </div>

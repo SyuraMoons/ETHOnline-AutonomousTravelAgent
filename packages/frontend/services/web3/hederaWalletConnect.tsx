@@ -153,14 +153,6 @@ export const HederaWalletConnectProvider = ({ children }: { children: React.Reac
     ],
   );
 
-  if (isInitializing) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <span className="loading loading-spinner loading-md text-primary" />
-      </div>
-    );
-  }
-
   return <HederaWalletConnectContext.Provider value={value}>{children}</HederaWalletConnectContext.Provider>;
 };
 

@@ -30,5 +30,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     authorized({ auth: session }) {
       return !!session?.user;
     },
+    // Persist which OAuth provider was used, so the UI can show "signed in via Google/GitHub".
+    jwt({ token, account }) {
+      if (account?.provider) token.provider = account.provider;
+      return token;
+    },
+    session({ session, token }) {
+      if (token.provider) session.provider = token.provider as string;
+      return session;
+    },
   },
 });
