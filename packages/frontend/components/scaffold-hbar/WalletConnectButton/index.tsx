@@ -1,10 +1,16 @@
 "use client";
 
 import { useRef } from "react";
-import { hederaNamespace } from "@hashgraph/hedera-wallet-connect";
+import type { ChainNamespace } from "@reown/appkit-common";
 import { useAppKit } from "@reown/appkit/react";
 import { useHederaWalletConnect } from "~~/services/web3/hederaWalletConnect";
 import { getParsedError, notification } from "~~/utils/scaffold-hbar";
+
+// Hardcoded rather than imported from @hashgraph/hedera-wallet-connect — see the same comment
+// in services/web3/hederaWalletConnect.tsx for why (its root barrel statically pulls in the
+// ESM-only @walletconnect/modal, which crashes Next's server render if touched at module-eval
+// time by a component mounted on every page, like this one).
+const HEDERA_NAMESPACE = "hedera" as ChainNamespace;
 
 /** HashPack connect via Reown AppKit (native Hedera namespace only). */
 export const WalletConnectButton = () => {
@@ -17,7 +23,7 @@ export const WalletConnectButton = () => {
       <button
         className="btn btn-primary btn-sm"
         onClick={() => {
-          void open({ view: "Connect", namespace: hederaNamespace }).catch(e => {
+          void open({ view: "Connect", namespace: HEDERA_NAMESPACE }).catch(e => {
             notification.error(getParsedError(e));
           });
         }}
