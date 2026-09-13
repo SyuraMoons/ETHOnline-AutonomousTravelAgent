@@ -95,6 +95,20 @@ export async function POST(req: NextRequest) {
 
     trip = tripFromAgent(turn.trip);
     reply = turn.reply;
+
+    // Diagnostic-only safety net: the model is the only thing stopping a one-way brief from
+    // being priced as a round trip (which pays for a real, unwanted inbound leg). There's no
+    // ground truth to hard-block against here, so just make a mismatch visible rather than
+    // silent — see AGENTS.md-adjacent bug writeup for why this matters.
+    if (turn.trip.returnDate) {
+      const lastUserMessage = [...messages].reverse().find(m => m.role === "user")?.content ?? "";
+      if (/\bone[- ]way\b/i.test(lastUserMessage)) {
+        console.warn(
+          "[plan] model set returnDate for a brief that says one-way:",
+          JSON.stringify({ returnDate: turn.trip.returnDate, lastUserMessage }),
+        );
+      }
+    }
   }
 
   // Minted here, before any payment or refusal, so every audit event below — including
