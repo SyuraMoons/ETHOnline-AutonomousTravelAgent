@@ -105,6 +105,30 @@ create table if not exists profiles (
 -- Re-run safe: adds contact_email if this schema was applied before that column existed.
 alter table profiles add column if not exists contact_email text not null default '';
 
+-- The traveller's trip history: one row per booking confirmed at POST /api/execute, keyed by
+-- the same signed-in email as `profiles` above (not the wallet — a passenger's booked trips
+-- follow them, not the mandate that happened to pay for the searches). Unlike `dossiers`, this
+-- table has no TTL: a booked trip must still be readable weeks later, at the destination.
+create table if not exists bookings (
+  booking_id        text primary key,
+  owner_email       text not null,
+  dossier_id        text not null,
+  confirmation_code text,
+  status            text not null,
+  itinerary_hash    text not null,
+  depart_date       date not null,
+  return_date       date,
+  -- Full TripDossier snapshot at booking time, since the `dossiers` row it came from expires
+  -- after DOSSIER_TTL_MS and a booked trip must outlive that.
+  dossier           jsonb not null,
+  fare_total_minor  integer not null,
+  currency          text not null,
+  card_last4        text,
+  signature         text,
+  booked_at         timestamptz not null default now()
+);
+create index if not exists bookings_owner_idx on bookings (owner_email, depart_date desc);
+
 -- Atomic settle: delete the reservation, log the spend (idempotent on `transaction`), and
 -- increment spent_hbar in one statement — never a read-modify-write, so two concurrent legs
 -- of a round trip cannot clobber each other's spend total.

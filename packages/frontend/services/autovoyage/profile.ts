@@ -26,7 +26,8 @@ export type TravelerProfilePatch = {
 type AuthSession = { user?: { email?: string | null } } | null;
 const getSession = auth as unknown as () => Promise<AuthSession>;
 
-async function sessionEmail(): Promise<string | null> {
+/** The signed-in session's email, lowercased — the key both `profiles` and `bookings` use. */
+export async function sessionEmail(): Promise<string | null> {
   const email = (await getSession())?.user?.email;
   return typeof email === "string" && email.length > 0 ? email.toLowerCase() : null;
 }

@@ -6,6 +6,7 @@ import {
   type RefusalReason,
   itineraryHash,
 } from "@sh/contracts";
+import { saveBooking } from "~~/services/autovoyage/bookingStore";
 import { getDossier } from "~~/services/autovoyage/dossierStore";
 import { claimExecutionToken, verifyExecutionToken } from "~~/services/autovoyage/executionToken";
 import { type OperationalReason, hbarFromTinybars, payBooking, refusalReply } from "~~/services/autovoyage/paidSearch";
@@ -212,9 +213,15 @@ export async function POST(request: Request) {
     }),
   );
 
+  // Best-effort, like submitAuditEvent above: the supplier already confirmed and the
+  // traveller is already booked, so a store failure here must not turn a real booking into a
+  // refusal — it only means the trip won't show up in "My trips" later.
+  await saveBooking(profile.signInEmail, dossier, outcome.body).catch(err => console.error("saveBooking failed", err));
+
   const response: ExecuteResponse = {
     status: "booked",
     bookings,
+    bookingId: outcome.body.bookingId,
     // The agent spent no HBAR booking. What it spent on searches is audited
     // per payment as those happened, not summed here.
     totalHbarPaid: "0.0000",

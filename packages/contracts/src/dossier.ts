@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { PaymentInstrument } from "./booking.js";
+import { BookingStatus, PaymentInstrument } from "./booking.js";
 import { FlightOption } from "./flights.js";
 import { PlanActivity, PlanStay } from "./plan.js";
 import { RefusalReason } from "./refusal.js";
@@ -138,6 +138,9 @@ export const ExecuteResponse = z.object({
   status: z.enum(["booked", "partial", "refused"]),
   bookings: z.array(ExecutedBooking),
   totalHbarPaid: z.string(),
+  /** Present on a successful booking — the row saved in the traveller's trip history,
+   * findable at GET /api/bookings/:bookingId. Same id as ExecutedBooking.bookingId. */
+  bookingId: z.string().optional(),
   refusal: z
     .object({
       reason: RefusalReason,
@@ -148,3 +151,39 @@ export const ExecuteResponse = z.object({
   failed: z.object({ offerId: z.string(), reason: z.string() }).optional(),
 });
 export type ExecuteResponse = z.infer<typeof ExecuteResponse>;
+
+// One row in the traveller's trip history (GET /api/bookings, GET /api/bookings/:bookingId).
+// Written once at /api/execute the moment the supplier confirms — unlike the dossier it comes
+// from, this has no TTL: a booked trip must still be readable weeks later, at the destination.
+export const BookedTrip = z.object({
+  bookingId: z.string(),
+  ownerEmail: z.string(),
+  confirmationCode: z.string().optional(),
+  status: BookingStatus,
+  itineraryHash: z.string(),
+  dossier: TripDossier,
+  fareTotalMinor: z.number().int().nonnegative(),
+  currency: z.string().length(3),
+  cardLast4: z.string().regex(/^\d{4}$/).optional(),
+  signature: z.string().optional(),
+  bookedAt: z.string().datetime({ offset: true }),
+});
+export type BookedTrip = z.infer<typeof BookedTrip>;
+
+// The list view's row shape — GET /api/bookings returns these, not full BookedTrip, so the
+// trip-history page never pulls every leg/day/searchSpend entry just to render a card.
+export const BookedTripSummary = z.object({
+  bookingId: z.string(),
+  origin: z.string(),
+  destination: z.string(),
+  departDate: z.string(),
+  returnDate: z.string().optional(),
+  paxCount: z.number().int().positive(),
+  legCount: z.number().int().nonnegative(),
+  hasStay: z.boolean(),
+  activityCount: z.number().int().nonnegative(),
+  fareTotalMinor: z.number().int().nonnegative(),
+  currency: z.string().length(3),
+  bookedAt: z.string().datetime({ offset: true }),
+});
+export type BookedTripSummary = z.infer<typeof BookedTripSummary>;

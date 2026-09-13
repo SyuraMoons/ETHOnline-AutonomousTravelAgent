@@ -156,6 +156,14 @@ export function ChatDossierCard({
             </a>
           ))}
           {booking.message ? <p className="m-0 mt-1 text-[12px] text-av-amber">{booking.message}</p> : null}
+          {booking.bookings[0]?.bookingId ? (
+            <Link
+              href={`/itinerary/${booking.bookings[0].bookingId}`}
+              className="mt-2 inline-block text-[13px] font-medium text-av-blue no-underline hover:opacity-70"
+            >
+              View in My trips →
+            </Link>
+          ) : null}
         </div>
       ) : (
         <>
