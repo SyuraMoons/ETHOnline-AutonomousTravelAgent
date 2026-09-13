@@ -1,6 +1,7 @@
 // Login page
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
 import { Wordmark } from "~~/components/autovoyage/brand/Wordmark";
 import { SignInCard } from "~~/components/autovoyage/marketing/SignInCard";
 
@@ -60,7 +61,9 @@ export default function LoginPage() {
         </div>
 
         <div className="flex flex-1 items-center justify-center px-6 py-10">
-          <SignInCard />
+          <Suspense fallback={null}>
+            <SignInCard />
+          </Suspense>
         </div>
 
         <div className="px-6 pb-6 text-right md:px-10">
