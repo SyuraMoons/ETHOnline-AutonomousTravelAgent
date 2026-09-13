@@ -33,6 +33,7 @@ packages/hardhat/cache
 packages/hardhat/typechain-types
 
 # next.js build output
+packages/frontend/.next
 packages/nextjs/.next
 next-env.d.ts
 
