@@ -1,137 +1,133 @@
-# x402 Payment Skeleton (Hedera)
+# AutoVoyage
 
-A stripped-down base for building x402-gated services on Hedera: self-hosted **x402 facilitator**, **HashPack** wallet connect, and a generic browser/CLI x402 payment client. No example paid resource is wired up yet — this is scaffolding to build on top of.
+**AutoVoyage** is an autonomous travel-planning agent that pays for real flight data over
+**x402 on Hedera**, per query, in native HBAR — no API keys, no subscriptions. A human
+authorizes a spending budget once (a single HashPack **HIP-336 HBAR allowance** approval); after
+that the agent quotes, checks its mandate against the real price, and pays the supplier directly
+from the user's own account with no further signing. Every payment, refusal, human approval, and
+booking is written to a public **Hedera Consensus Service (HCS)** audit trail.
 
-Originally scaffolded from Hedera's `x402-pay-per-use` file-marketplace template (see [Scaffold HBAR](https://docs.hedera.com/solutions/tools/scaffold-hbar/index)); the file-marketplace-specific pieces (MinIO storage, `FileRegistry` contract, upload/download UI) have been removed, keeping only the reusable x402 payment plumbing.
+This is a real, working build on Hedera testnet — not a mockup. Payments settle on-chain and are
+verifiable on [HashScan](https://hashscan.io/testnet).
 
-## Disclaimer
+## Architecture
 
-This template—including **contracts, frontend, facilitator, and tooling**—is **experimental** and **not audited**. Use testnets and small amounts only.
+```
+                 ┌─────────────────────────┐
+  Human (once)   │  HashPack: approve a     │
+  ───────────────▶  HIP-336 HBAR allowance  │
+                 └─────────────────────────┘
+                             │
+                             ▼
+┌────────────────────────────────────────────────────┐
+│  Planner (packages/frontend, Next.js)                │
+│  POST /api/plan                                      │
+│    1. parse brief (LLM, never sees price)            │
+│    2. quote the supplier (real price, no payment yet)│
+│    3. check spending mandate against that price       │
+│    4. pay from the user's account (agent signs,       │
+│       user's HBAR moves) — or refuse, no fallback data│
+└───────────────────┬────────────────────────────────┘
+                    │ x402 (402 → sign → retry → settle)
+                    ▼
+┌────────────────────────────────────────────────────┐
+│  Facilitator — verify + settle                       │
+│  self-hosted (facilitator/) or Blocky402 hosted       │
+└───────────────────┬────────────────────────────────┘
+                    ▼
+┌────────────────────────────────────────────────────┐
+│  Supplier (packages/supplier) — "Meridian Flight Data"│
+│  GET /v1/flights/search   — 402-gated, per-result priced│
+│  POST /v1/booking         — 402-gated, flat fee        │
+│  GET /.well-known/x402    — agent card (payTo, pricing)│
+└────────────────────────────────────────────────────┘
 
-Payments happen in **HBAR** via **HashPack**; a self-hosted **x402 Hedera facilitator** verifies and settles each payment on testnet. Wiring a specific paid resource (an API route that returns `402 Payment Required` and calls the facilitator) is left to the next build step.
+Every payment / refusal / approval / booking → HCS audit topic (public, HashScan-readable)
+The supplier's agent card + identity → HCS registry topic (discoverable, self-attested)
+```
 
-## Prerequisites
+## Payment flow
 
-- [Node.js](https://nodejs.org/) — see [Node.js version](#nodejs-version) below (default: **20 LTS** ≥ 20.18.3)
-- npm (default; required if you clone this repo) or npm run if you scaffolded with the CLI. For npm, install via Corepack: `corepack enable && corepack prepare npm@stable --activate`
-- [Git](https://git-scm.com/)
-- [Docker](https://docs.docker.com/get-docker/) + Docker Compose (self-hosted facilitator)
-- A funded **ECDSA** Hedera testnet account for the facilitator's fee-payer duties (and for a deployer account, once you add a contract)
+1. **Discover** — the planner resolves the supplier's endpoint via the **HCS agent registry**
+   (falls back to a static URL if the registry has no entry yet), then reads its
+   `GET /.well-known/x402` agent card.
+2. **Quote** — the planner asks the supplier for the real price of a search/booking, unpaid.
+3. **Check the mandate** — the *real* quoted price is checked against the user's spending
+   ceilings (per-transaction, total, expiry) before any HBAR moves. A single pay-then-check
+   design would let an over-ceiling payment settle anyway — this repo checks first.
+4. **Pay or refuse** — if the mandate clears, the agent signs an HBAR transfer that debits the
+   **user's** account (under their HIP-336 allowance) and credits the supplier. A facilitator
+   verifies and settles it on-chain. If it doesn't clear, `/api/plan` returns a refusal with
+   **no flight data** — never a silent fallback.
+5. **Audit** — the payment (or refusal) is written as a plaintext JSON message to a public HCS
+   topic, readable live via Mirror Node at `GET /api/audit/:planId`.
+6. **Confirm before booking** — booking requires an explicit human confirm bound to the exact
+   itinerary hash (`itineraryHash`, re-derived server-side, never trusted from the client).
 
-## Node.js version
+See [`AGENTS.md`](AGENTS.md) for the full route table, refusal-reason schema, and every
+architectural invariant (three distinct accounts, tinybar math, allowance vs. treasury mode).
 
-**Use Node 20 LTS (≥ 20.18.3) by default** for everything in this repo: `npm install`, Hardhat (compile, test, deploy, verify), Docker infra, and the Next.js app.
+### Two facilitators, two purposes
 
-## Quick start
+- **Self-hosted** (`facilitator/`, wraps the official `@x402/hedera` reference scheme) — powers
+  the **allowance-mode** flow above (the non-custodial, "user authorizes once" design). Allowance
+  mode requires the facilitator to advertise the *agent's own* account as fee-payer, which only a
+  facilitator you configure yourself can do.
+- **[Blocky402](https://blocky402.com)** (hosted, `https://api.testnet.blocky402.com`, no API
+  key) — wire-compatible with the same protocol, used to prove a **treasury-mode** settlement
+  through it directly (its advertised fee-payer is fixed to its own account, so it can't power
+  allowance mode). See `AGENTS.md` → "Blocky402 as an alternate facilitator" for the exact
+  commands and why.
 
-1. Install dependencies:
+  **Verified real settlement:** `tx 0.0.7162784@1789203651.016492909`, confirmed `SUCCESS` on
+  [Mirror Node](https://testnet.mirrornode.hedera.com/api/v1/transactions/0.0.7162784-1789203651-016492909)
+  — buyer `0.0.10286792` paid the supplier's `PAY_TO` in full; Blocky402's account only sponsored
+  the Hedera network fee as fee-payer.
+
+## Quickstart
 
 ```bash
 npm install
+cp .env.example .env                              # facilitator credentials
+cp packages/supplier/.env.example packages/supplier/.env
+cp packages/frontend/.env.example packages/frontend/.env
+
+npm run infra:up          # self-hosted facilitator (Docker)
+npm run supplier:dev       # Meridian Flight Data, :4100
+npm run next:dev           # planner, :3000 → open /plan
 ```
 
-2. Copy environment files:
+You'll need **funded ECDSA Hedera testnet accounts** (get one at the
+[Hedera Portal](https://portal.hedera.com/)) for the facilitator's fee-payer, the supplier's
+`PAY_TO`, and the planner's `AGENT_ACCOUNT_ID` — **three distinct accounts**, see `AGENTS.md` for
+why. Full step-by-step verification (curl commands, expected responses, common errors) is in
+[`RUNBOOK.md`](RUNBOOK.md).
 
-```bash
-cp .env.example .env
-cp packages/nextjs/.env.example packages/nextjs/.env
-```
+## What's real vs. simulated
 
-3. Configure the facilitator fee-payer in root `.env` (see [Why the facilitator needs a private key](#why-the-facilitator-needs-a-private-key)):
-   `FACILITATOR_ACCOUNT_ID` and `FACILITATOR_PRIVATE_KEY`. Fund that account with testnet HBAR from the [Hedera Portal faucet](https://portal.hedera.com/faucet).
-
-4. Set `NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID` in `packages/nextjs/.env` (WalletConnect / HashPack).
-
-5. Start local infra and the app:
-
-```bash
-npm run infra:up        # facilitator :4020
-npm run next:dev        # http://localhost:3000
-```
-
-6. Connect **HashPack** in the header. From here, build your own x402-gated route (see "How it works" below) and use `services/x402/client.ts` (browser) or `scripts/x402-buy.ts` (CLI) to pay for it.
-
-## How it works
-
-The pieces below are generic and ready to point at whatever resource you build:
-
-1. **Wallet connect** — one HashPack WalletConnect session (via Reown AppKit, **`hedera` namespace only**) for native Hedera signing. See `services/web3/{appKitHedera,hederaWalletConnect}.ts`.
-2. **Resource server wiring** — `services/x402/server.ts` builds `PaymentRequirements`, issues the `402` challenge, and calls the facilitator's `/verify` + `/settle` endpoints. Wire this into any API route that should be paid-per-use.
-3. **Browser payment client** — `services/x402/client.ts` (`payAndFetch`) implements the x402 retry loop: request the resource, read the `402` challenge, build and sign a native Hedera `TransferTransaction` via HashPack (**partial sign**, authorizing the HBAR debit), retry with `PAYMENT-SIGNATURE`, and return the settled response.
-4. **CLI payment client** — `scripts/x402-buy.ts` mirrors the same flow using a raw Hedera private key, for machine-to-machine / agent use (`npm run x402:buy`).
-5. **Settlement** — the facilitator **co-signs as fee payer**, submits the transaction to Hedera, and returns a `PAYMENT-RESPONSE` receipt.
-
-## Why the facilitator needs a private key
-
-Hedera x402 payments are **native transfers**, not EVM contract calls. HashPack can sign the buyer's side of that transfer, but it cannot pay Hedera network fees or broadcast the transaction on its own in this flow.
-
-The self-hosted facilitator holds an **ECDSA fee-payer account** (`FACILITATOR_ACCOUNT_ID` + `FACILITATOR_PRIVATE_KEY`) so it can:
-
-1. **Advertise** which account sponsors fees (`GET /supported` → `extra.feePayer`).
-2. **Verify** the buyer's partially signed transfer matches the `402` challenge.
-3. **Settle** by adding the fee-payer signature, paying the network fee from its HBAR balance, and submitting the transaction to consensus.
-
-The buyer only authorizes moving their HBAR to the seller's `payTo` account. The facilitator never custodies buyer funds — it can only co-sign a transfer the buyer already approved.
-
-The Next.js app does **not** need this private key. It only calls `FACILITATOR_URL`. Keep `FACILITATOR_PRIVATE_KEY` in server-side env (root `.env` for Docker, or `facilitator/.env` when running the service standalone), never in the browser.
-
-## Environment variables
-
-| Location | Key variables |
+| | Status |
 | --- | --- |
-| Root `.env` | `FACILITATOR_ACCOUNT_ID`, `FACILITATOR_PRIVATE_KEY` (fee payer — see above), `X402_NETWORK`, `FACILITATOR_PORT` |
-| `packages/nextjs/.env` | `FACILITATOR_URL`, `X402_NETWORK`, `NEXT_PUBLIC_X402_NETWORK`, `HEDERA_RPC_URL` |
-| `facilitator/.env` | Same fee-payer credentials when running the facilitator outside Docker |
+| Flight search pricing, x402 402-gating, on-chain HBAR settlement | **Real** — settles on Hedera testnet, verifiable on HashScan |
+| Flight inventory | Cached sample data, not a live GDS |
+| Booking confirmation | **Real** payment, Ed25519-signed, but `CONFIRMED_SIMULATED` — never a real reservation |
+| HCS audit trail | **Real** — a live `TopicMessageSubmitTransaction` per event, readable via Mirror Node |
+| HCS agent registry + identity claim | **Real** — self-attested Ed25519 identity, independently verifiable |
+| Public deployment | Not yet — facilitator and supplier both run on `localhost` |
 
-Full tables: [`RUNBOOK.md` — Environment variables](RUNBOOK.md#environment-variables).
+## Repo layout
 
-## Adding a contract (optional)
-
-`packages/hardhat` ships with generic Hedera/Hardhat tooling — network config, deployer-account scripts, and Sourcify verification — but no contract. To add one:
-
-```bash
-# write contracts/YourContract.sol and deploy/00_deploy_your_contract.ts, then:
-npm run hardhat:account:generate   # or: npm run hardhat:account:import
-npm run hardhat:deploy --network hederaTestnet
-npm run hardhat:verify:testnet
-```
-
-Verified contracts appear on [Hashscan (testnet)](https://hashscan.io/testnet).
-
-## Useful commands
-
-| Command | Purpose |
+| Package | Role |
 | --- | --- |
-| `npm run infra:up` / `npm run infra:down` | Start or stop the facilitator |
-| `npm run infra:logs` | Follow Docker container logs |
-| `npm run hardhat:test` | Run contract tests (none yet — add your own) |
-| `npm run x402:buy` | CLI agent buyer script (see `RUNBOOK.md`) |
-| `npm run facilitator:check-types` | Type-check the facilitator service |
+| [`packages/frontend`](packages/frontend) | The planner: Next.js app, wallet connect, x402 buyer, mandate/consent/audit/registry routes |
+| [`packages/supplier`](packages/supplier) | Meridian Flight Data — the x402-gated flight search/booking service |
+| [`facilitator`](facilitator) | Self-hosted x402 verify/settle service |
+| [`packages/contracts`](packages/contracts) | Shared zod schemas (mandate, audit, registry, refusal, itinerary hash) |
+| [`packages/hardhat`](packages/hardhat) | Generic Hardhat/Hedera tooling — no contract deployed yet |
 
-## Caveats
+## More docs
 
-- **HashPack only** — the demo uses Reown AppKit with HashPack on the native **`hedera`** WalletConnect namespace. MetaMask and the dev burner wallet are not supported.
-- **Native Hedera signing** — payments go through HashPack's native Hedera APIs (`hedera_signTransaction`), not wagmi `eth_sendTransaction`.
-- **ECDSA accounts** — buyers and the facilitator fee payer must use ECDSA keys (not ED25519).
-- **HBAR balance** — buyers need testnet HBAR for each payment; the facilitator account needs HBAR to sponsor network fees.
-- **Testnet settlement** — the facilitator runs locally, but payments settle on Hedera **testnet** (or mainnet if you change `X402_NETWORK`).
-- **Node.js** — default **20 LTS** (≥ 20.18.3).
-- **Docker** — required for `npm run infra:up`.
-- **No on-chain privacy** — payment amounts and accounts are visible on HashScan.
-- **Package churn** — pin `@x402/hedera` / `@x402/core` versions; APIs may change between releases.
-- **External facilitator** — optional: point `FACILITATOR_URL` at a hosted service instead of the local Docker facilitator.
-
-## Project layout
-
-- **`packages/hardhat`** — generic Hedera/Hardhat tooling (network config, deployer-account scripts, verification); no contract yet
-- **`packages/nextjs`** — Next.js app: wallet connect + x402 client/server plumbing (`services/x402/*`, `services/web3/*`)
-- **`facilitator/`** — self-hosted x402 Hedera facilitator (verify / settle)
-- **`docker-compose.yml`** — facilitator for local development
-
-## Links
-
-- [x402](https://x402.org/)
-- [Hedera Documentation](https://docs.hedera.com/)
-- [Hashscan](https://hashscan.io/) — block explorer
-- [Hedera Portal faucet](https://portal.hedera.com/faucet)
-- [create-scaffold-hbar](https://github.com/hedera-dev/create-scaffold-hbar) — CLI
+- [`AGENTS.md`](AGENTS.md) — the authoritative technical reference: every route, invariant,
+  refusal reason, and architectural decision, kept current with the code
+- [`RUNBOOK.md`](RUNBOOK.md) — step-by-step local setup and verification (curl commands, expected
+  output)
+- [`FRONTEND/`](FRONTEND) — frontend-specific docs (UI structure, auth setup, integration points)

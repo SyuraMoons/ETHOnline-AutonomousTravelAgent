@@ -4,8 +4,11 @@ A step-by-step guide to verifying the pieces that remain after stripping the fil
 scaffolding: wallet connect, the self-hosted facilitator, and the generic x402 payment client.
 Run commands from the repository root unless stated otherwise.
 
-> Status: this is a stripped skeleton. There is no example paid resource wired up yet — add one,
-> then extend this runbook with the steps to exercise it end to end.
+> Status: `packages/supplier` (`Meridian Flight Data`) is the live paid resource. Its three
+> search routes — `GET /v1/flights/search`, `/v1/stays/search`, `/v1/activities/search` —
+> genuinely 402-gate through the self-hosted facilitator. `POST /v1/booking` is **not**
+> 402-gated: HBAR buys the data, and the fare settles against the traveller's card. See
+> [Testing the supplier](#testing-the-supplier) below.
 
 ## Prerequisites
 
@@ -99,32 +102,168 @@ npm run start              # serves on :4020 — test with the curl commands abo
 
 ---
 
-## Wiring a paid resource
+## Testing the supplier
 
-There's no example route left in this skeleton — build your own using the generic pieces:
+`packages/supplier` (`@sh/supplier`) is a standalone Express service — `Meridian Flight Data` —
+separate from the Next.js app. It requires the facilitator (above) to be running first.
 
-- **Resource server** — `packages/nextjs/services/x402/server.ts` builds `PaymentRequirements`,
-  issues the `402` challenge, and calls the facilitator's `/verify` + `/settle`. Wire it into any
-  API route.
-- **Browser client** — `packages/nextjs/services/x402/client.ts` (`payAndFetch`) implements the
-  402-challenge → sign (HashPack) → retry loop.
-- **CLI client** — `packages/nextjs/scripts/x402-buy.ts` mirrors the same loop with a raw Hedera
-  private key, for machine-to-machine use:
+### 1. Configure
 
 ```bash
-RESOURCE_URL="http://localhost:3000/api/<your-402-gated-route>" \
+cp packages/supplier/.env.example packages/supplier/.env
+```
+
+Set `PAY_TO` to a Hedera account id that will receive buyer payments (any account, no key
+needed — this is not the facilitator's fee-payer). Generate a booking-signature keypair:
+
+```bash
+npm run supplier:gen-signing-key
+```
+
+Paste the printed value into `SUPPLIER_SIGNING_KEY`.
+
+### 2. Start the supplier
+
+```bash
+npm run supplier:dev
+```
+
+Expected: `[supplier] listening on :4100 (payTo=0.0.x, N cached flights)`. If `PAY_TO` or
+`SUPPLIER_SIGNING_KEY` is unset, or the facilitator isn't reachable, startup fails fast with a
+clear error instead of accepting requests it can't actually charge for.
+
+```bash
+curl -s localhost:4100/health
+curl -s localhost:4100/.well-known/x402
+```
+
+### 3. Unpaid search returns a priced 402
+
+```bash
+curl -i "localhost:4100/v1/flights/search?origin=SIN&destination=NRT&departDate=2026-10-12&paxCount=1"
+```
+
+Expected `402`, with `accepts[0]` advertising `scheme: "exact"`, `network: "hedera:testnet"`,
+`payTo` = your `PAY_TO`, `asset: "0.0.0"`, and `amount` in tinybars following
+`clamp(resultCount × 0.05, 0.10, 2.50)` HBAR.
+
+### 4. Pay for it
+
+```bash
+RESOURCE_URL="http://localhost:4100/v1/flights/search?origin=SIN&destination=NRT&departDate=2026-10-12&paxCount=1" \
   BUYER_ACCOUNT_ID=0.0.xxxx BUYER_PRIVATE_KEY=0x... \
   npm run x402:buy
 ```
 
-Once a route exists, a well-formed unpaid request should return:
-- Status `402 Payment Required`.
-- A `PAYMENT-REQUIRED` response header (base64 challenge for x402 clients).
-- JSON body whose `accepts[0]` advertises `scheme: "exact"`, `network: "hedera:testnet"`, the
-  price in tinybars, `payTo`, and `extra.feePayer` from the facilitator.
+Requires a **funded ECDSA testnet account distinct from `PAY_TO`** — if the buyer and `payTo` are
+the same account, the transfer nets to zero at the facilitator's ledger check and settlement
+fails with `invalid_exact_hedera_payload_amount_mismatch` (not a supplier bug — the two sides of
+a self-payment cancel out). A successful run prints a settlement transaction id: verify it on
+[HashScan testnet](https://hashscan.io/testnet) and confirm the buyer's balance dropped and
+`PAY_TO`'s rose by exactly the tinybar amount from step 3.
 
-And a paid retry (with `PAYMENT-SIGNATURE`) should settle and return `200` with a
-`PAYMENT-RESPONSE` header.
+### 5. Book the itinerary — no HBAR, a simulated card
+
+`POST /v1/booking` takes no payment header and moves no HBAR. It books one whole itinerary at
+once (flights, optionally a stay and activities), resolves every price from the supplier's own
+inventory, and returns one Ed25519-signed `CONFIRMED_SIMULATED` confirmation. Use real ids from
+a paid search response:
+
+```bash
+curl -s -X POST localhost:4100/v1/booking -H 'content-type: application/json' -d '{
+  "legs": [{ "offerId": "flt_001" }],
+  "passengerName": "Ada Lovelace",
+  "passengerEmail": "ada@example.com",
+  "payment": {
+    "method": "card",
+    "token": "tok_test_visa4242",
+    "brand": "visa",
+    "last4": "4242",
+    "holderName": "Ada Lovelace"
+  }
+}'
+```
+
+Expected `200` with `confirmed.fareCharged` naming the amount, the brand, the last four digits,
+a `SIM-…` authorisation code, and `simulated: true`.
+
+**The card path cannot be used with a real card number.** `assertNoPan()` runs before validation
+and refuses any Luhn-valid 13–19 digit run anywhere in the body, and `token` must match
+`tok_test_…`. Check it:
+
+```bash
+curl -s -X POST localhost:4100/v1/booking -H 'content-type: application/json' \
+  -d '{"legs":[{"offerId":"flt_001"}],"passengerName":"4242 4242 4242 4242","passengerEmail":"a@b.c","payment":{"method":"card","token":"tok_test_visa4242","brand":"visa","last4":"4242","holderName":"Ada"}}'
+```
+
+Expected `400` refusing the value outright. Wiring this to a real processor means deleting those
+guards on purpose — that is the point of them.
+
+### Building your own paid route (Next.js side)
+
+The generic pieces used above are also available server-side in `packages/frontend`:
+
+- **Resource server** — `packages/frontend/services/x402/server.ts` builds `PaymentRequirements`,
+  issues the `402` challenge, and calls the facilitator's `/verify` + `/settle`. Wire it into any
+  API route.
+- **Browser client** — `packages/frontend/services/x402/client.ts` (`payAndFetch`) implements the
+  402-challenge → sign (HashPack) → retry loop.
+- **CLI client** — `packages/frontend/scripts/x402-buy.ts` mirrors the same loop with a raw Hedera
+  private key, for machine-to-machine use (same script used against the supplier above).
+
+## Testing "the agent chat pays for real data"
+
+With the facilitator and supplier both up (see above), the planner app itself now pays for
+flight search results with its own server-held key — no browser wallet involved. This is the
+`packages/frontend/app/api/plan` route calling `packages/frontend/services/autovoyage/supplierClient.ts`.
+
+### 1. Configure a fourth, distinct Hedera account
+
+`packages/frontend/.env` needs `AGENT_ACCOUNT_ID` / `AGENT_PRIVATE_KEY` — a funded ECDSA testnet
+account **different from both**:
+
+- the facilitator's fee-payer (root `.env` `FACILITATOR_ACCOUNT_ID`), else the payment is rejected
+  as `invalid_exact_hedera_payload_fee_payer_transferring_hbar`;
+- the supplier's `PAY_TO` (`packages/supplier/.env`), else the transfer nets to zero as
+  `invalid_exact_hedera_payload_amount_mismatch`.
+
+Also set `SUPPLIER_BASE_URL` (default `http://localhost:4100`) and, optionally, the default
+spending mandate (`AGENT_MANDATE_TOTAL_HBAR`, `AGENT_MANDATE_PER_TX_HBAR`,
+`AGENT_MANDATE_TTL_MINUTES` — see `.env.example`).
+
+### 2. Run the app and search
+
+```bash
+npm run next:dev
+```
+
+Open `/plan` and either type a brief in the agent rail or submit the search form. Both paths hit
+`POST /api/plan`, which quotes the supplier, checks the spending mandate against the **real**
+quoted price, pays only if it clears, and returns real `SearchResult` legs.
+
+Expect the results banner to read "Agent paid `<amount>` HBAR to Meridian Flight Data ... view
+outbound tx(s) on HashScan" with real links. Open them — the transfer must debit
+`AGENT_ACCOUNT_ID` and credit the supplier's `PAY_TO` for exactly the banner amount. A return
+trip pays **twice** (outbound + inbound legs, paired client-side into round-trip options), since
+the supplier's search endpoint is one-way per call.
+
+### 3. Exercise the mandate and refusal paths
+
+```bash
+# per-tx ceiling
+curl -s -X POST localhost:3000/api/mandate -d '{"perTxCeilingHbar":0.01,"totalCeilingHbar":5,"ttlMinutes":60}' -H 'content-type: application/json'
+# use the returned mandateId in a /api/plan request -> "per_tx_ceiling_exceeded", no payment sent
+
+# total ceiling: create a low totalCeilingHbar mandate, search twice with the same mandateId
+# -> second search refuses "total_ceiling_exceeded", first search's spend still stands
+
+# supplier down: stop packages/supplier, search again -> "supplier_unreachable", clean refusal
+```
+
+Every refusal returns `{ kind: "refusal", reply, reason, trip }` with **no flight data** — the
+planner never falls back to fabricated results. Check the agent account's balance is unchanged
+after each refusal (the mandate is checked against the quoted price *before* any payment is
+attempted, so a refusal never spends).
 
 ## Environment variables
 
@@ -140,7 +279,7 @@ Copy each `.env.example` before running the stack.
 | `FACILITATOR_PRIVATE_KEY` | ECDSA key used at `POST /settle` to co-sign, pay network fees, and submit the buyer's partially signed transfer |
 | `HEDERA_NODE_URL` | Optional custom consensus node RPC |
 
-### `packages/nextjs/.env` (resource server + browser client)
+### `packages/frontend/.env` (resource server + browser client)
 
 | Variable | Purpose |
 | --- | --- |
@@ -150,6 +289,21 @@ Copy each `.env.example` before running the stack.
 | `X402_NETWORK` | Server-side x402 network id |
 | `NEXT_PUBLIC_X402_NETWORK` | Browser x402 client network (must match `X402_NETWORK`) |
 
+### `packages/supplier/.env` (Meridian Flight Data)
+
+| Variable | Purpose |
+| --- | --- |
+| `FACILITATOR_URL` | x402 facilitator base URL (default `http://localhost:4020`) |
+| `X402_NETWORK` | Server-side x402 network id |
+| `PORT` | Supplier listen port (default `4100`) |
+| `PUBLIC_BASE_URL` | Public URL for this service, used in the `/.well-known/x402` agent card |
+| `PAY_TO` | Hedera account id that receives buyer payments — no key required |
+| `SEARCH_PRICE_PER_RESULT_HBAR` / `SEARCH_PRICE_MIN_HBAR` / `SEARCH_PRICE_MAX_HBAR` | `GET /v1/flights/search` pricing: `clamp(resultCount × PER_RESULT, MIN, MAX)` |
+| `STAY_PRICE_*` / `ACTIVITY_PRICE_*` | Same clamp, one band per domain — the rows aren't worth the same (a flight row is a whole leg; an activity row is one start time) |
+| `QUOTE_TTL_UNPAID_SECONDS` / `QUOTE_TTL_PAID_SECONDS` | How long a search quote (price ↔ results binding) stays valid before/after payment |
+| `SUPPLIER_SIGNING_KEY` | Base64 PKCS8 Ed25519 key signing `CONFIRMED_SIMULATED` booking confirmations — generate with `npm run supplier:gen-signing-key` |
+| `FACILITATOR_TIMEOUT_MS` | Verify/settle timeout, default `120000`. The library's 30s default is not enough for settle on testnet — a completed payment then reads as a failure, and a retry charges the buyer twice |
+
 ### `facilitator/.env` (standalone facilitator, optional)
 
 Used when running the facilitator outside Docker (`cd facilitator && npm run start`). Same
@@ -158,7 +312,7 @@ Used when running the facilitator outside Docker (`cd facilitator && npm run sta
 ### Optional facilitator fallback
 
 The default is the **self-hosted** facilitator from `docker-compose.yml`. To use an external
-hosted facilitator instead, set `FACILITATOR_URL` in `packages/nextjs/.env` — this is not
+hosted facilitator instead, set `FACILITATOR_URL` in `packages/frontend/.env` — this is not
 required for local development.
 
 ---

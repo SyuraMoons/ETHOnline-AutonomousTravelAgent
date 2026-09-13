@@ -5,7 +5,7 @@
   "workspaces": {
     "packages": [
       "packages/hardhat",
-      "packages/nextjs",
+      "packages/frontend",
       "packages/contracts",
       "packages/supplier"
     ]
@@ -21,6 +21,7 @@
     "supplier:build": "npm run build -w @sh/supplier --",
     "supplier:start": "npm run start -w @sh/supplier --",
     "supplier:check-types": "npm run check-types -w @sh/supplier --",
+    "supplier:gen-signing-key": "npm run gen-signing-key -w @sh/supplier --",
     "hardhat:account": "npm run account -w @sh/hardhat --",
     "hardhat:account:generate": "npm run account:generate -w @sh/hardhat --",
     "hardhat:account:import": "npm run account:import -w @sh/hardhat --",
@@ -47,7 +48,23 @@
     "next:lint": "npm run lint -w @sh/nextjs --",
     "next:serve": "npm run serve -w @sh/nextjs --",
     "next:start": "npm run start -w @sh/nextjs --",
-    "x402:buy": "npm run x402:buy -w @sh/nextjs --"
+    "x402:buy": "npm run x402:buy -w @sh/nextjs --",
+    "contracts:test": "npm run test -w @sh/contracts --",
+    "flights:generate": "npm run flights:generate -w @sh/supplier --",
+    "supplier:test": "npm run test -w @sh/supplier --",
+    "stays:generate": "npm run stays:generate -w @sh/supplier --",
+    "activities:generate": "npm run activities:generate -w @sh/supplier --",
+    "data:generate": "npm run data:generate -w @sh/supplier --",
+    "allowance:probe": "npm run allowance:probe -w @sh/nextjs --",
+    "allowance:probe-d": "npm run allowance:probe-d -w @sh/nextjs --",
+    "allowance:refusals": "npm run allowance:refusals -w @sh/nextjs --",
+    "allowance:e2e": "npm run allowance:e2e -w @sh/nextjs --",
+    "allowance:plan-e2e": "npm run allowance:plan-e2e -w @sh/nextjs --",
+    "allowance:revoke-e2e": "npm run allowance:revoke-e2e -w @sh/nextjs --",
+    "frontend:test": "npm run test -w @sh/nextjs --",
+    "data:inspect": "npm run data:inspect -w @sh/supplier --",
+    "preflight": "npm run preflight -w @sh/supplier --",
+    "supplier:setup-env": "npm run setup-env -w @sh/supplier --"
   },
   "packageManager": "npm@10.0.0",
   "devDependencies": {

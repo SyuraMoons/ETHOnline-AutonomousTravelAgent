@@ -1,0 +1,17 @@
+{
+  "source": "generated",
+  "description": "deterministic synthetic stays — 8 cities, seed 20260910",
+  "seed": 20260910,
+  "cities": [
+    "NRT",
+    "SIN",
+    "DPS",
+    "CGK",
+    "BKK",
+    "KUL",
+    "HKG",
+    "SYD"
+  ],
+  "generatedAt": "2026-09-12T06:57:20.856Z",
+  "rowCount": 158
+}

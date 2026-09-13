@@ -1,0 +1,196 @@
+"use client";
+
+// Chat dossier card — the autonomous run's final report: the flight pair it chose (real, paid
+// x402 data), an agent-authored day plan (free, explicitly NOT bookable), and one button to
+// book every flight leg at once via /api/execute. Booking itself costs no HBAR:
+// the searches bought the data, and the fare goes to the traveller's card.
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import type { TripDossier } from "@sh/contracts";
+import { usePlan } from "~~/components/autovoyage/plan/PlanProvider";
+import { formatUsd } from "~~/services/autovoyage/currency";
+import type { BookingResult } from "~~/types/autovoyage/plan";
+
+function formatUsdMinor(minor: number, currency: string): string {
+  return (minor / 100).toLocaleString("en-US", { style: "currency", currency });
+}
+
+export function ChatDossierCard({
+  messageId,
+  dossier,
+  booking,
+}: {
+  messageId: string;
+  dossier: TripDossier;
+  booking?: BookingResult;
+}) {
+  const { bookAll, bookingPendingId } = usePlan();
+  // Booking asks for nothing: /api/execute takes the passenger from the signed-in profile.
+  // This read only decides whether that profile can name one yet — null while unknown, so
+  // the button isn't blocked on a request that hasn't answered.
+  const [profileReady, setProfileReady] = useState<boolean | null>(null);
+  const pendingThis = bookingPendingId === messageId;
+
+  useEffect(() => {
+    fetch("/api/profile")
+      .then(res => (res.ok ? res.json() : null))
+      .then(data => setProfileReady(Boolean(data?.fullName?.trim())))
+      .catch(() => setProfileReady(null));
+  }, []);
+
+  const legsLabel = dossier.option.legs
+    .map(l => `${l.airline} ${l.flightNumber} · ${l.origin} → ${l.destination}`)
+    .join("  ·  ");
+  const legCount = dossier.option.legs.length;
+  const alreadyBooked = booking && booking.status !== "refused";
+
+  // What the button actually covers. dossier.fareTotalMinor includes the stay and any
+  // activities, so the label has to name them — charging a card for a hotel the card's owner
+  // was never shown is the failure this whole consent chain exists to prevent.
+  const covers = [
+    `${legCount} leg${legCount === 1 ? "" : "s"}`,
+    ...(dossier.stay ? ["1 stay"] : []),
+    ...(dossier.activities.length > 0
+      ? [`${dossier.activities.length} activit${dossier.activities.length === 1 ? "y" : "ies"}`]
+      : []),
+  ].join(" · ");
+
+  return (
+    <div className="flex w-full max-w-[560px] flex-col gap-3 rounded border border-av-border bg-av-card px-4 py-4">
+      <div>
+        <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.08em] text-av-muted">Trip report</p>
+        <p className="m-0 mt-1 text-[15px] font-semibold text-av-text">{legsLabel}</p>
+        <p className="m-0 mt-0.5 text-[13px] text-av-muted">
+          Fare total {formatUsdMinor(dossier.fareTotalMinor, dossier.currency)} · {dossier.trip.paxCount} traveller
+          {dossier.trip.paxCount === 1 ? "" : "s"}
+        </p>
+      </div>
+
+      {dossier.searchSpend.length > 0 ? (
+        <div className="flex flex-col gap-1">
+          <p className="m-0 text-[11px] font-medium text-av-muted">x402 spend so far</p>
+          <div className="flex flex-wrap gap-x-3 gap-y-1">
+            {dossier.searchSpend.map((s, i) => (
+              <a key={i} href={s.hashscanUrl} target="_blank" rel="noreferrer" className="text-[12px] text-av-blue">
+                {s.amountHbar} HBAR ↗
+              </a>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {dossier.stay || dossier.activities.length > 0 ? (
+        <div>
+          <p className="m-0 text-[11px] font-medium text-av-muted">Also on this booking</p>
+          <div className="mt-1.5 flex flex-col gap-1">
+            {dossier.stay ? (
+              <div className="flex items-baseline justify-between gap-3 rounded bg-av-bg px-3 py-2">
+                <span className="text-[13px] text-av-text">
+                  Hotel {dossier.stay.hotelId} · {dossier.stay.checkIn} → {dossier.stay.checkOut}
+                </span>
+                <span className="shrink-0 text-[12px] text-av-muted">
+                  {formatUsdMinor(dossier.stay.priceMinor, dossier.stay.currency)}
+                </span>
+              </div>
+            ) : null}
+            {dossier.activities.map(activity => (
+              <div
+                key={`${activity.activityId}-${activity.startUtc}`}
+                className="flex items-baseline justify-between gap-3 rounded bg-av-bg px-3 py-2"
+              >
+                <span className="text-[13px] text-av-text">
+                  {activity.activityId} · {new Date(activity.startUtc).toISOString().slice(0, 16).replace("T", " ")} UTC
+                </span>
+                <span className="shrink-0 text-[12px] text-av-muted">
+                  {formatUsdMinor(activity.priceMinor, activity.currency)}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {dossier.days.length > 0 ? (
+        <div>
+          <p className="m-0 text-[11px] font-medium text-av-amber">Suggested day plan — ideas only, not bookable</p>
+          <div className="mt-1.5 flex flex-col gap-2">
+            {dossier.days.map(day => (
+              <div key={day.dayNumber} className="rounded bg-av-bg px-3 py-2">
+                <p className="m-0 text-[13px] font-semibold text-av-text">
+                  Day {day.dayNumber} · {day.title}
+                </p>
+                {day.notes ? <p className="m-0 mt-0.5 text-[12px] text-av-muted">{day.notes}</p> : null}
+                {day.suggestions.length > 0 ? (
+                  <ul className="m-0 mt-1 list-disc pl-4 text-[12px] text-av-muted">
+                    {day.suggestions.map((s, i) => (
+                      <li key={i}>{s}</li>
+                    ))}
+                  </ul>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {!dossier.bookable ? (
+        <p className="m-0 text-[12px] text-av-amber">
+          {dossier.notBookableReason ?? "This offer isn't in the supplier's real inventory and can't be booked."}
+        </p>
+      ) : null}
+
+      {alreadyBooked ? (
+        <div className="rounded bg-av-bg px-3 py-3">
+          <p className="m-0 text-[13px] font-semibold text-av-green">
+            {booking.status === "booked" ? "Booked" : "Partially booked"} · {booking.totalHbarPaid} HBAR paid
+          </p>
+          {booking.bookings.map((b, i) => (
+            <a
+              key={i}
+              href={b.hashscanUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-1 block text-[12px] text-av-blue"
+            >
+              {b.confirmationCode ?? b.bookingId} ↗
+            </a>
+          ))}
+          {booking.message ? <p className="m-0 mt-1 text-[12px] text-av-amber">{booking.message}</p> : null}
+          {booking.bookings[0]?.bookingId ? (
+            <Link
+              href={`/itinerary/${booking.bookings[0].bookingId}`}
+              className="mt-2 inline-block text-[13px] font-medium text-av-blue no-underline hover:opacity-70"
+            >
+              View in My trips →
+            </Link>
+          ) : null}
+        </div>
+      ) : (
+        <>
+          {profileReady === false ? (
+            <p className="m-0 text-[12px] text-av-amber">
+              Add your full name to your{" "}
+              <Link href="/profile" className="text-av-blue">
+                profile
+              </Link>{" "}
+              — the agent books under it.
+            </p>
+          ) : null}
+          {booking?.status === "refused" && booking.message ? (
+            <p className="m-0 text-[12px] text-av-amber">{booking.message}</p>
+          ) : null}
+          <button
+            type="button"
+            disabled={!dossier.bookable || pendingThis || profileReady === false}
+            onClick={() => void bookAll(messageId, dossier)}
+            className="rounded bg-av-blue py-2.5 text-[14px] font-medium text-av-paper transition-colors hover:bg-av-blue-hover disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {pendingThis
+              ? "Booking…"
+              : `Book everything · ${covers} · ${formatUsd(dossier.fareTotalMinor)} to your card`}
+          </button>
+        </>
+      )}
+    </div>
+  );
+}

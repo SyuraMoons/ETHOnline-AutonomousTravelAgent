@@ -1,31 +1,44 @@
-import { Router } from "express";
-import type { X402Challenge } from "@sh/contracts";
-import { HBAR_ASSET, X402_NETWORK } from "../services/x402/server.js";
+import { z } from "zod";
+import { createQuoteCache } from "../lib/quotes.js";
+import { findFlights, type FlightQuery } from "../lib/inventory.js";
+import { createPaidSearchRoute } from "./paidSearch.js";
+import type { SearchResult } from "@sh/contracts";
 
-export const flightsRouter = Router();
+// Reference implementation for a metered search. Priced per result row:
+// clamp(count x SEARCH_PRICE_PER_RESULT_HBAR, MIN, MAX).
 
-// Pricing: clamp(resultCount * SEARCH_PRICE_PER_RESULT_HBAR, SEARCH_PRICE_MIN_HBAR, SEARCH_PRICE_MAX_HBAR).
-// Quote-token cache: QUOTE_TTL_UNPAID_SECONDS (300s) before payment,
-// QUOTE_TTL_PAID_SECONDS (900s) after — neither enforced yet.
-//
-// TODO Phase 1: use services/x402/server.ts (getResourceServer + makeExpressHttpContext)
-// to build a real PaymentRequirements/verify/settle flow, then serve matching rows
-// from lib/flightsCache.ts on success instead of always challenging.
-flightsRouter.get("/v1/flights/search", (_req, res) => {
-  const challenge: X402Challenge = {
-    x402Version: 1,
-    accepts: [
-      {
-        scheme: "exact",
-        network: X402_NETWORK,
-        maxAmountRequired: "0",
-        resource: "/v1/flights/search",
-        description: "not_implemented — priced at clamp(resultCount * 0.05, 0.10, 2.50) HBAR",
-        mimeType: "application/json",
-        payTo: "not_implemented",
-        asset: HBAR_ASSET,
-      },
-    ],
-  };
-  res.status(402).json(challenge);
+const QuerySchema = z.object({
+  origin: z.string().min(1),
+  destination: z.string().min(1),
+  departDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "departDate must be YYYY-MM-DD"),
+  paxCount: z.coerce.number().int().positive().default(1),
+});
+
+export const flightQuotes = createQuoteCache<FlightQuery, SearchResult>({
+  namespace: "flights",
+  resolve: findFlights,
+  // Normalised so "cgk" and " CGK " are the same search, and so the 402 and the
+  // paid retry land on one quote.
+  identity: (query) => ({
+    origin: query.origin.trim().toUpperCase(),
+    destination: query.destination.trim().toUpperCase(),
+    departDate: query.departDate,
+    paxCount: query.paxCount,
+  }),
+});
+
+export const flightsRouter = createPaidSearchRoute({
+  path: "/v1/flights/search",
+  schema: QuerySchema,
+  params: ["origin", "destination", "departDate", "paxCount"],
+  cache: flightQuotes,
+  band: "flights",
+  toBody: (quote) => ({
+    quoteId: quote.quoteId,
+    expiresAt: new Date(quote.expiresAt).toISOString(),
+    resultCount: quote.results.length,
+    results: quote.results,
+  }),
 });

@@ -9,9 +9,11 @@
     "start": "tsx src/server.ts",
     "check-types": "tsc --noEmit"
   },
+  "//@x402/hedera": "PINNED, do not widen to a caret. 2.25+ adds a mandatory verifyPayerSignature that fetches the debited account's key from Mirror Node. Under a HIP-336 allowance the debited account is the USER, who never signs, so every allowance payment would fail closed with invalid_exact_hedera_payload_signature_invalid. Re-run packages/frontend/scripts/allowance-probe*.ts before changing this.",
   "dependencies": {
     "@x402/core": "^2.14.0",
-    "@x402/hedera": "^2.13.2",
+    "@x402/hedera": "2.13.2",
+    "dotenv": "^16.6.1",
     "tsx": "^4.19.2"
   },
   "devDependencies": {

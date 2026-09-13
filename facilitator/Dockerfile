@@ -11,7 +11,8 @@ RUN npm ci --omit=dev --no-audit --no-fund
 COPY tsconfig.json ./
 COPY src ./src
 
-ENV PORT=4020
+# No ENV PORT: src/server.ts already defaults to 4020, and a hosted runtime
+# (Railway et al.) injects its own PORT which must win.
 EXPOSE 4020
 
 # Drop root privileges.
