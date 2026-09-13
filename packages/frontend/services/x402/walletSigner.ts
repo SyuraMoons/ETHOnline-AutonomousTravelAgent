@@ -54,7 +54,9 @@ export function createHederaProviderSigner(
       // base64 transactionBody HashPack expects (not a raw SDK object over WC).
       const signed = await provider.hedera_signTransaction({
         signerAccountId: `${requirements.network}:${accountId}`,
-        transactionBody: tx,
+        // See services/web3/hbarAllowance.ts — same nested @hiero-ledger/sdk version split
+        // caused by pinning @x402/hedera to 2.13.2, runtime-safe cast.
+        transactionBody: tx as never,
       });
 
       return Buffer.from(signed.toBytes()).toString("base64");

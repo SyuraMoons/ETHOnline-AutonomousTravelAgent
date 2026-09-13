@@ -101,11 +101,11 @@ function buildHttpClient(payFrom: PayFrom) {
         spenderPrivateKey: privateKey,
       })
     : createClientHederaSigner(accountId, privateKey, { network });
-  // Native HBAR ("0.0.0") isn't in @x402/core's recognized-default-asset list,
-  // so the client's spend-control guard rejects every Hedera payment unless
-  // controls are disabled — this is a server-held agent key under a mandate,
-  // not an unattended browser wallet, so the mandate is the real ceiling.
-  const client = new x402Client().register(network, new ExactHederaScheme(signer)).setSpendControls(false);
+  // @x402/hedera must stay pinned to 2.13.2 (see AGENTS.md), which requires
+  // @x402/core ~2.14.0 — a version with no spend-control guard at all yet
+  // (the asset-allowlist check, and the .setSpendControls() escape hatch for
+  // it, were both added later), so native HBAR ("0.0.0") needs no opt-out here.
+  const client = new x402Client().register(network, new ExactHederaScheme(signer));
   return new x402HTTPClient(client);
 }
 
@@ -173,15 +173,15 @@ export async function pay<T = unknown>(opts: { url: string; quote: Quote }): Pro
   }
   const result = await httpClient.processResponse(paid);
 
-  if (result.paymentStatus !== "settled") {
+  if (result.kind !== "success") {
     const reason =
-      result.paymentStatus === "settle_failed" || result.paymentStatus === "payment_required"
-        ? ((result.header as { error?: string } | undefined)?.error ?? result.paymentStatus)
-        : result.paymentStatus;
+      result.kind === "settle_failed"
+        ? (result.settleResponse.errorMessage ?? result.settleResponse.errorReason ?? result.kind)
+        : result.kind;
     throw new PaymentFailedError(`Payment failed: ${reason}`);
   }
 
-  const settlement = result.header as SettleResponse;
+  const settlement: SettleResponse = result.settleResponse;
   return {
     body: result.body as T,
     transaction: settlement.transaction,
