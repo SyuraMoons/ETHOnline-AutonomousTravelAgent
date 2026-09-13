@@ -117,7 +117,7 @@ export function SendIcon({ size = 18, className }: IconProps) {
 export function ExpandIcon({ size = 16, className }: IconProps) {
   return (
     <svg {...base(size, className)}>
-      <path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5" />
+      <path d="M4 8h4V4M20 8h-4V4M4 16h4v4M20 16h-4v4" />
     </svg>
   );
 }
@@ -125,7 +125,15 @@ export function ExpandIcon({ size = 16, className }: IconProps) {
 export function CollapseIcon({ size = 16, className }: IconProps) {
   return (
     <svg {...base(size, className)}>
-      <path d="M4 8h4V4M20 8h-4V4M4 16h4v4M20 16h-4v4" />
+      <path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5" />
+    </svg>
+  );
+}
+
+export function CloseIcon({ size = 16, className }: IconProps) {
+  return (
+    <svg {...base(size, className)}>
+      <path d="M6 6l12 12M18 6L6 18" />
     </svg>
   );
 }

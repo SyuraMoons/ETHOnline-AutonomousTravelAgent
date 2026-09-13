@@ -181,14 +181,16 @@ export function PlanProvider({ initialMessages, children }: { initialMessages: C
 
   // The spending authority granted in the authorize flow; null until the user has verified
   // set a budget and approved an allowance.
-  const { stage: authStage, mandateId, refreshMandate } = useAuthorization();
+  const { stage: authStage, agent: authAgent, mandateId, refreshMandate } = useAuthorization();
 
   // The brief that was refused for want of authorization, held so it can be replayed the
   // moment the user finishes authorizing. Without this the agent goes silent after the
   // approval and the user has to retype what they already asked for. `trip` set means it came
   // from submitSearch (replay via post()); unset means it came from sendBrief (replay via
   // runAutonomous()).
-  const [blockedBrief, setBlockedBrief] = useState<{ text: string; trip?: PlanTrip } | null>(null);
+  const [blockedBrief, setBlockedBrief] = useState<{ text: string; trip?: PlanTrip; awaitingAuth?: boolean } | null>(
+    null,
+  );
 
   // Server-side session persistence: refreshing the page (or restarting the server) used to
   // lose the whole conversation and any in-flight plan/results. threadId is null until either
@@ -275,11 +277,37 @@ export function PlanProvider({ initialMessages, children }: { initialMessages: C
     // eslint-disable-next-line react-hooks/exhaustive-deps -- threadId is read, not a trigger; including it would re-save on the POST-created id, which is harmless but redundant
   }, [hydrated, accountId, messages, stage, trip, options, selected, payment]);
 
+  // True exactly while a wallet is connected but we don't yet know if it's authorized — waiting
+  // on /api/agent, or the resume-on-load mandate/allowance check itself. Distinguishing this from
+  // a genuine "idle" (checked, not authorized) is what stops the nudge below from flashing in
+  // ahead of a valid mandate that just hasn't finished reconciling yet.
+  const authPending = Boolean(accountId) && (authStage === "resuming" || (authStage === "idle" && !authAgent));
+
+  // Tracks whether the currently-shown budget nudge is the one this effect injected, so the
+  // authorized-branch below only clears a nudge it put there itself, never real conversation.
+  const nudgeInjectedRef = useRef(false);
+
   // First-run seed: nudge straight into the budget card before the user has to hit a refusal.
+  // Suppressed while `authPending` so a wallet with a valid mandate never flashes this message
+  // during the resume-on-load check; cleared once authorization resolves, so it never gets stuck
+  // showing after the mandate is actually confirmed.
   useEffect(() => {
-    if (authStage === "authorized") return;
-    setMessages(prev => (prev.length === 0 ? [{ from: "agent", budgetRequest: {} }] : prev));
-  }, [authStage]);
+    if (authPending) return;
+    if (authStage === "authorized") {
+      if (nudgeInjectedRef.current) {
+        setMessages(prev => (prev.length === 1 && prev[0]?.budgetRequest ? [] : prev));
+        nudgeInjectedRef.current = false;
+      }
+      return;
+    }
+    setMessages(prev => {
+      if (prev.length === 0) {
+        nudgeInjectedRef.current = true;
+        return [{ from: "agent", budgetRequest: {} }];
+      }
+      return prev;
+    });
+  }, [authStage, authPending]);
 
   // Authorization ended (revoked, or the wallet disconnected) — drop any held brief so it can't
   // fire later against a mandate the user has since replaced.
@@ -302,6 +330,15 @@ export function PlanProvider({ initialMessages, children }: { initialMessages: C
       setPending(true);
 
       try {
+        if (!replay && authPending) {
+          // Authorization is still resolving (resume-on-load reconciling the mandate against
+          // the live allowance) — queue rather than flash a false "not authorized" nudge at an
+          // already-authorized wallet. `pending` stays true; the effect below resolves this
+          // once authPending clears, either by replaying it (authorized) or nudging (not).
+          setBlockedBrief({ text, trip: structuredTrip, awaitingAuth: true });
+          return;
+        }
+
         // Pre-empt: no authorization at all yet — skip the round trip entirely rather than
         // let the server's consent_missing refusal do the same work over the network. This is
         // what turns the auto-run landing brief straight into the budget card, instantly.
@@ -381,7 +418,7 @@ export function PlanProvider({ initialMessages, children }: { initialMessages: C
         setPending(false);
       }
     },
-    [turns, authStage, mandateId, refreshMandate],
+    [turns, authStage, authPending, mandateId, refreshMandate],
   );
 
   const runAutonomous = useCallback(
@@ -396,6 +433,11 @@ export function PlanProvider({ initialMessages, children }: { initialMessages: C
       setPending(true);
 
       try {
+        if (!replay && authPending) {
+          setBlockedBrief({ text, awaitingAuth: true });
+          return;
+        }
+
         if (!replay && authStage !== "authorized") {
           setMessages(prev => [...prev, { from: "agent", budgetRequest: { reasonNote: budgetReasonNote(undefined) } }]);
           setBlockedBrief({ text });
@@ -488,7 +530,7 @@ export function PlanProvider({ initialMessages, children }: { initialMessages: C
         setPending(false);
       }
     },
-    [turns, authStage, mandateId, refreshMandate],
+    [turns, authStage, authPending, mandateId, refreshMandate],
   );
 
   // The payoff of the whole authorize flow: the moment the allowance lands, pick the refused
@@ -505,6 +547,18 @@ export function PlanProvider({ initialMessages, children }: { initialMessages: C
     if (brief.trip) void post(brief.text, brief.trip, true);
     else void runAutonomous(brief.text, true);
   }, [authStage, mandateId, blockedBrief, pending, post, runAutonomous]);
+
+  // A brief submitted while authorization was still resolving (authPending) was queued above
+  // rather than shown a false nudge. Once resolution lands: if it turned out authorized, the
+  // replay effect above already handles it (it doesn't care about `awaitingAuth`). If it
+  // resolved to anything else, only now do we know for sure there's no authorization — show
+  // the nudge for real.
+  useEffect(() => {
+    if (authPending || !blockedBrief?.awaitingAuth || authStage === "authorized") return;
+    setMessages(prev => [...prev, { from: "agent", budgetRequest: { reasonNote: budgetReasonNote(undefined) } }]);
+    setBlockedBrief(prev => (prev ? { ...prev, awaitingAuth: false } : prev));
+    setPending(false);
+  }, [authPending, authStage, blockedBrief]);
 
   const sendBrief = useCallback(
     async (text: string) => {
@@ -624,7 +678,17 @@ export function PlanProvider({ initialMessages, children }: { initialMessages: C
 
   const startNewThread = useCallback(() => {
     setThreadId(null);
-    setMessages(authStage === "authorized" ? [] : [{ from: "agent", budgetRequest: {} }]);
+    if (authPending) {
+      // Don't know yet whether this wallet is authorized — leave it empty and let the seed
+      // effect above inject the right thing once the resume check resolves.
+      setMessages([]);
+    } else if (authStage === "authorized") {
+      nudgeInjectedRef.current = false;
+      setMessages([]);
+    } else {
+      nudgeInjectedRef.current = true;
+      setMessages([{ from: "agent", budgetRequest: {} }]);
+    }
     setStage("search");
     setTrip(null);
     setOptions([]);
@@ -633,7 +697,7 @@ export function PlanProvider({ initialMessages, children }: { initialMessages: C
     setPlanId(null);
     setTurns([]);
     setBlockedBrief(null);
-  }, [authStage]);
+  }, [authStage, authPending]);
 
   const value = useMemo(
     () => ({

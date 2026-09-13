@@ -152,7 +152,7 @@ export function ApprovalFocus({
           </span>
           {mandate && (
             <span className="text-[12px] text-av-muted">
-              {mandate.remainingHbar.toFixed(2)} HBAR remaining on this trip budget
+              {mandate.remainingHbar.toFixed(2)} HBAR remaining on this x402 data budget
             </span>
           )}
         </div>

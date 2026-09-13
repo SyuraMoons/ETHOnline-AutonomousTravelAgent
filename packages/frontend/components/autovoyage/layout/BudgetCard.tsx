@@ -31,9 +31,6 @@ export function BudgetCard({ reasonNote }: { reasonNote?: string }) {
   } = useAuthorization();
 
   const [totalHbar, setTotalHbar] = useState(5);
-  // Controlled text, not a derived number — so the field doesn't fight the user mid-keystroke
-  // on partial values like "12.".
-  const [usdText, setUsdText] = useState("");
   // The wallet dialog is open — without this the approve button looks inert for the several
   // seconds HashPack takes, which reads as "nothing happened".
   const [submitting, setSubmitting] = useState(false);
@@ -45,14 +42,6 @@ export function BudgetCard({ reasonNote }: { reasonNote?: string }) {
     if (!agent) return;
     setTotalHbar(agent.defaults.totalCeilingHbar);
   }, [agent]);
-
-  // Seed the USD field once the price feed becomes available, from whatever HBAR amount is
-  // canonical at that moment — never overwrites the user's own typing on later price refreshes.
-  useEffect(() => {
-    if (!priceAvailable) return;
-    setUsdText((totalHbar * hbarUsd).toFixed(2));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [priceAvailable, agent]);
 
   // Per-search cap intentionally equals the total: the total ceiling is the real backstop, and
   // asking the user to reason about a second, separate limit is unnecessary friction. TTL is
@@ -70,14 +59,6 @@ export function BudgetCard({ reasonNote }: { reasonNote?: string }) {
         : null,
     [accountId, totalHbar, agent],
   );
-
-  function handleUsdChange(raw: string) {
-    setUsdText(raw);
-    const parsed = Number(raw);
-    if (Number.isFinite(parsed) && parsed >= 0 && hbarUsd > 0) {
-      setTotalHbar(parsed / hbarUsd);
-    }
-  }
 
   async function startAuthorization() {
     if (!terms) return;
@@ -102,7 +83,7 @@ export function BudgetCard({ reasonNote }: { reasonNote?: string }) {
   if (stage === "resuming") {
     return (
       <div className="rounded border border-av-border p-3">
-        <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-av-muted">Trip budget</span>
+        <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-av-muted">x402 data budget</span>
         <p className="m-0 mt-1 text-[13px] text-av-muted">Checking for an existing authorization…</p>
       </div>
     );
@@ -112,7 +93,7 @@ export function BudgetCard({ reasonNote }: { reasonNote?: string }) {
     return (
       <div className="rounded border border-av-border p-3">
         <div className="flex items-center justify-between">
-          <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-av-muted">Trip budget</span>
+          <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-av-muted">x402 data budget</span>
           <span className="text-[11px] font-semibold text-av-amber">Allowance still active</span>
         </div>
         <p className="m-0 mt-1.5 text-[13px] text-av-muted">
@@ -153,7 +134,7 @@ export function BudgetCard({ reasonNote }: { reasonNote?: string }) {
     return (
       <div className="rounded border border-av-border p-3">
         <div className="flex items-center justify-between">
-          <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-av-muted">Trip budget</span>
+          <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-av-muted">x402 data budget</span>
           <span className="text-[11px] font-semibold text-av-green">Agent authorized</span>
         </div>
         {mandate ? (
@@ -209,24 +190,19 @@ export function BudgetCard({ reasonNote }: { reasonNote?: string }) {
 
   return (
     <div className="rounded border border-av-border p-3">
-      <p className="m-0 text-[14px] font-semibold text-av-text">Trip budget</p>
+      <p className="m-0 text-[14px] font-semibold text-av-text">x402 data budget</p>
       <p className="m-0 mt-1.5 text-[13px] text-av-muted">
-        {reasonNote ?? "Covers the agent's data fees — not your flight fare."}
+        {reasonNote ?? "Pays the agent's per-search data fees on Hedera — never your flight fare or booking."}
       </p>
 
       <div className="mt-3">
-        {priceAvailable ? (
-          <LabelledUsdNumber
-            label="Data-fee cap"
-            value={usdText}
-            onChange={handleUsdChange}
-            hbarValue={totalHbar}
-            disabled={needsAllowance}
-          />
-        ) : (
-          <LabelledNumber label="Data-fee cap" value={totalHbar} onChange={setTotalHbar} disabled={needsAllowance} />
-        )}
-        <p className="m-0 mt-1.5 text-[11px] text-av-muted">Searches ~$0.10–$2.50, booking ~$1.</p>
+        <LabelledNumber
+          label="Search budget"
+          value={totalHbar}
+          onChange={setTotalHbar}
+          disabled={needsAllowance}
+          suffix="HBAR"
+        />
       </div>
 
       {agent && (
@@ -287,59 +263,36 @@ function LabelledNumber({
   value,
   onChange,
   disabled,
+  suffix,
+  hint,
 }: {
   label: string;
   value: number;
   onChange: (n: number) => void;
   disabled?: boolean;
-}) {
-  return (
-    <label className="flex flex-col gap-1">
-      <span className="text-[12px] text-av-muted">{label}</span>
-      <input
-        type="number"
-        min={0}
-        step="0.1"
-        value={value}
-        disabled={disabled}
-        onChange={e => onChange(Number(e.target.value))}
-        className="w-full rounded border border-av-border bg-av-bg px-3 py-1.5 text-[14px] text-av-text [-moz-appearance:textfield] disabled:opacity-60 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-      />
-    </label>
-  );
-}
-
-function LabelledUsdNumber({
-  label,
-  value,
-  onChange,
-  hbarValue,
-  disabled,
-}: {
-  label: string;
-  value: string;
-  onChange: (raw: string) => void;
-  hbarValue: number;
-  disabled?: boolean;
+  suffix?: string;
+  hint?: string;
 }) {
   return (
     <label className="flex flex-col gap-1">
       <span className="text-[12px] text-av-muted">{label}</span>
       <div className="relative">
-        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[14px] text-av-muted">
-          $
-        </span>
         <input
           type="number"
           min={0}
-          step="0.01"
+          step="0.1"
           value={value}
           disabled={disabled}
-          onChange={e => onChange(e.target.value)}
-          className="w-full rounded border border-av-border bg-av-bg px-3 py-1.5 pl-6 text-[14px] text-av-text [-moz-appearance:textfield] disabled:opacity-60 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+          onChange={e => onChange(Number(e.target.value))}
+          className="w-full rounded border border-av-border bg-av-bg px-3 py-1.5 text-[14px] text-av-text [-moz-appearance:textfield] disabled:opacity-60 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         />
+        {suffix && (
+          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-av-muted">
+            {suffix}
+          </span>
+        )}
       </div>
-      <span className="text-[11px] text-av-muted">≈ {hbarValue.toFixed(2)} HBAR</span>
+      {hint && <span className="text-[11px] text-av-muted">{hint}</span>}
     </label>
   );
 }

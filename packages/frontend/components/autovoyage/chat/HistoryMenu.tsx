@@ -55,7 +55,34 @@ export function HistoryMenu() {
     };
   }, [open]);
 
-  if (!accountId) return null;
+  if (!accountId) {
+    // No wallet connected — chat threads are scoped to the wallet's account id, so there's
+    // nothing to switch between yet. Render the controls disabled rather than hiding them
+    // entirely, so a user who signed in via OAuth only (no wallet) can see why they're inert
+    // instead of the buttons silently disappearing.
+    return (
+      <div className="flex items-center gap-1.5">
+        <button
+          type="button"
+          aria-label="New chat"
+          title="Connect a wallet in the sidebar to use chat history"
+          disabled
+          className="flex h-8 w-8 items-center justify-center rounded text-av-muted opacity-40"
+        >
+          <PlusIcon size={16} />
+        </button>
+        <button
+          type="button"
+          aria-label="Chat history"
+          title="Connect a wallet in the sidebar to use chat history"
+          disabled
+          className="flex h-8 w-8 items-center justify-center rounded text-av-muted opacity-40"
+        >
+          <HistoryIcon size={16} />
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div ref={rootRef} className="relative flex items-center gap-1.5">

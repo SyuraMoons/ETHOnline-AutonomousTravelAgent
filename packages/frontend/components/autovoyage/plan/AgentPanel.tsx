@@ -8,7 +8,7 @@
 // preference.
 import { type FormEvent, useRef, useState } from "react";
 import Link from "next/link";
-import { CollapseIcon, ExpandIcon, PopoutIcon, SendIcon } from "../ui/icons";
+import { CloseIcon, ExpandIcon, PopoutIcon, SendIcon } from "../ui/icons";
 import { usePlan } from "./PlanProvider";
 import { SuggestionChips } from "./SuggestionChips";
 import { ChatDossierCard } from "~~/components/autovoyage/chat/ChatDossierCard";
@@ -134,7 +134,7 @@ export function AgentPanel({ statusNote }: { statusNote?: string }) {
               title="Close agent panel"
               className="text-av-muted transition-opacity hover:opacity-70"
             >
-              <CollapseIcon size={16} />
+              <CloseIcon size={16} />
             </button>
           </div>
         </div>
