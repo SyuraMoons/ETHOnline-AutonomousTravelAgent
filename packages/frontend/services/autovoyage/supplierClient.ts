@@ -1,5 +1,5 @@
 import type { ActivityOffer, AgentCard, SearchResult, StayOffer } from "@sh/contracts";
-import { pay, quote as requestQuote } from "~~/services/x402/agentBuyer";
+import { SupplierUnreachableError, fetchWithRetry, pay, quote as requestQuote } from "~~/services/x402/agentBuyer";
 import type { PaidResult, Quote } from "~~/services/x402/agentBuyer";
 
 /**
@@ -66,7 +66,12 @@ export async function getSupplierCard(): Promise<AgentCard> {
     return cachedCard.card;
   }
   const baseUrl = await resolveSupplierBaseUrl();
-  const res = await fetch(`${baseUrl}/.well-known/x402`);
+  let res: Response;
+  try {
+    res = await fetchWithRetry(`${baseUrl}/.well-known/x402`, {});
+  } catch (err) {
+    throw new SupplierUnreachableError(err instanceof Error ? err.message : "fetch failed");
+  }
   if (!res.ok) {
     throw new Error(`Supplier agent card request failed: ${res.status}`);
   }

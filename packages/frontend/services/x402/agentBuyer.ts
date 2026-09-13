@@ -44,6 +44,34 @@ export type PaidResult<T> = {
 export class SupplierUnreachableError extends Error {}
 export class PaymentFailedError extends Error {}
 
+const FETCH_TIMEOUT_MS = 15_000;
+const RETRY_DELAY_MS = 750;
+
+/**
+ * fetch() with a timeout and one retry, for the Hedera-testnet supplier hop specifically —
+ * a single transient DNS/connect blip between two Railway services otherwise fails the whole
+ * request immediately, with no second chance. Only retries a network-level failure (a rejected
+ * fetch); an HTTP error response is a real answer from the server and is returned as-is.
+ */
+export async function fetchWithRetry(url: string, init: RequestInit): Promise<Response> {
+  let lastErr: unknown;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+    try {
+      return await fetch(url, { ...init, signal: controller.signal });
+    } catch (err) {
+      lastErr = err;
+      if (attempt === 0) {
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
+      }
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  throw lastErr;
+}
+
 function agentCredentials(): { accountId: string; privateKey: string; network: Network } {
   const accountId = process.env.AGENT_ACCOUNT_ID;
   const privateKey = process.env.AGENT_PRIVATE_KEY;
@@ -101,7 +129,7 @@ export async function quote(opts: {
 
   let first: Response;
   try {
-    first = await fetch(opts.url, baseInit);
+    first = await fetchWithRetry(opts.url, baseInit);
   } catch (err) {
     throw new SupplierUnreachableError(err instanceof Error ? err.message : "fetch failed");
   }
@@ -136,7 +164,7 @@ export async function pay<T = unknown>(opts: { url: string; quote: Quote }): Pro
 
   let paid: Response;
   try {
-    paid = await fetch(opts.url, {
+    paid = await fetchWithRetry(opts.url, {
       ...opts.quote.baseInit,
       headers: { ...opts.quote.baseInit.headers, ...paymentHeaders },
     });
