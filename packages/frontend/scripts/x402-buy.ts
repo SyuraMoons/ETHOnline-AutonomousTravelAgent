@@ -47,7 +47,8 @@ async function main() {
   // unless controls are disabled — this is a CLI/agent buyer with an explicit
   // env-provided key, not an unattended browser wallet, so there is no
   // meaningful cap to enforce here.
-  const client = new x402Client().register(network, new ExactHederaScheme(signer)).setSpendControls(false);
+  // @x402/core ~2.14.0 (required by the pinned @x402/hedera) has no spend-control guard or setSpendControls().
+  const client = new x402Client().register(network, new ExactHederaScheme(signer));
   const httpClient = new x402HTTPClient(client);
 
   const baseInit: RequestInit = {

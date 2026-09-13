@@ -96,9 +96,14 @@ A real, live x402 service. Verified end-to-end with settled Hedera testnet trans
 key) are the two other buyer paths — neither is used by the planner's own payment flow, but
 `x402-buy.ts` is still the fastest way to manually poke the supplier from a terminal.
 
-### Not yet built
+### Public deployment (live)
 
-- **Public deployment** — facilitator and supplier both run on `localhost` only.
+Planner on Vercel (`https://rayban-cyan.vercel.app/`); supplier
+(`https://supplier-rayban-production-ee5e.up.railway.app`) and self-hosted facilitator
+(`https://facilitator-rayban-production.up.railway.app`) on Railway. The deployed supplier settled
+a real payment through Blocky402 on 2026-09-13: `0.0.7162784@1789314270.640883616` (`SUCCESS`,
+buyer `0.0.10286792` → `PAY_TO` `0.0.10440357`, 0.3 HBAR). The deployed supplier's
+`FACILITATOR_URL` must point at the self-hosted facilitator for the app's allowance-mode flow to work.
 
 ### HCS agent registry — discovery + self-attested identity (real, live)
 
@@ -271,9 +276,9 @@ as the pattern: build the request URL, `quote()` it, check the mandate, `pay()` 
   facilitator's `FACILITATOR_ACCOUNT_ID` (fee-payer) must be **three distinct accounts** —
   buyer == payTo nets the transfer to zero (`amount_mismatch`); buyer == fee-payer is rejected
   (`fee_payer_transferring_hbar`).
-- Native HBAR (`"0.0.0"`) isn't in `@x402/core`'s recognized-default-asset list, so any
-  server-side/CLI buyer must call `.setSpendControls(false)` on the client — see
-  `services/x402/agentBuyer.ts` and `scripts/x402-buy.ts`.
+- Buyers (`services/x402/agentBuyer.ts`, `scripts/x402-buy.ts`) run on `@x402/core` ~2.14.0,
+  which has no spend-control guard and **no** `.setSpendControls()` — calling it throws. Only if
+  core is upgraded would native HBAR (`"0.0.0"`) need `.setSpendControls(false)`.
 - `@x402/core`'s `HTTPResourceResponse` has `{ status, paymentStatus, body, header? }` —
   `paymentStatus` is `"settled" | "settle_failed" | "payment_required" | "none"`. It has **no**
   `kind` or `settleResponse` field; checking those silently reports failure on a successful
